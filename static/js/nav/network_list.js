@@ -16,7 +16,8 @@ function reset_save_data() {
         'current_page_idx': 0,
         'count_per_page': 10,
         'max_page_count': 1,
-        'more_data': false
+        'more_data': false,
+        'item_count': 0
     };
 }
 

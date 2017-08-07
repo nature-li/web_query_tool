@@ -1,6 +1,9 @@
 // 保存数据并更新页面
 function save_data_and_update_page_view(data) {
     if (data.success == "true") {
+        // 数据条数
+        window.save_data.item_count = data.item_count;
+
         // 清空部分数据
         window.save_data.item_list = [];
 
@@ -54,7 +57,8 @@ function update_page_partition(page_idx) {
 
     // 添加头
     if (head_enable) {
-        $partition.append('<li class="hive-page-head"><a>&laquo;</a></li>');
+        $partition.append('<li class="hive-page-first"><a>首页</a></li>');
+        $partition.append('<li class="hive-page-pre"><a>&laquo;</a></li>');
     }
 
     // 添加分页
@@ -69,20 +73,37 @@ function update_page_partition(page_idx) {
 
     // 添加尾
     if (tail_enable) {
-        $partition.append('<li class="hive-page-tail"><a>&raquo;</a></li>');
+        $partition.append('<li class="hive-page-next"><a>&raquo;</a></li>');
+        $partition.append('<li class="hive-page-tail"><a>尾页</a></li>');
     }
 }
 
-// 点击分页head标签
-$(document).on("click", ".hive-page-head", function () {
+// 点击分页first标签
+$(document).on("click", ".hive-page-first", function () {
+    window.save_data.page_off_set = 0;
+    window.current_page_idx = 0;
+    query_and_update_view();
+});
+
+// 点击分页pre标签
+$(document).on("click", ".hive-page-pre", function () {
     window.save_data.page_off_set -= window.save_data.max_page_count;
+    window.current_page_idx = 0;
+    query_and_update_view();
+});
+
+// 点击分页next标签
+$(document).on("click", ".hive-page-next", function () {
+    window.save_data.page_off_set += window.save_data.max_page_count;
     window.current_page_idx = 0;
     query_and_update_view();
 });
 
 // 点击分页tail标签
 $(document).on("click", ".hive-page-tail", function () {
-    window.save_data.page_off_set += window.save_data.max_page_count;
+    var page_count = Math.ceil(window.save_data.item_count / window.save_data.count_per_page);
+    var page_batch = Math.ceil(page_count / window.save_data.max_page_count) - 1;
+    window.save_data.page_off_set = window.save_data.max_page_count * page_batch;
     window.current_page_idx = 0;
     query_and_update_view();
 });

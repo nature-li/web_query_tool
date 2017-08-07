@@ -25,20 +25,33 @@ def get_day_count(ad_network_id, ad_action, start_dt, end_dt, off_set, limit):
             tmp_dt += datetime.timedelta(days=1)
         sql_part = ','.join(dt_list)
         if ad_network_id == 'all' and ad_action == 'all':
+            count_sql = "select count(1) from day_count where dt in (%s) " % sql_part
             sql = "select dt, ad_network_id, ad_action, count, update_time from day_count where dt in (%s) " \
                   "order by dt, ad_network_id, ad_action limit %s offset %s" % (sql_part, limit, off_set)
         elif ad_network_id == 'all':
+            count_sql = "select count(1) from day_count where dt in (%s) and ad_action='%s'"\
+                        % (sql_part, ad_action)
             sql = "select dt, ad_network_id, ad_action, count, update_time from day_count where dt in (%s) " \
                   "and ad_action='%s' order by dt, ad_network_id, ad_action limit %s offset %s" \
                   % (sql_part, ad_action, limit, off_set)
         elif ad_action == "all":
+            count_sql = "select count(1) from day_count where dt in (%s) and ad_network_id='%s'" \
+                        % (sql_part, ad_network_id)
             sql = "select dt, ad_network_id, ad_action, count, update_time from day_count where dt in (%s) " \
                   "and ad_network_id='%s' order by dt, ad_network_id, ad_action limit %s offset %s" \
                   % (sql_part, ad_network_id, limit, off_set)
         else:
+            count_sql = "select count(1) from day_count where dt in (%s) and ad_network_id='%s' and ad_action='%s'" \
+                        % (sql_part, ad_network_id, ad_action)
             sql = "select dt, ad_network_id, ad_action, count, update_time from day_count where dt in (%s) " \
                   "and ad_network_id='%s' and ad_action='%s' order by dt, ad_network_id, ad_action limit %s offset %s" \
                   % (sql_part, ad_network_id, ad_action, limit, off_set)
+
+        print count_sql
+        cursor.execute(count_sql)
+        values = cursor.fetchall()
+        item_count = values[0][0]
+
         print sql
         cursor.execute(sql)
         values = cursor.fetchall()
@@ -57,6 +70,7 @@ def get_day_count(ad_network_id, ad_action, start_dt, end_dt, off_set, limit):
                     '%Y-%m-%d %H:%M:%S')
         a_dict = dict()
         a_dict['success'] = 'true'
+        a_dict['item_count'] = item_count
         a_dict['content'] = a_list
         return json.dumps(a_dict)
     except:
@@ -64,6 +78,7 @@ def get_day_count(ad_network_id, ad_action, start_dt, end_dt, off_set, limit):
         a_dict = dict()
         a_dict['success'] = 'false'
         a_dict['content'] = list()
+        a_dict['item_count'] = 0
         return json.dumps(a_dict)
 
 
@@ -84,25 +99,39 @@ def get_hour_count(dt, ad_network_id, ad_action, start_hour, end_hour, off_set, 
             tmp_hour += 1
         sql_part = ','.join(hour_list)
         if ad_network_id == 'all' and ad_action == 'all':
+            count_sql = "select count(1) from hour_count where hour in (%s) and dt='%s'" % (sql_part, dt)
             sql = "select dt, hour, ad_network_id, ad_action, count, update_time from hour_count where hour in (%s) " \
                   "and dt='%s' order by dt, hour, ad_network_id, ad_action limit %s offset %s" \
                   % (sql_part, dt, limit, off_set)
         elif ad_network_id == 'all':
+            count_sql = "select count(1) from hour_count where hour in (%s) and ad_action='%s' and dt='%s'" \
+                        % (sql_part, ad_action, dt)
             sql = "select dt, hour, ad_network_id, ad_action, count, update_time from hour_count where hour in (%s) " \
                   "and ad_action='%s' and dt='%s' order by dt, hour, ad_network_id, ad_action limit %s offset %s" \
                   % (sql_part, ad_action, dt, limit, off_set)
         elif ad_action == "all":
+            count_sql = "select count(1) from hour_count where hour in (%s) and ad_network_id='%s' and dt='%s'" \
+                        % (sql_part, ad_network_id, dt)
             sql = "select dt, hour, ad_network_id, ad_action, count, update_time from hour_count where hour in (%s) " \
                   "and ad_network_id='%s' and dt='%s' order by dt, hour, ad_network_id, ad_action limit %s offset %s" \
                   % (sql_part, ad_network_id, dt, limit, off_set)
         else:
+            count_sql = "select count(1) from hour_count where hour in (%s) and ad_network_id='%s' and ad_action='%s' " \
+                        "and dt='%s'" % (sql_part, ad_network_id, ad_action, dt)
             sql = "select dt, hour, ad_network_id, ad_action, count, update_time from hour_count where hour in (%s) " \
                   "and ad_network_id='%s' and ad_action='%s' and dt='%s' order by dt, hour, ad_network_id, ad_action " \
                   "limit %s offset %s" \
                   % (sql_part, ad_network_id, ad_action, dt, limit, off_set)
+
+        print count_sql
+        cursor.execute(count_sql)
+        values = cursor.fetchall()
+        item_count = values[0][0]
+
         print sql
         cursor.execute(sql)
         values = cursor.fetchall()
+
         cursor.close()
         conn.close()
 
@@ -120,12 +149,14 @@ def get_hour_count(dt, ad_network_id, ad_action, start_hour, end_hour, off_set, 
         a_dict = dict()
         a_dict['success'] = 'true'
         a_dict['content'] = a_list
+        a_dict['item_count'] = item_count
         return json.dumps(a_dict)
     except:
         print traceback.format_exc()
         a_dict = dict()
         a_dict['success'] = 'false'
         a_dict['content'] = list()
+        a_dict['item_count'] = 0
         return json.dumps(a_dict)
 
 
@@ -196,6 +227,13 @@ def query_user_list(off_set, limit):
     try:
         conn = sqlite3.connect(g_data_base)
         cursor = conn.cursor()
+
+        count_sql = 'select count(id) from user_list'
+        print count_sql
+        cursor.execute(count_sql)
+        values = cursor.fetchall()
+        item_count = values[0][0]
+
         sql = 'select id, user_account, user_right, update_time from user_list limit %s offset %s' % (limit, off_set)
         print sql
         cursor.execute(sql)
@@ -218,13 +256,14 @@ def query_user_list(off_set, limit):
         a_dict = dict()
         a_dict['success'] = 'true'
         a_dict['content'] = a_user_list
-
+        a_dict['item_count'] = item_count
         return json.dumps(a_dict)
     except:
         print traceback.format_exc()
         a_dict = dict()
         a_dict['success'] = 'false'
         a_dict['content'] = list()
+        a_dict['item_count'] = 0
         return json.dumps(a_dict)
 
 
@@ -385,6 +424,12 @@ def query_network_list(off_set, limit):
     try:
         conn = sqlite3.connect(g_data_base)
         cursor = conn.cursor()
+        count_sql = 'select count(1) from network_list'
+        print count_sql
+        cursor.execute(count_sql)
+        values = cursor.fetchall()
+        item_count = values[0][0]
+
         sql = 'select id, network, update_time from network_list limit %s offset %s' % (limit, off_set)
         print sql
         cursor.execute(sql)
@@ -406,13 +451,14 @@ def query_network_list(off_set, limit):
         a_dict = dict()
         a_dict['success'] = 'true'
         a_dict['content'] = a_user_list
-
+        a_dict['item_count'] = item_count
         return json.dumps(a_dict)
     except:
         print traceback.format_exc()
         a_dict = dict()
         a_dict['success'] = 'false'
         a_dict['content'] = list()
+        a_dict['item_count'] = 0
         return json.dumps(a_dict)
 
 
