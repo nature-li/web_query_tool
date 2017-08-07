@@ -1,33 +1,33 @@
 // 错误提示框
-$.showErr = function(str, func) {
+$.showErr = function (str, func) {
     BootstrapDialog.show({
-        type : BootstrapDialog.TYPE_DANGER,
-        title : '错误 ',
-        message : str,
-        size : BootstrapDialog.SIZE_SMALL,
-        buttons : [ {
-            label : '关闭',
-            action : function(dialogItself) {
+        type: BootstrapDialog.TYPE_DANGER,
+        title: '错误 ',
+        message: str,
+        size: BootstrapDialog.SIZE_SMALL,
+        buttons: [{
+            label: '关闭',
+            action: function (dialogItself) {
                 dialogItself.close();
             }
-        } ],
-        onhide : func
+        }],
+        onhide: func
     });
 };
 
 // 确认对话框
-$.showConfirm = function(str, func_ok, func_close) {
+$.showConfirm = function (str, func_ok, func_close) {
     BootstrapDialog.confirm({
-        title : '确认',
-        message : str,
-        type : BootstrapDialog.TYPE_WARNING,
-        draggable : true,
-        btnCancelLabel : '取消',
-        btnOKLabel : '确定',
-        btnOKClass : 'btn-warning',
-        size : BootstrapDialog.SIZE_SMALL,
-        onhide : func_close,
-        callback : function(result) {
+        title: '确认',
+        message: str,
+        type: BootstrapDialog.TYPE_WARNING,
+        draggable: true,
+        btnCancelLabel: '取消',
+        btnOKLabel: '确定',
+        btnOKClass: 'btn-warning',
+        size: BootstrapDialog.SIZE_SMALL,
+        onhide: func_close,
+        callback: function (result) {
             if (result) {
                 func_ok.call();
             }
@@ -39,6 +39,11 @@ $.showConfirm = function(str, func_ok, func_close) {
 function init_ad_network_select() {
     $.ajax({
             url: '/query_network_list',
+            data: {
+                'off_set': 0,
+                'limit': -1
+            },
+            // async: false,
             type: "post",
             dataType: 'json',
             success: function (response) {
@@ -52,7 +57,9 @@ function init_ad_network_select() {
                 for (var i = 0; i < network_list.length; i++) {
                     var network = network_list[i];
                     var network_name = network.network_name;
-                    $("#ad_network_id_selector").append('<option>' + network_name + '</option>');
+                    var option = '<option>' + network_name + '</option>';
+                    $("#ad_network_id_selector").append(option);
+                    $("#ad_network_id_selector").selectpicker('refresh');
                 }
             },
             error: function () {

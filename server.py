@@ -108,7 +108,9 @@ class AddNetworkHandler(tornado.web.RequestHandler):
 
 class QueryNetworkListHandler(tornado.web.RequestHandler):
     def post(self):
-        text = query_db.query_network_list()
+        off_set = self.get_argument("off_set")
+        limit = self.get_argument("limit")
+        text = query_db.query_network_list(off_set, limit)
         self.write(text)
 
 

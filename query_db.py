@@ -381,11 +381,11 @@ def add_network(network_name):
 
 
 # 查询渠道
-def query_network_list():
+def query_network_list(off_set, limit):
     try:
         conn = sqlite3.connect(g_data_base)
         cursor = conn.cursor()
-        sql = 'select id, network, update_time from network_list'
+        sql = 'select id, network, update_time from network_list limit %s offset %s' % (limit, off_set)
         print sql
         cursor.execute(sql)
         values = cursor.fetchall()
