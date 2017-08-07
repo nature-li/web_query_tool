@@ -1,7 +1,33 @@
+// 保存数据并更新页面
+function save_data_and_update_page_view(data) {
+    if (data.success == "true") {
+        // 清空部分数据
+        window.save_data.item_list = [];
+
+        // 保存所有数据
+        var length = data.content.length;
+        if (length > window.save_data.count_per_page * window.save_data.max_page_count) {
+            window.save_data.more_data = true;
+            length -= 1;
+        } else {
+            window.save_data.more_data = false;
+        }
+
+        for (var i = 0; i < length; i++) {
+            var item = data.content[i];
+            window.save_data.item_list.push(item);
+        }
+
+        // 更新view
+        update_page_view(0);
+    } else {
+        $.showErr("发生错误");
+    }
+}
+
 // 更新分页标签
 function update_page_partition(page_idx) {
     var total_count = window.save_data.item_list.length;
-    var max_page_count = window.save_data.max_page_count;
     var count_per_page = window.save_data.count_per_page;
     var page_off_set = window.save_data.page_off_set;
     window.save_data.current_page_idx = page_idx;
@@ -14,7 +40,7 @@ function update_page_partition(page_idx) {
 
     // tail是否可用
     var tail_enable = false;
-    if (total_count >= max_page_count * count_per_page) {
+    if (window.save_data.more_data) {
         tail_enable = true;
     }
 

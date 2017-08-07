@@ -192,11 +192,11 @@ def add_user_account(user_account, user_right):
 
 
 # 查询用户
-def query_user_list():
+def query_user_list(off_set, limit):
     try:
         conn = sqlite3.connect(g_data_base)
         cursor = conn.cursor()
-        sql = 'select id, user_account, user_right, update_time from user_list'
+        sql = 'select id, user_account, user_right, update_time from user_list limit %s offset %s' % (limit, off_set)
         print sql
         cursor.execute(sql)
         values = cursor.fetchall()

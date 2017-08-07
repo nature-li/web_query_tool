@@ -23,36 +23,20 @@ $(document).ready(function () {
         reset_save_data();
     }
 
-    // 更新页面
+    // 查询数据并更新页面
     query_and_update_view();
 });
 
+// 初始化全局变量
 function reset_save_data() {
     window.save_data = {
         'item_list': [],
         'page_off_set': 0,
         'current_page_idx': 0,
         'count_per_page': 10,
-        'max_page_count': 10
+        'max_page_count': 10,
+        'more_data': false
     };
-}
-
-// 保存数据并更新页面
-function save_data_and_update_page_view(data) {
-    if (data.success == "true") {
-        // 清空部分数据
-        window.save_data.item_list = [];
-
-        // 保存所有数据
-        var length = data.content.length;
-        for (var i = 0; i < length; i++) {
-            var item = data.content[i];
-            window.save_data.item_list.push(item);
-        }
-
-        // 更新view
-        update_page_view(0);
-    }
 }
 
 // 更新表格和分页
@@ -124,7 +108,7 @@ function query_and_update_view() {
                 'start_dt': start_dt,
                 'end_dt': end_dt,
                 'off_set': off_set,
-                'limit': limit
+                'limit': limit + 1
             },
             dataType: 'json',
             success: function (data) {

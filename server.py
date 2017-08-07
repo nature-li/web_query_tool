@@ -78,7 +78,9 @@ class AddUserHandler(tornado.web.RequestHandler):
 
 class QueryUserListHandler(tornado.web.RequestHandler):
     def post(self):
-        text = query_db.query_user_list()
+        off_set = self.get_argument("off_set")
+        limit = self.get_argument("limit")
+        text = query_db.query_user_list(off_set, limit)
         self.write(text)
 
 

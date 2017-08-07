@@ -14,6 +14,18 @@ $(document).ready(function () {
     );
 });
 
+// 初始化全局变量
+function reset_save_data() {
+    window.save_data = {
+        'item_list': [],
+        'page_off_set': 0,
+        'current_page_idx': 0,
+        'count_per_page': 10,
+        'max_page_count': 1,
+        'more_data': false
+    };
+}
+
 // 根据ajax返回值更新页面
 function append_network_list(data) {
     if (data.success == "true") {
