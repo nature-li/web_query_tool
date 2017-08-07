@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据统计</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="static/js/jquery.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="static/css/nav/index.css">
+</head>
+<body>
+
+<nav class="navbar navbar-default navbar-fixed-top" style="background: #337ab7;">
+    <h2 style="color: white; margin: 10px 30px">曝光数据统计</h2>
+</nav>
+
+<!--http://www.runoob.com/try/try.php?filename=bootstrap3-plugin-collapse-accordion-->
+<!--http://www.voidcn.com/blog/easyboot/article/p-6493193.html-->
+<div class="container" style="width: 100%">
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span3">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div id="left_frame_col" class="col-md-2" style="height: 1000px; background-color: #f6f6f6">
+                            <ul id="main-nav" class="nav nav-tabs nav-stacked" style="">
+                                <li>
+                                    <a href="#systemViewer" class="nav-header" data-toggle="collapse"
+                                       aria-expanded="true">
+                                        <i class="glyphicon glyphicon-th-list"></i>
+                                        hive统计
+                                        <span class="pull-right glyphicon glyphicon-chevron-down"></span>
+                                    </a>
+                                    <ul id="systemViewer" class="nav nav-list collapse secondmenu in"
+                                        aria-expanded="true"
+                                        style="height: 80px;">
+                                        <li><a id="a_day_count" href="#">日统计<i id="i_day_count"
+                                                                               class="glyphicon glyphicon-eye-open"></i></a>
+                                        </li>
+                                        <li><a id="a_hour_count" href="#">时统计<i id="i_hour_count"
+                                                                                class="glyphicon glyphicon-eye-open"></i></a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="#systemControl" class="nav-header collapse" data-toggle="collapse">
+                                        <i class="glyphicon glyphicon-th-list"></i>
+                                        系统管理
+                                        <span class="pull-right glyphicon glyphicon-chevron-down"></span>
+                                    </a>
+                                    <ul id="systemControl" class="nav nav-list collapse secondmenu" aria-expanded="true"
+                                        style="height: 0px;">
+                                        <li><a id="a_user_control" href="#">用户管理<i id="i_user_control"
+                                                                                   class="glyphicon glyphicon-pencil"></i></a>
+                                        </li>
+                                        <li><a id="a_network_control" href="#">渠道管理<i id="i_network_control"
+                                                                                      class="glyphicon glyphicon-pencil"></i></a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="right_frame_col" class="col-md-10" style="height: 1000px;">
+                            <iframe id="right_frame" frameBorder="0" height="100%" width="100%"
+                                    src="{{ maps }}"></iframe>
+                        </div>
+                    </div>
+                    <div class="row" style="height: 60px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="static/js/nav/index.js"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>时统计</title>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <script src="static/js/jquery.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="static/css/bootstrap-datepicker/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="static/css/bootstrap-select/bootstrap-select.css">
+    <link rel="stylesheet" href="static/css/bootstrap-dialog/bootstrap-dialog.min.css">
+
+    <script src="static/js/bootstrap-datepicker/bootstrap-datepicker.js"></script>
+    <script src="static/js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+    <script src="static/js/moment/moment-with-locales.js"></script>
+    <script src="static/js/bootstrap-select/bootstrap-select.js"></script>
+    <script src="static/js/bootstrap-dialog/bootstrap-dialog.min.js"></script>
+</head>
+<body>
+
+<!--面包屑导航-->
+<ol class="breadcrumb">
+    <li><a href="/hour_count">时统计</a></li>
+</ol>
+
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <div class='input-group date' id='select_date'>
+                        <input type='text' class="form-control"/>
+                        <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <!--https://silviomoreto.github.io/bootstrap-select/examples/-->
+                <select id="ad_network_id_selector" class="selectpicker">
+                    <option>all_ad_network_id</option>
+                </select>
+            </div>
+            <div class="col-xs-4">
+                <select id="ad_action" class="selectpicker">
+                    <option>all_action</option>
+                    <option selected="selected">pv</option>
+                    <option>impression</option>
+                    <option>click</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-xs-12" style="padding-top: 10px;">
+            <!--<div class="col-md-12">-->
+            <div class="col-xs-4">
+                <!--http://www.voidcn.com/blog/u011127019/article/p-6066206.html-->
+                <div class="form-group">
+                    <span>开始小时：</span>
+                    <select id="start_hour" class="selectpicker">
+                        <option>00</option>
+                        <option>01</option>
+                        <option>02</option>
+                        <option>03</option>
+                        <option>04</option>
+                        <option>05</option>
+                        <option>06</option>
+                        <option>07</option>
+                        <option>08</option>
+                        <option>09</option>
+                        <option>10</option>
+                        <option>11</option>
+                        <option>12</option>
+                        <option>13</option>
+                        <option>14</option>
+                        <option>15</option>
+                        <option>16</option>
+                        <option>17</option>
+                        <option>18</option>
+                        <option>19</option>
+                        <option>20</option>
+                        <option>21</option>
+                        <option>22</option>
+                        <option>23</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <span>结束小时：</span>
+                    <select id="end_hour" class="selectpicker">
+                        <option>00</option>
+                        <option>01</option>
+                        <option>02</option>
+                        <option>03</option>
+                        <option>04</option>
+                        <option>05</option>
+                        <option>06</option>
+                        <option>07</option>
+                        <option>08</option>
+                        <option>09</option>
+                        <option>10</option>
+                        <option>11</option>
+                        <option>12</option>
+                        <option>13</option>
+                        <option>14</option>
+                        <option>15</option>
+                        <option>16</option>
+                        <option>17</option>
+                        <option>18</option>
+                        <option>19</option>
+                        <option>20</option>
+                        <option>21</option>
+                        <option>22</option>
+                        <option>23</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <span style="visibility: hidden">开始查询</span>
+                    <div>
+                        <button id="query_hour" type="button" class="btn btn-primary">查询</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <table id="hour_result" class="table table-stripe  table-bordered">
+                <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>小时</th>
+                    <th>ad_network_id</th>
+                    <th>ad_action</th>
+                    <th>count</th>
+                    <th>统计时间</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="static/js/nav/public.js"></script>
+<script src="static/js/nav/hour_count.js"></script>
+</body>
+</html>
