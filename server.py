@@ -60,7 +60,9 @@ class HourQueryHandler(tornado.web.RequestHandler):
         ad_action = self.get_argument("ad_action")
         start_hour = self.get_argument('start_hour')
         end_hour = self.get_argument("end_hour")
-        text = query_db.get_hour_count(dt, ad_network_id, ad_action, start_hour, end_hour)
+        off_set = self.get_argument("off_set")
+        limit = self.get_argument("limit")
+        text = query_db.get_hour_count(dt, ad_network_id, ad_action, start_hour, end_hour, off_set, limit)
         self.write(text)
 
 
@@ -123,7 +125,7 @@ def __main__():
             (r'/user_list', UserListHandler),
             (r'/network_list', NetworkListHandler),
             (r'/update_day_page', DayQueryHandler),
-            (r'/update_hour_page', HourQueryHandler),
+            (r'/query_hour_page', HourQueryHandler),
             (r'/add_user', AddUserHandler),
             (r'/query_user_list', QueryUserListHandler),
             (r'/delete_user_list', DeleteUserListHandler),

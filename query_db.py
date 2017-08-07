@@ -68,7 +68,7 @@ def get_day_count(ad_network_id, ad_action, start_dt, end_dt):
 
 
 # 获取时统计
-def get_hour_count(dt, ad_network_id, ad_action, start_hour, end_hour):
+def get_hour_count(dt, ad_network_id, ad_action, start_hour, end_hour, off_set, limit):
     try:
         conn = sqlite3.connect(g_data_base)
         cursor = conn.cursor()
@@ -85,20 +85,21 @@ def get_hour_count(dt, ad_network_id, ad_action, start_hour, end_hour):
         sql_part = ','.join(hour_list)
         if ad_network_id == 'all' and ad_action == 'all':
             sql = "select dt, hour, ad_network_id, ad_action, count, update_time from hour_count where hour in (%s) " \
-                  "and dt='%s' order by dt, hour, ad_network_id, ad_action" \
-                  % (sql_part, dt)
+                  "and dt='%s' order by dt, hour, ad_network_id, ad_action limit %s offset %s" \
+                  % (sql_part, dt, limit, off_set)
         elif ad_network_id == 'all':
             sql = "select dt, hour, ad_network_id, ad_action, count, update_time from hour_count where hour in (%s) " \
-                  "and ad_action='%s' and dt='%s' order by dt, hour, ad_network_id, ad_action" \
-                  % (sql_part, ad_action, dt)
+                  "and ad_action='%s' and dt='%s' order by dt, hour, ad_network_id, ad_action limit %s offset %s" \
+                  % (sql_part, ad_action, dt, limit, off_set)
         elif ad_action == "all":
             sql = "select dt, hour, ad_network_id, ad_action, count, update_time from hour_count where hour in (%s) " \
-                  "and ad_network_id='%s' and dt='%s' order by dt, hour, ad_network_id, ad_action" \
-                  % (sql_part, ad_network_id, dt)
+                  "and ad_network_id='%s' and dt='%s' order by dt, hour, ad_network_id, ad_action limit %s offset %s" \
+                  % (sql_part, ad_network_id, dt, limit, off_set)
         else:
             sql = "select dt, hour, ad_network_id, ad_action, count, update_time from hour_count where hour in (%s) " \
-                  "and ad_network_id='%s' and ad_action='%s' and dt='%s' order by dt, hour, ad_network_id, ad_action" \
-                  % (sql_part, ad_network_id, ad_action, dt)
+                  "and ad_network_id='%s' and ad_action='%s' and dt='%s' order by dt, hour, ad_network_id, ad_action " \
+                  "limit %s offset %s" \
+                  % (sql_part, ad_network_id, ad_action, dt, limit, off_set)
         print sql
         cursor.execute(sql)
         values = cursor.fetchall()
