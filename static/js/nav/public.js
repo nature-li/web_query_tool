@@ -40,7 +40,6 @@ function init_ad_network_select() {
     $.ajax({
             url: '/query_network_list',
             type: "post",
-            async: false,
             dataType: 'json',
             success: function (response) {
                 var success = response.success;
@@ -50,7 +49,6 @@ function init_ad_network_select() {
                     return;
                 }
 
-                console.log(network_list.length);
                 for (var i = 0; i < network_list.length; i++) {
                     var network = network_list[i];
                     var network_name = network.network_name;

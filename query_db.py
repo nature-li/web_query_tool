@@ -11,7 +11,7 @@ g_data_base = "/Users/liyanguo/work/web/hive/sqlite/count.db"
 
 
 # 获取日统计
-def get_day_count(ad_network_id, ad_action, start_dt, end_dt):
+def get_day_count(ad_network_id, ad_action, start_dt, end_dt, off_set, limit):
     try:
         conn = sqlite3.connect(g_data_base)
         cursor = conn.cursor()
@@ -26,19 +26,19 @@ def get_day_count(ad_network_id, ad_action, start_dt, end_dt):
         sql_part = ','.join(dt_list)
         if ad_network_id == 'all' and ad_action == 'all':
             sql = "select dt, ad_network_id, ad_action, count, update_time from day_count where dt in (%s) " \
-                  "order by dt, ad_network_id, ad_action" % sql_part
+                  "order by dt, ad_network_id, ad_action limit %s offset %s" % (sql_part, limit, off_set)
         elif ad_network_id == 'all':
             sql = "select dt, ad_network_id, ad_action, count, update_time from day_count where dt in (%s) " \
-                  "and ad_action='%s' order by dt, ad_network_id, ad_action" \
-                  % (sql_part, ad_action)
+                  "and ad_action='%s' order by dt, ad_network_id, ad_action limit %s offset %s" \
+                  % (sql_part, ad_action, limit, off_set)
         elif ad_action == "all":
             sql = "select dt, ad_network_id, ad_action, count, update_time from day_count where dt in (%s) " \
-                  "and ad_network_id='%s' order by dt, ad_network_id, ad_action" \
-                  % (sql_part, ad_network_id)
+                  "and ad_network_id='%s' order by dt, ad_network_id, ad_action limit %s offset %s" \
+                  % (sql_part, ad_network_id, limit, off_set)
         else:
             sql = "select dt, ad_network_id, ad_action, count, update_time from day_count where dt in (%s) " \
-                  "and ad_network_id='%s' and ad_action='%s' order by dt, ad_network_id, ad_action" \
-                  % (sql_part, ad_network_id, ad_action)
+                  "and ad_network_id='%s' and ad_action='%s' order by dt, ad_network_id, ad_action limit %s offset %s" \
+                  % (sql_part, ad_network_id, ad_action, limit, off_set)
         print sql
         cursor.execute(sql)
         values = cursor.fetchall()
