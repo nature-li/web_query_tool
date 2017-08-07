@@ -47,18 +47,31 @@ function update_page_partition(page_idx) {
         tail_enable = true;
     }
 
-    // 页面数
+    // 本批页面数
     var show_page_count = Math.ceil(total_count / count_per_page);
+
+    // 数据库页面数
+    var db_page_count = Math.ceil(window.save_data.item_count / window.save_data.count_per_page);
 
     // 添加元素
     var $partition = $("#page_partition_id");
 
     $partition.find("li").remove();
 
-    // 添加头
+    // 首页
     if (head_enable) {
         $partition.append('<li class="hive-page-first"><a>首页</a></li>');
-        $partition.append('<li class="hive-page-pre"><a>&laquo;</a></li>');
+    }
+
+    // 上一页
+    if (page_off_set != 0 || page_idx != 0)
+    {
+        $partition.append('<li class="hive-page-pre"><a>上一页</a></li>');
+    }
+
+    // 上一批
+    if (head_enable) {
+        $partition.append('<li class="hive-page-pre-batch"><a>&laquo;</a></li>');
     }
 
     // 添加分页
@@ -71,9 +84,18 @@ function update_page_partition(page_idx) {
         $partition.append('<li class="' + page_class + '"><a>' + page_number + '</a></li>');
     }
 
-    // 添加尾
+    // 下一批
     if (tail_enable) {
-        $partition.append('<li class="hive-page-next"><a>&raquo;</a></li>');
+        $partition.append('<li class="hive-page-next-batch"><a>&raquo;</a></li>');
+    }
+
+    // 下一页
+    if (page_idx + window.save_data.page_off_set < db_page_count - 1) {
+        $partition.append('<li class="hive-page-next"><a>下一页</a></li>');
+    }
+
+    // 尾页
+    if (tail_enable) {
         $partition.append('<li class="hive-page-tail"><a>尾页</a></li>');
     }
 }
@@ -81,22 +103,52 @@ function update_page_partition(page_idx) {
 // 点击分页first标签
 $(document).on("click", ".hive-page-first", function () {
     window.save_data.page_off_set = 0;
-    window.current_page_idx = 0;
+    window.save_data.current_page_idx = 0;
     query_and_update_view();
 });
 
 // 点击分页pre标签
 $(document).on("click", ".hive-page-pre", function () {
+    var page_idx = window.save_data.current_page_idx;
+    if (page_idx == 0) {
+        pre_batch();
+    } else {
+        update_page_view(page_idx - 1);
+    }
+});
+
+// 点击分页pre-batch标签
+$(document).on("click", ".hive-page-pre-batch", function () {
+    pre_batch()
+});
+
+// 显示上一批数据
+function pre_batch() {
     window.save_data.page_off_set -= window.save_data.max_page_count;
-    window.current_page_idx = 0;
+    window.save_data.current_page_idx = 0;
     query_and_update_view();
+}
+
+// 显示下一批数据
+function next_batch() {
+    window.save_data.page_off_set += window.save_data.max_page_count;
+    window.save_data.current_page_idx = 0;
+    query_and_update_view();
+}
+
+// 点击分页next-batch标签
+$(document).on("click", ".hive-page-next-batch", function () {
+    next_batch();
 });
 
 // 点击分页next标签
 $(document).on("click", ".hive-page-next", function () {
-    window.save_data.page_off_set += window.save_data.max_page_count;
-    window.current_page_idx = 0;
-    query_and_update_view();
+    var page_idx = window.save_data.current_page_idx;
+    if (page_idx + 1 == window.save_data.max_page_count) {
+        next_batch();
+    } else {
+        update_page_view(page_idx + 1);
+    }
 });
 
 // 点击分页tail标签
@@ -104,7 +156,7 @@ $(document).on("click", ".hive-page-tail", function () {
     var page_count = Math.ceil(window.save_data.item_count / window.save_data.count_per_page);
     var page_batch = Math.ceil(page_count / window.save_data.max_page_count) - 1;
     window.save_data.page_off_set = window.save_data.max_page_count * page_batch;
-    window.current_page_idx = 0;
+    window.save_data.current_page_idx = 0;
     query_and_update_view();
 });
 

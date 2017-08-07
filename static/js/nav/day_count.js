@@ -34,9 +34,9 @@ function reset_save_data() {
         'page_off_set': 0,
         'current_page_idx': 0,
         'count_per_page': 10,
-        'max_page_count': 10,
+        'max_page_count': 5,
         'more_data': false,
-        'item_count': 0,
+        'item_count': 0
     };
 }
 
