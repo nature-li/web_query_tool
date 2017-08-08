@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="static/css/bootstrap-datepicker/bootstrap-datepicker.css">
     <link rel="stylesheet" href="static/css/bootstrap-select/bootstrap-select.css">
     <link rel="stylesheet" href="static/css/bootstrap-dialog/bootstrap-dialog.min.css">
+    <link rel="stylesheet" href="static/css/nav/button-group.css">
 
     <script src="static/js/bootstrap-datepicker/bootstrap-datepicker.js"></script>
     <script src="static/js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
@@ -28,87 +29,91 @@
 <div class="container">
     <div class="row">
         <div class="col-xs-12">
-            <div class="col-xs-4">
-                <!--https://silviomoreto.github.io/bootstrap-select/examples/-->
-                <select id="ad_network_id_selector" class="selectpicker" data-size="10">
-                    <option>all_ad_network_id</option>
-                </select>
-            </div>
-            <div class="col-xs-4">
-                <select id="ad_action" class="selectpicker" data-size="10">
-                    <option>all_action</option>
-                    <option>pv</option>
-                    <option>impression</option>
-                    <option>click</option>
-                </select>
-            </div>
-        </div>
 
-        <div class="col-xs-11" style="padding-top: 10px;">
-            <!--<div class="col-md-12">-->
-            <div class="col-xs-4">
-                <!--http://www.voidcn.com/blog/u011127019/article/p-6066206.html-->
+            <div class="query-button-group query-button-date-size">
                 <div class="form-group">
-                    <span>开始日期：</span>
+                    <span style="float: left; margin-top: 7px;">开始日期：</span>
                     <div class='input-group date' id='start_date'>
                         <input type='text' class="form-control"/>
                         <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-4">
+
+            <div class="query-button-group query-button-date-size">
                 <div class="form-group">
-                    <span>结束日期：</span>
+                    <span style="float: left; margin-top: 7px;">结束日期：</span>
                     <div class='input-group date' id='end_date'>
                         <input type='text' class="form-control"/>
                         <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-2">
+
+            <div class="query-button-group">
                 <div class="form-group">
-                    <span style="visibility: hidden">开始查询</span>
+                    <span>渠道：</span>
+                    <select id="ad_network_id_selector" class="selectpicker" data-size="10">
+                        <option>all_ad_network_id</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="query-button-group">
+                <div class="form-group">
+                    <span>操作：</span>
+                    <select id="ad_action" class="selectpicker" data-size="10">
+                        <option>all_action</option>
+                        <option>pv</option>
+                        <option>impression</option>
+                        <option>click</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="query-button-group">
+                <div class="form-group">
                     <div>
                         <button id="query_day" type="button" class="btn btn-primary">查询</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-xs-12">
-            <!--style="box-shadow:inset 1px -1px 1px #444, inset -1px 1px 1px #444;">-->
-            <table id="day_result" class="table table-striped table-bordered">
-                <thead>
-                <tr>
-                    <th>日期</th>
-                    <th>ad_network_id</th>
-                    <th>ad_action</th>
-                    <th>count</th>
-                    <th>统计时间</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+        <div class="row">
+            <div class="col-xs-12">
+                <table id="day_result" class="table table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>ad_network_id</th>
+                        <th>ad_action</th>
+                        <th>count</th>
+                        <th>统计时间</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div style="text-align: right">
+                    <ul id="page_partition_id" class="pagination">
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div style="text-align: right">
-            <ul id="page_partition_id" class="pagination">
-            </ul>
-        </div>
-    </div>
-</div>
-
-<script src="static/js/nav/public.js"></script>
-<script src="static/js/nav/page_partition.js"></script>
-<script src="static/js/nav/day_count.js"></script>
+    <script src="static/js/nav/public.js"></script>
+    <script src="static/js/nav/page_partition.js"></script>
+    <script src="static/js/nav/day_count.js"></script>
 </body>
 </html>
