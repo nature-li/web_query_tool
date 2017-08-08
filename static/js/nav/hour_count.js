@@ -22,13 +22,13 @@ $(document).ready(function () {
 // 初始化全局变量
 function reset_save_data() {
     window.save_data = {
-        'item_list': [],
-        'page_off_set': 0,
-        'current_page_idx': 0,
-        'count_per_page': 10,
-        'max_page_count': 5,
-        'more_data': false,
-        'item_count': 0,
+       'item_list': [],
+        'db_max_page_idx': 0,
+        'view_max_page_count': 5,
+        'view_item_count_per_page': 10,
+        'view_start_page_idx': 0,
+        'view_current_page_idx': 0,
+        'view_current_page_count': 0
     };
 }
 
@@ -36,14 +36,9 @@ function reset_save_data() {
 function update_page_view(page_idx) {
     // 更新表格
     var html = "";
-    var count = 0;
-    for (var i = page_idx * window.save_data.count_per_page; i < window.save_data.item_list.length; i++) {
+    for (var i = 0; i < window.save_data.item_list.length; i++) {
         var item = window.save_data.item_list[i];
         html += "<tr><td>" + item.dt + "</td><td>" + item.hour + "</td><td>" + item.ad_network_id + "</td><td>" + item.ad_action + "</td><td>" + item.count + "</td><td>" + item.update_time + "</td></tr>";
-        count++;
-        if (count >= window.save_data.count_per_page) {
-            break;
-        }
     }
     $("#hour_result").find("tr:gt(0)").remove();
     $("#hour_result").append(html);
@@ -68,8 +63,8 @@ function query_and_update_view() {
     var month = date.getMonth() + 1;
     var day = date.getDate();
     var dt = year + "-" + month + "-" + day;
-    var off_set = window.save_data.count_per_page * window.save_data.page_off_set;
-    var limit = window.save_data.count_per_page * window.save_data.max_page_count;
+    var off_set = window.save_data.view_current_page_idx * window.save_data.view_item_count_per_page;
+    var limit = window.save_data.view_item_count_per_page;
 
     // 获取 ad_network_id
     var ad_network_id = $("#ad_network_id_selector option:selected").text();
@@ -100,7 +95,7 @@ function query_and_update_view() {
                 'start_hour': start_hour,
                 'end_hour': end_hour,
                 'off_set': off_set,
-                'limit': limit + 1
+                'limit': limit
             },
             dataType: 'json',
             success: function (data) {

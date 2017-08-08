@@ -11,27 +11,27 @@ $(document).ready(function () {
 // 初始化全局变量
 function reset_save_data() {
     window.save_data = {
-        'item_list': [],
-        'page_off_set': 0,
-        'current_page_idx': 0,
-        'count_per_page': 10,
-        'max_page_count': 1,
-        'more_data': false,
-        'item_count': 0
+       'item_list': [],
+        'db_max_page_idx': 0,
+        'view_max_page_count': 5,
+        'view_item_count_per_page': 10,
+        'view_start_page_idx': 0,
+        'view_current_page_idx': 0,
+        'view_current_page_count': 0
     };
 }
 
 // 查询数据并更新页面
 function query_and_update_view() {
-    var off_set = window.save_data.count_per_page * window.save_data.page_off_set;
-    var limit = window.save_data.count_per_page * window.save_data.max_page_count;
+    var off_set = window.save_data.view_current_page_idx * window.save_data.view_item_count_per_page;
+    var limit = window.save_data.view_item_count_per_page;
 
     $.ajax({
             url: '/query_network_list',
             type: "post",
             data: {
                 'off_set': off_set,
-                'limit': limit + 1
+                'limit': limit
             },
             dataType: 'json',
             success: function (response) {
@@ -52,14 +52,9 @@ function update_page_view(page_idx) {
     });
 
     // 添加表格
-    var count = 0;
-    for (var i = page_idx * window.save_data.count_per_page; i < window.save_data.item_list.length; i++) {
+    for (var i = 0; i < window.save_data.item_list.length; i++) {
         var network = window.save_data.item_list[i];
         add_network_row(network.network_id, network.network_name, network.update_time);
-        count++;
-        if (count >= window.save_data.count_per_page) {
-            break;
-        }
     }
 
     // 更新分页标签
