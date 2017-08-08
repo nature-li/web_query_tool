@@ -65,12 +65,7 @@ function update_page_view(page_idx) {
     update_page_partition(page_idx);
 
     // 改变窗口大小
-    var newHeight = $(document).contents().find('body').height();
-    if (newHeight < 1000) {
-        newHeight = 1000;
-    }
-    $("#left_frame_col", window.parent.document).height(newHeight);
-    $("#right_frame_col", window.parent.document).height(newHeight);
+    change_frame_size();
 }
 
 // 点击复选框全选渠道

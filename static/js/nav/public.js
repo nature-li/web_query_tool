@@ -34,38 +34,3 @@ $.showConfirm = function (str, func_ok, func_close) {
         }
     });
 };
-
-// 初始化渠道下拉列表框
-function init_ad_network_select() {
-    $.ajax({
-            url: '/query_network_list',
-            data: {
-                'network_name': '',
-                'off_set': 0,
-                'limit': -1
-            },
-            // async: false,
-            type: "post",
-            dataType: 'json',
-            success: function (response) {
-                var success = response.success;
-                var network_list = response.content;
-
-                if (success != "true") {
-                    return;
-                }
-
-                for (var i = 0; i < network_list.length; i++) {
-                    var network = network_list[i];
-                    var network_name = network.network_name;
-                    var option = '<option>' + network_name + '</option>';
-                    $("#ad_network_id_selector").append(option);
-                    $("#ad_network_id_selector").selectpicker('refresh');
-                }
-            },
-            error: function () {
-                $.showErr("查询失败");
-            }
-        }
-    );
-}

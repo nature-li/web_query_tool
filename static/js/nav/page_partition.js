@@ -91,7 +91,7 @@ function update_page_partition(view_current_page_idx) {
     if (db_return_item_count > 0) {
         var start_item_number = view_current_page_idx * view_item_count_per_page + 1;
         var end_item_number = start_item_number + db_return_item_count - 1;
-        data_count_tip = "第" + start_item_number + "-" + end_item_number + "数据, 共" + db_total_item_count + "条数据";
+        data_count_tip = "第" + start_item_number + "-" + end_item_number + "条, 共" + db_total_item_count + "条数据";
     }
     $("#data_count_tip").html(data_count_tip);
 }
