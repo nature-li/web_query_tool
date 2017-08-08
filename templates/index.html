@@ -11,12 +11,36 @@
 </head>
 <body>
 
-<nav class="navbar navbar-default navbar-fixed-top" style="background: #337ab7;">
-    <h2 style="color: white; margin: 10px 30px">曝光数据统计</h2>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">广告引擎后台</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">数据统计<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a id="nav_hive_ref_a">hive统计</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li class="disabled"><a href="#">redis统计</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#">你好</a></li>
+                <li><a href="#">退出</a></li>
+            </ul>
+        </div>
+    </div>
 </nav>
 
-<!--http://www.runoob.com/try/try.php?filename=bootstrap3-plugin-collapse-accordion-->
-<!--http://www.voidcn.com/blog/easyboot/article/p-6493193.html-->
 <div class="container" style="width: 100%">
     <div class="container-fluid">
         <div class="row-fluid">
@@ -72,6 +96,7 @@
     </div>
 </div>
 
+<script src="static/js/nav/hive_index.js"></script>
 <script src="static/js/nav/index.js"></script>
 </body>
 </html>
