@@ -10,7 +10,6 @@ function frame_auto_size() {
 
 // frame 加载时自适应大小
 $("#right_frame").load(function () {
-    console.log("13");
     frame_auto_size();
 });
 

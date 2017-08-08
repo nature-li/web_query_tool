@@ -27,15 +27,18 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">数据统计<span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a id="nav_hive_ref_a">hive统计</a></li>
+                        <li><a href="#" id="nav_hive_ref_a">hive统计</a></li>
                         <li role="separator" class="divider"></li>
                         <li class="disabled"><a href="#">redis统计</a></li>
                     </ul>
                 </li>
             </ul>
+            <ul class="nav navbar-nav">
+                <li><a href="#" id="nav_user_ref_a">系统管理</a></li>
+            </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#">你好</a></li>
-                <li><a href="#">退出</a></li>
+                <li><a id="login_user" href="#">你好</a></li>
+                <li><a id="logout_user" href="#">退出</a></li>
             </ul>
         </div>
     </div>
@@ -49,40 +52,6 @@
                     <div class="row">
                         <div id="left_frame_col" class="col-md-2" style="height: 1000px; background-color: #f6f6f6">
                             <ul id="main-nav" class="nav nav-tabs nav-stacked" style="">
-                                <li>
-                                    <a href="#systemViewer" class="nav-header" data-toggle="collapse"
-                                       aria-expanded="true">
-                                        <i class="glyphicon glyphicon-th-list"></i>
-                                        hive统计
-                                        <span class="pull-right glyphicon glyphicon-chevron-down"></span>
-                                    </a>
-                                    <ul id="systemViewer" class="nav nav-list collapse secondmenu in"
-                                        aria-expanded="true"
-                                        style="height: 80px;">
-                                        <li><a id="a_day_count" href="#">日统计<i id="i_day_count"
-                                                                               class="glyphicon glyphicon-eye-open"></i></a>
-                                        </li>
-                                        <li><a id="a_hour_count" href="#">时统计<i id="i_hour_count"
-                                                                                class="glyphicon glyphicon-eye-open"></i></a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href="#systemControl" class="nav-header collapse" data-toggle="collapse">
-                                        <i class="glyphicon glyphicon-th-list"></i>
-                                        系统管理
-                                        <span class="pull-right glyphicon glyphicon-chevron-down"></span>
-                                    </a>
-                                    <ul id="systemControl" class="nav nav-list collapse secondmenu" aria-expanded="true"
-                                        style="height: 0px;">
-                                        <li><a id="a_user_control" href="#">用户管理<i id="i_user_control"
-                                                                                   class="glyphicon glyphicon-pencil"></i></a>
-                                        </li>
-                                        <li><a id="a_network_control" href="#">渠道管理<i id="i_network_control"
-                                                                                      class="glyphicon glyphicon-pencil"></i></a>
-                                        </li>
-                                    </ul>
-                                </li>
                             </ul>
                         </div>
                         <div id="right_frame_col" class="col-md-10" style="height: 1000px;">
