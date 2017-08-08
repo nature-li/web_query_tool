@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="static/css/bootstrap-datepicker/bootstrap-datepicker.css">
     <link rel="stylesheet" href="static/css/bootstrap-select/bootstrap-select.css">
     <link rel="stylesheet" href="static/css/bootstrap-dialog/bootstrap-dialog.min.css">
+    <link rel="stylesheet" href="static/css/nav/button-group.css">
 
     <script src="static/js/bootstrap-datepicker/bootstrap-datepicker.js"></script>
     <script src="static/js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
@@ -26,6 +27,23 @@
 
 
 <div class="container">
+    <div class="row">
+        <div class="col-xs-5">
+            <div class="input-group">
+                <input id="query_network_text" type="text" class="form-control" placeholder="输入渠道">
+                <span class="input-group-btn">
+                    <button id="query_network_button" class="btn btn-default" type="button">查找</button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <hr/>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-xs-12">
             <table id="t_network_control" class="table table-striped table-bordered">

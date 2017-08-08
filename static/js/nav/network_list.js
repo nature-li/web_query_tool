@@ -17,7 +17,8 @@ function reset_save_data() {
         'view_item_count_per_page': 10,
         'view_start_page_idx': 0,
         'view_current_page_idx': 0,
-        'view_current_page_count': 0
+        'view_current_page_count': 0,
+        'query_network_name': ''
     };
 }
 
@@ -30,6 +31,7 @@ function query_and_update_view() {
             url: '/query_network_list',
             type: "post",
             data: {
+                'network_name': window.save_data.query_network_name,
                 'off_set': off_set,
                 'limit': limit
             },
@@ -234,3 +236,16 @@ function add_network_row(network_id, network_name, update_time) {
         '<td style="text-align:center;">' + update_time + '</td>');
     table.append(tr);
 }
+
+// 点击查找渠道按钮
+$("#query_network_button").click(function () {
+    // 获取查找渠道
+    var query_network_name = $("#query_network_text").val();
+
+    // 清空数据并设置查找账号
+    reset_save_data();
+    window.save_data.query_network_name = query_network_name;
+
+    // 查询数据并更新页面
+    query_and_update_view();
+});

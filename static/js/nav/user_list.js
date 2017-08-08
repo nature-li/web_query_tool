@@ -17,7 +17,8 @@ function reset_save_data() {
         'view_item_count_per_page': 10,
         'view_start_page_idx': 0,
         'view_current_page_idx': 0,
-        'view_current_page_count': 0
+        'view_current_page_count': 0,
+        'query_user_account': ''
     };
 }
 
@@ -30,6 +31,7 @@ function query_and_update_view() {
             url: '/query_user_list',
             type: "post",
             data: {
+                'user_account': window.save_data.query_user_account,
                 'off_set': off_set,
                 'limit': limit
             },
@@ -380,3 +382,15 @@ function add_row(user_id, user_account, user_right, update_time) {
     table.append(tr);
 }
 
+// 点击查找用户按钮
+$("#query_user_button").click(function () {
+    // 获取查找账号
+    var query_user_account = $("#query_user_text").val();
+
+    // 清空数据并设置查找账号
+    reset_save_data();
+    window.save_data.query_user_account = query_user_account;
+
+    // 查询数据并更新页面
+    query_and_update_view();
+});

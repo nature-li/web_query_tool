@@ -40,6 +40,7 @@ function init_ad_network_select() {
     $.ajax({
             url: '/query_network_list',
             data: {
+                'network_name': '',
                 'off_set': 0,
                 'limit': -1
             },

@@ -29,7 +29,7 @@ def get_day_count(ad_network_id, ad_action, start_dt, end_dt, off_set, limit):
             sql = "select dt, ad_network_id, ad_action, count, update_time from day_count where dt in (%s) " \
                   "order by dt, ad_network_id, ad_action limit %s offset %s" % (sql_part, limit, off_set)
         elif ad_network_id == 'all':
-            count_sql = "select count(1) from day_count where dt in (%s) and ad_action='%s'"\
+            count_sql = "select count(1) from day_count where dt in (%s) and ad_action='%s'" \
                         % (sql_part, ad_action)
             sql = "select dt, ad_network_id, ad_action, count, update_time from day_count where dt in (%s) " \
                   "and ad_action='%s' order by dt, ad_network_id, ad_action limit %s offset %s" \
@@ -67,7 +67,7 @@ def get_day_count(ad_network_id, ad_action, start_dt, end_dt, off_set, limit):
             a_dict['ad_action'] = value[2]
             a_dict['count'] = value[3]
             a_dict['update_time'] = datetime.datetime.fromtimestamp(int(value[4])).strftime(
-                    '%Y-%m-%d %H:%M:%S')
+                '%Y-%m-%d %H:%M:%S')
         a_dict = dict()
         a_dict['success'] = 'true'
         a_dict['item_count'] = item_count
@@ -145,7 +145,7 @@ def get_hour_count(dt, ad_network_id, ad_action, start_hour, end_hour, off_set, 
             a_dict['ad_action'] = value[3]
             a_dict['count'] = value[4]
             a_dict['update_time'] = datetime.datetime.fromtimestamp(int(value[5])).strftime(
-                    '%Y-%m-%d %H:%M:%S')
+                '%Y-%m-%d %H:%M:%S')
         a_dict = dict()
         a_dict['success'] = 'true'
         a_dict['content'] = a_list
@@ -167,7 +167,7 @@ def add_user_account(user_account, user_right):
         cursor = conn.cursor()
 
         now = int(time.time())
-        sql = "insert into user_list(user_account, user_right, update_time) values('%s', %s, %s)"\
+        sql = "insert into user_list(user_account, user_right, update_time) values('%s', %s, %s)" \
               % (user_account, user_right, now)
         print sql
         cursor.execute(sql)
@@ -206,7 +206,7 @@ def add_user_account(user_account, user_right):
             a_user['user_account'] = value[1]
             a_user['user_right'] = value[2]
             a_user['update_time'] = datetime.datetime.fromtimestamp(int(value[3])).strftime(
-                        '%Y-%m-%d %H:%M:%S')
+                '%Y-%m-%d %H:%M:%S')
 
         # 返回成功
         a_dict = dict()
@@ -223,18 +223,23 @@ def add_user_account(user_account, user_right):
 
 
 # 查询用户
-def query_user_list(off_set, limit):
+def query_user_list(user_account, off_set, limit):
     try:
         conn = sqlite3.connect(g_data_base)
         cursor = conn.cursor()
 
         count_sql = 'select count(id) from user_list'
+        if user_account:
+            count_sql += " where user_account like '%%%s%%'" % user_account
         print count_sql
         cursor.execute(count_sql)
         values = cursor.fetchall()
         item_count = values[0][0]
 
         sql = 'select id, user_account, user_right, update_time from user_list limit %s offset %s' % (limit, off_set)
+        if user_account:
+            sql = 'select id, user_account, user_right, update_time from user_list where user_account ' \
+                  'like "%%%s%%" limit %s offset %s' % (user_account, limit, off_set)
         print sql
         cursor.execute(sql)
         values = cursor.fetchall()
@@ -250,7 +255,7 @@ def query_user_list(off_set, limit):
             a_user['user_account'] = value[1]
             a_user['user_right'] = value[2]
             a_user['update_time'] = datetime.datetime.fromtimestamp(int(value[3])).strftime(
-                        '%Y-%m-%d %H:%M:%S')
+                '%Y-%m-%d %H:%M:%S')
 
         # 返回成功
         a_dict = dict()
@@ -342,7 +347,7 @@ def edit_user(user_id, user_right):
             a_user['user_account'] = value[1]
             a_user['user_right'] = value[2]
             a_user['update_time'] = datetime.datetime.fromtimestamp(int(value[3])).strftime(
-                        '%Y-%m-%d %H:%M:%S')
+                '%Y-%m-%d %H:%M:%S')
 
         # 返回成功
         a_dict = dict()
@@ -365,7 +370,7 @@ def add_network(network_name):
         cursor = conn.cursor()
 
         now = int(time.time())
-        sql = "insert into network_list(network, update_time) values('%s', %s)"\
+        sql = "insert into network_list(network, update_time) values('%s', %s)" \
               % (network_name, now)
         print sql
         cursor.execute(sql)
@@ -403,7 +408,7 @@ def add_network(network_name):
             a_user['network_id'] = value[0]
             a_user['network_name'] = value[1]
             a_user['update_time'] = datetime.datetime.fromtimestamp(int(value[2])).strftime(
-                        '%Y-%m-%d %H:%M:%S')
+                '%Y-%m-%d %H:%M:%S')
 
         # 返回成功
         a_dict = dict()
@@ -420,17 +425,22 @@ def add_network(network_name):
 
 
 # 查询渠道
-def query_network_list(off_set, limit):
+def query_network_list(network_name, off_set, limit):
     try:
         conn = sqlite3.connect(g_data_base)
         cursor = conn.cursor()
         count_sql = 'select count(1) from network_list'
+        if network_name:
+            count_sql += " where network like '%%%s%%'" % network_name
         print count_sql
         cursor.execute(count_sql)
         values = cursor.fetchall()
         item_count = values[0][0]
 
         sql = 'select id, network, update_time from network_list limit %s offset %s' % (limit, off_set)
+        if network_name:
+            sql = "select id, network, update_time from network_list where network like '%%%s%%' limit %s offset %s" \
+                  % (network_name, limit, off_set)
         print sql
         cursor.execute(sql)
         values = cursor.fetchall()
@@ -445,7 +455,7 @@ def query_network_list(off_set, limit):
             a_user['network_id'] = value[0]
             a_user['network_name'] = value[1]
             a_user['update_time'] = datetime.datetime.fromtimestamp(int(value[2])).strftime(
-                        '%Y-%m-%d %H:%M:%S')
+                '%Y-%m-%d %H:%M:%S')
 
         # 返回成功
         a_dict = dict()
