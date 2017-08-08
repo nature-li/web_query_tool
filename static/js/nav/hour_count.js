@@ -23,6 +23,8 @@ $(document).ready(function () {
 function reset_save_data() {
     window.save_data = {
        'item_list': [],
+        'db_total_item_count': 0,
+        'db_return_item_count': 0,
         'db_max_page_idx': 0,
         'view_max_page_count': 5,
         'view_item_count_per_page': 10,

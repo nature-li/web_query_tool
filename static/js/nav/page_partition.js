@@ -3,6 +3,7 @@ function save_data_and_update_page_view(data) {
     if (data.success == "true") {
         // db 最大idx
         var db_page_count = Math.ceil(data.item_count / window.save_data.view_item_count_per_page);
+        window.save_data.db_total_item_count = data.item_count;
         window.save_data.db_max_page_idx = db_page_count - 1;
 
         // 清空部分数据
@@ -10,7 +11,7 @@ function save_data_and_update_page_view(data) {
 
         // 保存所有数据
         var length = data.content.length;
-
+        window.save_data.db_return_item_count = length;
         for (var i = 0; i < length; i++) {
             var item = data.content[i];
             window.save_data.item_list.push(item);
@@ -26,8 +27,11 @@ function save_data_and_update_page_view(data) {
 // 更新分页标签
 function update_page_partition(view_current_page_idx) {
     var db_max_page_idx = window.save_data.db_max_page_idx;
+    var db_total_item_count = window.save_data.db_total_item_count;
+    var db_return_item_count = window.save_data.db_return_item_count;
     var view_max_page_count = window.save_data.view_max_page_count;
     var view_start_page_idx = window.save_data.view_start_page_idx;
+    var view_item_count_per_page = window.save_data.view_item_count_per_page;
 
     var view_current_page_count = view_max_page_count;
     if (db_max_page_idx - view_start_page_idx + 1 < view_max_page_count) {
@@ -81,6 +85,15 @@ function update_page_partition(view_current_page_idx) {
     if (view_start_page_idx + view_current_page_count <= db_max_page_idx) {
         $partition.append('<li class="hive-page-tail"><a>尾页</a></li>');
     }
+
+    // 更新tips
+    var data_count_tip = "";
+    if (db_return_item_count > 0) {
+        var start_item_number = view_current_page_idx * view_item_count_per_page + 1;
+        var end_item_number = start_item_number + db_return_item_count - 1;
+        data_count_tip = "第" + start_item_number + "-" + end_item_number + "数据, 共" + db_total_item_count + "条数据";
+    }
+    $("#data_count_tip").html(data_count_tip);
 }
 
 // 点击首页
