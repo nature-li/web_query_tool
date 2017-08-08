@@ -45,15 +45,15 @@ function update_page_partition(view_current_page_idx) {
         $partition.append('<li class="hive-page-first"><a>首页</a></li>');
     }
 
+    // 上一批
+    if (view_start_page_idx > 0) {
+        $partition.append('<li class="hive-page-pre-batch"><a>&laquo;</a></li>');
+    }
+
     // 上一页
     if (view_current_page_idx > 0)
     {
         $partition.append('<li class="hive-page-pre"><a>上一页</a></li>');
-    }
-
-    // 上一批
-    if (view_start_page_idx > 0) {
-        $partition.append('<li class="hive-page-pre-batch"><a>&laquo;</a></li>');
     }
 
     // 页码
@@ -67,18 +67,18 @@ function update_page_partition(view_current_page_idx) {
         $partition.append('<li class="' + page_class + '"><a>' + page_number + '</a></li>');
     }
 
-    // 下一批
-    if (view_start_page_idx + view_current_page_count < db_max_page_idx) {
-        $partition.append('<li class="hive-page-next-batch"><a>&raquo;</a></li>');
-    }
-
     // 下一页
     if (view_current_page_idx < db_max_page_idx) {
         $partition.append('<li class="hive-page-next"><a>下一页</a></li>');
     }
 
-    // 尾页
+    // 下一批
     if (view_start_page_idx + view_current_page_count < db_max_page_idx) {
+        $partition.append('<li class="hive-page-next-batch"><a>&raquo;</a></li>');
+    }
+
+    // 尾页
+    if (view_start_page_idx + view_current_page_count <= db_max_page_idx) {
         $partition.append('<li class="hive-page-tail"><a>尾页</a></li>');
     }
 }
