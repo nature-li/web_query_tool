@@ -7,19 +7,18 @@ import traceback
 import time
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from py_log.logger import Logger
+from config import config
 from db_orm import *
 
 
 class DbOperator(object):
-    engine = create_engine('sqlite:////Users/liyanguo/work/web/hive/sqlite/count.db', echo=False)
+    engine = create_engine(config.server_db_uri, echo=False)
 
     # 获取日统计
     @classmethod
     def get_day_count(cls, ad_network_id, ad_action, start_dt, end_dt, off_set, limit):
         try:
-            # 打印日志
-            print ad_network_id, ad_action, start_dt, end_dt, off_set, limit
-
             # 扩展日期
             start = datetime.datetime.strptime(start_dt, '%Y-%m-%d')
             end = datetime.datetime.strptime(end_dt, '%Y-%m-%d')
@@ -148,7 +147,7 @@ class DbOperator(object):
             a_dict['content'] = a_list
             return json.dumps(a_dict)
         except:
-            print traceback.format_exc()
+            Logger.error(traceback.format_exc())
             a_dict = dict()
             a_dict['success'] = 'false'
             a_dict['content'] = list()
@@ -159,9 +158,6 @@ class DbOperator(object):
     @classmethod
     def get_hour_count(cls, dt, ad_network_id, ad_action, start_hour, end_hour, off_set, limit):
         try:
-            # 打印日志
-            print dt, ad_network_id, ad_action, start_hour, end_hour, off_set, limit
-
             # 转换日期
             dt = datetime.datetime.strptime(dt, '%Y-%m-%d').strftime("%Y-%m-%d")
 
@@ -304,7 +300,7 @@ class DbOperator(object):
             a_dict['item_count'] = count
             return json.dumps(a_dict)
         except:
-            print traceback.format_exc()
+            Logger.error(traceback.format_exc())
             a_dict = dict()
             a_dict['success'] = 'false'
             a_dict['content'] = list()
@@ -315,9 +311,6 @@ class DbOperator(object):
     @classmethod
     def add_user_account(cls, user_account, user_right):
         try:
-            # 打印日志
-            print user_account, user_right
-
             # 创建用户
             now = int(time.time())
             user = UserList(user_account=user_account, user_right=user_right, update_time=now)
@@ -349,7 +342,7 @@ class DbOperator(object):
             a_dict['item_count'] = 1
             return json.dumps(a_dict)
         except:
-            print traceback.format_exc()
+            Logger.error(traceback.format_exc())
             a_dict = dict()
             a_dict['success'] = 'false'
             a_dict['content'] = list()
@@ -360,9 +353,6 @@ class DbOperator(object):
     @classmethod
     def query_user_list(cls, user_account, off_set, limit):
         try:
-            # 打印日志
-            print user_account, off_set, limit
-
             # 转换类型
             off_set = int(off_set)
             limit = int(limit)
@@ -416,7 +406,7 @@ class DbOperator(object):
             a_dict['item_count'] = count
             return json.dumps(a_dict)
         except:
-            print traceback.format_exc()
+            Logger.error(traceback.format_exc())
             a_dict = dict()
             a_dict['success'] = 'false'
             a_dict['content'] = list()
@@ -427,9 +417,6 @@ class DbOperator(object):
     @classmethod
     def delete_user_list(cls, user_id_list):
         try:
-            # 打印日志
-            print user_id_list
-
             # 过滤参数
             split_id_list = user_id_list.split(',')
             join_id_list = list()
@@ -462,7 +449,7 @@ class DbOperator(object):
             a_dict['content'] = join_id_list
             return json.dumps(a_dict)
         except:
-            print traceback.format_exc()
+            Logger.error(traceback.format_exc())
             a_dict = dict()
             a_dict['success'] = 'false'
             a_dict['content'] = list()
@@ -472,9 +459,6 @@ class DbOperator(object):
     @classmethod
     def edit_user(cls, user_id, user_right):
         try:
-            # 打印日志
-            print user_id, user_right
-
             # 创建session
             session = sessionmaker(bind=cls.engine)()
 
@@ -496,7 +480,6 @@ class DbOperator(object):
             # 返回成功
             a_user = dict()
             for value in values:
-                print 'here'
                 a_user['user_id'] = value.id
                 a_user['user_account'] = value.user_account
                 a_user['user_right'] = value.user_right
@@ -508,7 +491,7 @@ class DbOperator(object):
             a_dict['content'] = a_user
             return json.dumps(a_dict)
         except:
-            print traceback.format_exc()
+            Logger.error(traceback.format_exc())
             a_dict = dict()
             a_dict['success'] = 'false'
             a_dict['content'] = dict()
@@ -518,9 +501,6 @@ class DbOperator(object):
     @classmethod
     def add_network(cls, network_name):
         try:
-            # 打印日志
-            print network_name
-
             # 创建渠道
             now = int(time.time())
             network = NetworkList(network=network_name, update_time=now)
@@ -551,7 +531,7 @@ class DbOperator(object):
             a_dict['item_count'] = 1
             return json.dumps(a_dict)
         except:
-            print traceback.format_exc()
+            Logger.error(traceback.format_exc())
             a_dict = dict()
             a_dict['success'] = 'false'
             a_dict['content'] = list()
@@ -562,9 +542,6 @@ class DbOperator(object):
     @classmethod
     def query_network_list(cls, network_name, off_set, limit):
         try:
-            # 打印日志
-            print network_name, off_set, limit
-
             # 转换类型
             off_set = int(off_set)
             limit = int(limit)
@@ -611,7 +588,7 @@ class DbOperator(object):
             a_dict['item_count'] = count
             return json.dumps(a_dict)
         except:
-            print traceback.format_exc()
+            Logger.error(traceback.format_exc())
             a_dict = dict()
             a_dict['success'] = 'false'
             a_dict['content'] = list()
@@ -622,9 +599,6 @@ class DbOperator(object):
     @classmethod
     def delete_network_list(cls, network_id_list):
         try:
-            # 打印日志
-            print network_id_list
-
             # 过滤参数
             split_id_list = network_id_list.split(',')
             join_id_list = list()
@@ -657,7 +631,7 @@ class DbOperator(object):
             a_dict['content'] = join_id_list
             return json.dumps(a_dict)
         except:
-            print traceback.format_exc()
+            Logger.error(traceback.format_exc())
             a_dict = dict()
             a_dict['success'] = 'false'
             a_dict['content'] = list()

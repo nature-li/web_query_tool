@@ -1,50 +1,54 @@
 #!/usr/bin/env python2.7
 # coding: utf-8
+import os.path
+import sys
+import json
 import logging
+
 import tornado.escape
 import tornado.ioloop
 import tornado.web
-import os.path
-import uuid
-import json
-
-from tornado.concurrent import Future
-from tornado import gen
+import tornado.log
 from tornado.options import define, options, parse_command_line
 
-from db_operate import DbOperator
-
-define("port", default=8888, help="run on the given port", type=int)
-define("debug", default=True, help="run in debug mode")
+from config import config
+from py_log.logger import Logger, LogEnv
+from py_db.db_operate import DbOperator
 
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('index.html', maps='/day_count')
 
 
 class DayCountHandler(tornado.web.RequestHandler):
     def get(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('hive/day_count.html')
 
 
 class HourCountHandler(tornado.web.RequestHandler):
     def get(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('hive/hour_count.html')
 
 
 class NetworkListHandler(tornado.web.RequestHandler):
     def get(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('hive/network_list.html')
 
 
 class UserListHandler(tornado.web.RequestHandler):
     def get(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('system/user_list.html')
 
 
 class DayQueryHandler(tornado.web.RequestHandler):
     def post(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         ad_network_id = self.get_argument("ad_network_id")
         ad_action = self.get_argument("ad_action")
         start_dt = self.get_argument('start_dt')
@@ -57,6 +61,7 @@ class DayQueryHandler(tornado.web.RequestHandler):
 
 class HourQueryHandler(tornado.web.RequestHandler):
     def post(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         dt = self.get_argument("dt")
         ad_network_id = self.get_argument("ad_network_id")
         ad_action = self.get_argument("ad_action")
@@ -70,6 +75,7 @@ class HourQueryHandler(tornado.web.RequestHandler):
 
 class AddUserHandler(tornado.web.RequestHandler):
     def post(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_account = self.get_argument("user_account")
         user_right = self.get_argument("user_right")
         text = DbOperator.add_user_account(user_account, user_right)
@@ -78,6 +84,7 @@ class AddUserHandler(tornado.web.RequestHandler):
 
 class QueryUserListHandler(tornado.web.RequestHandler):
     def post(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_account = self.get_argument("user_account")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
@@ -87,6 +94,7 @@ class QueryUserListHandler(tornado.web.RequestHandler):
 
 class DeleteUserListHandler(tornado.web.RequestHandler):
     def post(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_id_list = self.get_argument("user_id_list")
         text = DbOperator.delete_user_list(user_id_list)
         self.write(text)
@@ -94,6 +102,7 @@ class DeleteUserListHandler(tornado.web.RequestHandler):
 
 class EditUserListHandler(tornado.web.RequestHandler):
     def post(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_id = self.get_argument("user_id")
         user_right = self.get_argument("user_right")
         text = DbOperator.edit_user(user_id, user_right)
@@ -102,6 +111,7 @@ class EditUserListHandler(tornado.web.RequestHandler):
 
 class AddNetworkHandler(tornado.web.RequestHandler):
     def post(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         network_name = self.get_argument("network_name")
         text = DbOperator.add_network(network_name)
         self.write(text)
@@ -109,6 +119,7 @@ class AddNetworkHandler(tornado.web.RequestHandler):
 
 class QueryNetworkListHandler(tornado.web.RequestHandler):
     def post(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         network_name = self.get_argument("network_name")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
@@ -118,13 +129,48 @@ class QueryNetworkListHandler(tornado.web.RequestHandler):
 
 class DeleteNetworkListHandler(tornado.web.RequestHandler):
     def post(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_id_list = self.get_argument("network_id_list")
         text = DbOperator.delete_network_list(user_id_list)
         self.write(text)
 
 
+class LogFormatter(tornado.log.LogFormatter):
+    def __init__(self):
+        super(LogFormatter, self).__init__(
+            fmt='%(color)s[%(asctime)s %(filename)s:%(funcName)s:%(lineno)d %(levelname)s]%(end_color)s %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+
+
 def __main__():
-    parse_command_line()
+    # 设置编码
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+
+    # 解析参数
+    options.parse_command_line()
+
+    # 不要输出日志到屏幕
+    logging.getLogger("tornado.access").propagate = False
+    logging.getLogger("tornado.application").propagate = False
+    logging.getLogger("tornado.general").propagate = False
+    logging.getLogger("process").propagate = False
+    logging.getLogger("report").propagate = False
+    logging.getLogger("third").propagate = False
+
+    # 初始化日志
+    Logger.init(config.server_log_env, config.server_log_target, config.server_log_name, config.server_log_size,
+                config.server_log_count)
+
+    # 重定向tornado自带日志
+    logging.getLogger("tornado.access").addHandler(Logger.get_third_handler())
+    logging.getLogger("tornado.application").addHandler(Logger.get_third_handler())
+    logging.getLogger("tornado.general").addHandler(Logger.get_third_handler())
+
+    Logger.info("server is starting...")
+    Logger.info("config.server_listen_port: %s" % config.server_listen_port)
+
     app = tornado.web.Application(
         [
             (r'/', MainHandler),
@@ -146,13 +192,11 @@ def __main__():
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
         static_path=os.path.join(os.path.dirname(__file__), "static"),
         xsrf_cookies=False,
-        debug=options.debug
+        debug=config.server_debug_mode
     )
-    app.listen(options.port)
+    app.listen(config.server_listen_port)
     tornado.ioloop.IOLoop.current().start()
 
 
 if __name__ == '__main__':
     __main__()
-
-
