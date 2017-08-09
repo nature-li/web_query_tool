@@ -1,13 +1,39 @@
-// frame改变大小
-function frame_auto_size() {
-    var newHeight = $("#right_frame").contents().find('body').height();
-    if (newHeight < 900) {
-        newHeight = 900;
-    }
-    $("#left_frame_col").height(newHeight);
-    $("#right_frame_col").height(newHeight);
-    $("#right_frame").height = newHeight;
-}
+// 错误提示框
+$.showErr = function (str, func) {
+    BootstrapDialog.show({
+        type: BootstrapDialog.TYPE_DANGER,
+        title: '错误 ',
+        message: str,
+        size: BootstrapDialog.SIZE_SMALL,
+        buttons: [{
+            label: '关闭',
+            action: function (dialogItself) {
+                dialogItself.close();
+            }
+        }],
+        onhide: func
+    });
+};
+
+// 确认对话框
+$.showConfirm = function (str, func_ok, func_close) {
+    BootstrapDialog.confirm({
+        title: '确认',
+        message: str,
+        type: BootstrapDialog.TYPE_WARNING,
+        draggable: true,
+        btnCancelLabel: '取消',
+        btnOKLabel: '确定',
+        btnOKClass: 'btn-warning',
+        size: BootstrapDialog.SIZE_SMALL,
+        onhide: func_close,
+        callback: function (result) {
+            if (result) {
+                func_ok.call();
+            }
+        }
+    });
+};
 
 // 改变窗口大小
 function change_frame_size() {
@@ -54,36 +80,3 @@ function init_ad_network_select() {
         }
     );
 }
-
-// frame 加载时自适应大小
-$("#right_frame").load(function () {
-    frame_auto_size();
-});
-
-// a_day_count 点击事件
-$(document).on("click", "#a_day_count", function () {
-    $("#right_frame").attr("src", "day_count");
-    // 自适应框架大小
-    frame_auto_size();
-});
-
-// a_hour_count 点击事件
-$(document).on("click", "#a_hour_count", function () {
-    $("#right_frame").attr("src", "hour_count");
-    // 自适应框架大小
-    frame_auto_size();
-});
-
-// a_user_control 点击事件
-$(document).on("click", "#a_user_control", function () {
-    $("#right_frame").attr("src", "user_list");
-    // 自适应框架大小
-    frame_auto_size();
-});
-
-// a_ad_network_id_control 点击事件
-$(document).on("click", "#a_network_control", function () {
-    $("#right_frame").attr("src", "network_list");
-    // 自适应框架大小
-    frame_auto_size();
-});

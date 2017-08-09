@@ -25,22 +25,22 @@ class MainHandler(tornado.web.RequestHandler):
 
 class DayCountHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render('day_count.html')
+        self.render('hive/day_count.html')
 
 
 class HourCountHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render('hour_count.html')
-
-
-class UserListHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.render('user_list.html')
+        self.render('hive/hour_count.html')
 
 
 class NetworkListHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render('network_list.html')
+        self.render('hive/network_list.html')
+
+
+class UserListHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render('system/user_list.html')
 
 
 class DayQueryHandler(tornado.web.RequestHandler):
