@@ -5,6 +5,8 @@ import datetime
 import json
 import traceback
 import time
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from db_orm import *
 
 
@@ -38,70 +40,16 @@ class DbOperator(object):
             # 类型转换
             off_set = int(off_set)
             limit = int(limit)
+            if limit == -1:
+                limit_count = None
+            else:
+                limit_count = off_set + limit
 
             # 创建session
             session = sessionmaker(bind=cls.engine)()
 
             # 查询
-            if ad_network_id == 'all' and ad_action == 'all':
-                count = session.query(DayCount.dt,
-                                      DayCount.ad_network_id,
-                                      DayCount.ad_action,
-                                      DayCount.count,
-                                      DayCount.update_time
-                                      ).filter(
-                    DayCount.dt.in_(dt_list)).count()
-                values = session.query(DayCount.dt,
-                                       DayCount.ad_network_id,
-                                       DayCount.ad_action,
-                                       DayCount.count,
-                                       DayCount.update_time
-                                       ).filter(
-                    DayCount.dt.in_(dt_list)).order_by(
-                    DayCount.dt).order_by(
-                    DayCount.ad_network_id).order_by(
-                    DayCount.ad_action)[off_set: off_set + limit]
-            elif ad_action != 'all':
-                count = session.query(DayCount.dt,
-                                      DayCount.ad_network_id,
-                                      DayCount.ad_action,
-                                      DayCount.count,
-                                      DayCount.update_time
-                                      ).filter(
-                    DayCount.dt.in_(dt_list)).filter(
-                    DayCount.ad_action == ad_action).count()
-                values = session.query(DayCount.dt,
-                                       DayCount.ad_network_id,
-                                       DayCount.ad_action,
-                                       DayCount.count,
-                                       DayCount.update_time
-                                       ).filter(
-                    DayCount.dt.in_(dt_list)).filter(
-                    DayCount.ad_action == ad_action).order_by(
-                    DayCount.dt).order_by(
-                    DayCount.ad_network_id).order_by(
-                    DayCount.ad_action)[off_set: off_set + limit]
-            elif ad_network_id != "all":
-                count = session.query(DayCount.dt,
-                                      DayCount.ad_network_id,
-                                      DayCount.ad_action,
-                                      DayCount.count,
-                                      DayCount.update_time
-                                      ).filter(
-                    DayCount.dt.in_(dt_list)).filter(
-                    DayCount.ad_network_id == ad_network_id).count()
-                values = session.query(DayCount.dt,
-                                       DayCount.ad_network_id,
-                                       DayCount.ad_action,
-                                       DayCount.count,
-                                       DayCount.update_time
-                                       ).filter(
-                    DayCount.dt.in_(dt_list)).filter(
-                    DayCount.ad_network_id == ad_network_id).order_by(
-                    DayCount.dt).order_by(
-                    DayCount.ad_network_id).order_by(
-                    DayCount.ad_action)[off_set: off_set + limit]
-            else:
+            if ad_network_id != 'all' and ad_action != 'all':
                 count = session.query(DayCount.dt,
                                       DayCount.ad_network_id,
                                       DayCount.ad_action,
@@ -121,7 +69,65 @@ class DbOperator(object):
                     DayCount.ad_action == ad_action).order_by(
                     DayCount.dt).order_by(
                     DayCount.ad_network_id).order_by(
-                    DayCount.ad_action)[off_set: off_set + limit]
+                    DayCount.ad_action)[off_set: limit_count]
+            elif ad_action != 'all':
+                count = session.query(DayCount.dt,
+                                      DayCount.ad_network_id,
+                                      DayCount.ad_action,
+                                      DayCount.count,
+                                      DayCount.update_time
+                                      ).filter(
+                    DayCount.dt.in_(dt_list)).filter(
+                    DayCount.ad_action == ad_action).count()
+                values = session.query(DayCount.dt,
+                                       DayCount.ad_network_id,
+                                       DayCount.ad_action,
+                                       DayCount.count,
+                                       DayCount.update_time
+                                       ).filter(
+                    DayCount.dt.in_(dt_list)).filter(
+                    DayCount.ad_action == ad_action).order_by(
+                    DayCount.dt).order_by(
+                    DayCount.ad_network_id).order_by(
+                    DayCount.ad_action)[off_set: limit_count]
+            elif ad_network_id != "all":
+                count = session.query(DayCount.dt,
+                                      DayCount.ad_network_id,
+                                      DayCount.ad_action,
+                                      DayCount.count,
+                                      DayCount.update_time
+                                      ).filter(
+                    DayCount.dt.in_(dt_list)).filter(
+                    DayCount.ad_network_id == ad_network_id).count()
+                values = session.query(DayCount.dt,
+                                       DayCount.ad_network_id,
+                                       DayCount.ad_action,
+                                       DayCount.count,
+                                       DayCount.update_time
+                                       ).filter(
+                    DayCount.dt.in_(dt_list)).filter(
+                    DayCount.ad_network_id == ad_network_id).order_by(
+                    DayCount.dt).order_by(
+                    DayCount.ad_network_id).order_by(
+                    DayCount.ad_action)[off_set: limit_count]
+            else:
+                count = session.query(DayCount.dt,
+                                      DayCount.ad_network_id,
+                                      DayCount.ad_action,
+                                      DayCount.count,
+                                      DayCount.update_time
+                                      ).filter(
+                    DayCount.dt.in_(dt_list)).count()
+                values = session.query(DayCount.dt,
+                                       DayCount.ad_network_id,
+                                       DayCount.ad_action,
+                                       DayCount.count,
+                                       DayCount.update_time
+                                       ).filter(
+                    DayCount.dt.in_(dt_list)).order_by(
+                    DayCount.dt).order_by(
+                    DayCount.ad_network_id).order_by(
+                    DayCount.ad_action)[off_set: limit_count]
 
             # 关闭session
             session.close()
@@ -179,12 +185,16 @@ class DbOperator(object):
             # 类型转换
             off_set = int(off_set)
             limit = int(limit)
+            if limit == -1:
+                limit_count = None
+            else:
+                limit_count = off_set + limit
 
             # 创建session
             session = sessionmaker(bind=cls.engine)()
 
             # 查询
-            if ad_network_id == 'all' and ad_action == 'all':
+            if ad_network_id != 'all' and ad_action != 'all':
                 count = session.query(HourCount.dt,
                                       HourCount.hour,
                                       HourCount.ad_network_id,
@@ -192,7 +202,9 @@ class DbOperator(object):
                                       HourCount.count,
                                       HourCount.update_time
                                       ).filter(HourCount.dt == dt).filter(
-                    HourCount.hour.in_(hour_list)).count()
+                    HourCount.hour.in_(hour_list)).filter(
+                    HourCount.ad_network_id == ad_network_id).filter(
+                    HourCount.ad_action == ad_action).count()
                 values = session.query(HourCount.dt,
                                        HourCount.hour,
                                        HourCount.ad_network_id,
@@ -200,10 +212,12 @@ class DbOperator(object):
                                        HourCount.count,
                                        HourCount.update_time
                                        ).filter(HourCount.dt == dt).filter(
-                    HourCount.hour.in_(hour_list)).order_by(
+                    HourCount.hour.in_(hour_list)).filter(
+                    HourCount.ad_network_id == ad_network_id).filter(
+                    HourCount.ad_action == ad_action).order_by(
                     HourCount.hour).order_by(
                     HourCount.ad_network_id).order_by(
-                    HourCount.ad_action)[off_set: off_set + limit]
+                    HourCount.ad_action)[off_set: limit_count]
             elif ad_action != 'all':
                 count = session.query(HourCount.dt,
                                       HourCount.hour,
@@ -225,7 +239,7 @@ class DbOperator(object):
                     HourCount.ad_action == ad_action).order_by(
                     HourCount.hour).order_by(
                     HourCount.ad_network_id).order_by(
-                    HourCount.ad_action)[off_set: off_set + limit]
+                    HourCount.ad_action)[off_set: limit_count]
             elif ad_network_id != "all":
                 count = session.query(HourCount.dt,
                                       HourCount.hour,
@@ -247,7 +261,7 @@ class DbOperator(object):
                     HourCount.ad_network_id == ad_network_id).order_by(
                     HourCount.hour).order_by(
                     HourCount.ad_network_id).order_by(
-                    HourCount.ad_action)[off_set: off_set + limit]
+                    HourCount.ad_action)[off_set: limit_count]
             else:
                 count = session.query(HourCount.dt,
                                       HourCount.hour,
@@ -256,9 +270,7 @@ class DbOperator(object):
                                       HourCount.count,
                                       HourCount.update_time
                                       ).filter(HourCount.dt == dt).filter(
-                    HourCount.hour.in_(hour_list)).filter(
-                    HourCount.ad_network_id == ad_network_id).filter(
-                    HourCount.ad_action == ad_action).count()
+                    HourCount.hour.in_(hour_list)).count()
                 values = session.query(HourCount.dt,
                                        HourCount.hour,
                                        HourCount.ad_network_id,
@@ -266,12 +278,10 @@ class DbOperator(object):
                                        HourCount.count,
                                        HourCount.update_time
                                        ).filter(HourCount.dt == dt).filter(
-                    HourCount.hour.in_(hour_list)).filter(
-                    HourCount.ad_network_id == ad_network_id).filter(
-                    HourCount.ad_action == ad_action).order_by(
+                    HourCount.hour.in_(hour_list)).order_by(
                     HourCount.hour).order_by(
                     HourCount.ad_network_id).order_by(
-                    HourCount.ad_action)[off_set: off_set + limit]
+                    HourCount.ad_action)[off_set: limit_count]
 
             # 关闭session
             session.close()
@@ -356,6 +366,10 @@ class DbOperator(object):
             # 转换类型
             off_set = int(off_set)
             limit = int(limit)
+            if limit == -1:
+                limit_count = None
+            else:
+                limit_count = off_set + limit
 
             # 创建session
             session = sessionmaker(bind=cls.engine)()
@@ -372,7 +386,7 @@ class DbOperator(object):
                                        UserList.user_right,
                                        UserList.update_time).filter(
                     UserList.user_account.like(like_condition))[
-                         off_set: off_set + limit]
+                         off_set: limit_count]
             else:
                 count = session.query(UserList.id,
                                       UserList.user_account,
@@ -381,7 +395,7 @@ class DbOperator(object):
                 values = session.query(UserList.id,
                                        UserList.user_account,
                                        UserList.user_right,
-                                       UserList.update_time)[off_set: off_set + limit]
+                                       UserList.update_time)[off_set: limit_count]
             # 关闭session
             session.close()
             # 返回结果
@@ -554,6 +568,10 @@ class DbOperator(object):
             # 转换类型
             off_set = int(off_set)
             limit = int(limit)
+            if limit == -1:
+                limit_count = None
+            else:
+                limit_count = off_set + limit
 
             # 创建session
             session = sessionmaker(bind=cls.engine)()
@@ -566,14 +584,14 @@ class DbOperator(object):
                 values = session.query(NetworkList.id,
                                        NetworkList.network,
                                        NetworkList.update_time).filter(NetworkList.network.like(like_condition))[
-                         off_set: off_set + limit]
+                         off_set: limit_count]
             else:
                 count = session.query(NetworkList.id,
                                       NetworkList.network,
                                       NetworkList.update_time).count()
                 values = session.query(NetworkList.id,
                                        NetworkList.network,
-                                       NetworkList.update_time)[off_set: off_set + limit]
+                                       NetworkList.update_time)[off_set: limit_count]
             # 关闭session
             session.close()
             # 返回结果
