@@ -179,10 +179,10 @@ class DeleteNetworkListHandler(BaseHandler):
 class LoginHandler(BaseHandler):
     def get(self):
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.write('<html><body><form action="/login" method="post">'
-                   'Name: <input type="text" name="name">'
-                   '<input type="submit" value="Sign in">'
-                   '</form></body></html>')
+        if not self.get_current_user():
+            self.render('login.html')
+        else:
+            self.redirect("/")
 
     def post(self):
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -197,7 +197,7 @@ class LogoutHandler(BaseHandler):
         if not login_user:
             return
         self.clear_cookie("user_name")
-        self.redirect("/")
+        self.render('login.html')
 
 
 class LogFormatter(tornado.log.LogFormatter):
