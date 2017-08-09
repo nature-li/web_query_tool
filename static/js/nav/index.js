@@ -17,7 +17,7 @@ function init_main_page() {
         </ul>
     </li>
     <li><a href="#systemControl" class="nav-header collapse" data-toggle="collapse"><i
-            class="glyphicon glyphicon-th-list"></i>系统管理<span
+            class="glyphicon glyphicon-th-list"></i>hive管理<span
             class="pull-right glyphicon glyphicon-chevron-down"></span></a>
         <ul id="systemControl" class="nav nav-list collapse secondmenu" aria-expanded="true" style="height: 0px;">
             <li><a id="a_network_control" href="#">渠道管理<i id="i_network_control" class="glyphicon glyphicon-pencil"></i></a>

@@ -12,7 +12,7 @@ from tornado.concurrent import Future
 from tornado import gen
 from tornado.options import define, options, parse_command_line
 
-import query_db
+from db_operate import DbOperator
 
 define("port", default=8888, help="run on the given port", type=int)
 define("debug", default=True, help="run in debug mode")
@@ -51,7 +51,7 @@ class DayQueryHandler(tornado.web.RequestHandler):
         end_dt = self.get_argument("end_dt")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
-        text = query_db.get_day_count(ad_network_id, ad_action, start_dt, end_dt, off_set, limit)
+        text = DbOperator.get_day_count(ad_network_id, ad_action, start_dt, end_dt, off_set, limit)
         self.write(text)
 
 
@@ -64,7 +64,7 @@ class HourQueryHandler(tornado.web.RequestHandler):
         end_hour = self.get_argument("end_hour")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
-        text = query_db.get_hour_count(dt, ad_network_id, ad_action, start_hour, end_hour, off_set, limit)
+        text = DbOperator.get_hour_count(dt, ad_network_id, ad_action, start_hour, end_hour, off_set, limit)
         self.write(text)
 
 
@@ -72,7 +72,7 @@ class AddUserHandler(tornado.web.RequestHandler):
     def post(self):
         user_account = self.get_argument("user_account")
         user_right = self.get_argument("user_right")
-        text = query_db.add_user_account(user_account, user_right)
+        text = DbOperator.add_user_account(user_account, user_right)
         self.write(text)
 
 
@@ -81,14 +81,14 @@ class QueryUserListHandler(tornado.web.RequestHandler):
         user_account = self.get_argument("user_account")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
-        text = query_db.query_user_list(user_account, off_set, limit)
+        text = DbOperator.query_user_list(user_account, off_set, limit)
         self.write(text)
 
 
 class DeleteUserListHandler(tornado.web.RequestHandler):
     def post(self):
         user_id_list = self.get_argument("user_id_list")
-        text = query_db.delete_user_list(user_id_list)
+        text = DbOperator.delete_user_list(user_id_list)
         self.write(text)
 
 
@@ -96,14 +96,14 @@ class EditUserListHandler(tornado.web.RequestHandler):
     def post(self):
         user_id = self.get_argument("user_id")
         user_right = self.get_argument("user_right")
-        text = query_db.edit_user(user_id, user_right)
+        text = DbOperator.edit_user(user_id, user_right)
         self.write(text)
 
 
 class AddNetworkHandler(tornado.web.RequestHandler):
     def post(self):
         network_name = self.get_argument("network_name")
-        text = query_db.add_network(network_name)
+        text = DbOperator.add_network(network_name)
         self.write(text)
 
 
@@ -112,14 +112,14 @@ class QueryNetworkListHandler(tornado.web.RequestHandler):
         network_name = self.get_argument("network_name")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
-        text = query_db.query_network_list(network_name, off_set, limit)
+        text = DbOperator.query_network_list(network_name, off_set, limit)
         self.write(text)
 
 
 class DeleteNetworkListHandler(tornado.web.RequestHandler):
     def post(self):
         user_id_list = self.get_argument("network_id_list")
-        text = query_db.delete_network_list(user_id_list)
+        text = DbOperator.delete_network_list(user_id_list)
         self.write(text)
 
 

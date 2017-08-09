@@ -205,9 +205,6 @@ function show_edit_dialog(user_id, user_account, user_right) {
                     is_admin = 1;
                 }
 
-                console.log(123);
-                console.log(old_user_right);
-                console.log(is_admin);
                 // 权限发生变化后发送请求
                 if (old_user_right != is_admin) {
                     // 发送请求
@@ -258,8 +255,6 @@ function edit_user_page_view(response) {
         var $check_box = $(this).find("td:eq(0)").find("input[name='user_list[]']");
         var bind_user_id = $check_box.val();
 
-        console.log(user_id);
-        console.log(bind_user_id);
         if (bind_user_id == user_id) {
             var is_admin = '否';
             if (user_right == 1) {
