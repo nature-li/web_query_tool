@@ -37,8 +37,8 @@
                 <li><a href="#" id="nav_user_ref_a">系统管理</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a id="login_user" href="#">你好</a></li>
-                <li><a id="logout_user" href="#">退出</a></li>
+                <li><a id="login_user" href="#">{{ user_name }}</a></li>
+                <li><a id="logout_user" href="/logout">退出</a></li>
             </ul>
         </div>
     </div>
@@ -56,7 +56,7 @@
                         </div>
                         <div id="right_frame_col" class="col-xs-10">
                             <iframe id="right_frame" frameBorder="0" height="100%" width="100%"
-                                    src="{{ maps }}"></iframe>
+                                    src="{{ iframe_src }}"></iframe>
                         </div>
                     </div>
                 </div>
@@ -65,6 +65,7 @@
     </div>
 </div>
 
+<script src="static/js/nav/public/public.js"></script>
 <script src="static/js/nav/hive/hive_index.js"></script>
 <script src="static/js/nav/index.js"></script>
 </body>

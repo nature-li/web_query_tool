@@ -16,38 +16,63 @@ from py_log.logger import Logger, LogEnv
 from py_db.db_operate import DbOperator
 
 
-class MainHandler(tornado.web.RequestHandler):
+class BaseHandler(tornado.web.RequestHandler):
+    def get_current_user(self):
+        return self.get_secure_cookie("user_name")
+
+    def get_login_user(self):
+        if not self.current_user:
+            self.redirect("/login")
+            return None
+        login_user = tornado.escape.xhtml_escape(self.current_user)
+        return login_user
+
+
+class MainHandler(BaseHandler):
     def get(self):
+        user_name = self.get_login_user()
+        if not user_name:
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('index.html', maps='/day_count')
+        self.render('index.html', iframe_src='/day_count', user_name=user_name)
 
 
-class DayCountHandler(tornado.web.RequestHandler):
+class DayCountHandler(BaseHandler):
     def get(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('hive/day_count.html')
 
 
-class HourCountHandler(tornado.web.RequestHandler):
+class HourCountHandler(BaseHandler):
     def get(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('hive/hour_count.html')
 
 
-class NetworkListHandler(tornado.web.RequestHandler):
+class NetworkListHandler(BaseHandler):
     def get(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('hive/network_list.html')
 
 
-class UserListHandler(tornado.web.RequestHandler):
+class UserListHandler(BaseHandler):
     def get(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('system/user_list.html')
 
 
-class DayQueryHandler(tornado.web.RequestHandler):
+class DayQueryHandler(BaseHandler):
     def post(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         ad_network_id = self.get_argument("ad_network_id")
         ad_action = self.get_argument("ad_action")
@@ -59,8 +84,10 @@ class DayQueryHandler(tornado.web.RequestHandler):
         self.write(text)
 
 
-class HourQueryHandler(tornado.web.RequestHandler):
+class HourQueryHandler(BaseHandler):
     def post(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         dt = self.get_argument("dt")
         ad_network_id = self.get_argument("ad_network_id")
@@ -73,8 +100,10 @@ class HourQueryHandler(tornado.web.RequestHandler):
         self.write(text)
 
 
-class AddUserHandler(tornado.web.RequestHandler):
+class AddUserHandler(BaseHandler):
     def post(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_account = self.get_argument("user_account")
         user_right = self.get_argument("user_right")
@@ -82,8 +111,10 @@ class AddUserHandler(tornado.web.RequestHandler):
         self.write(text)
 
 
-class QueryUserListHandler(tornado.web.RequestHandler):
+class QueryUserListHandler(BaseHandler):
     def post(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_account = self.get_argument("user_account")
         off_set = self.get_argument("off_set")
@@ -92,16 +123,20 @@ class QueryUserListHandler(tornado.web.RequestHandler):
         self.write(text)
 
 
-class DeleteUserListHandler(tornado.web.RequestHandler):
+class DeleteUserListHandler(BaseHandler):
     def post(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_id_list = self.get_argument("user_id_list")
         text = DbOperator.delete_user_list(user_id_list)
         self.write(text)
 
 
-class EditUserListHandler(tornado.web.RequestHandler):
+class EditUserListHandler(BaseHandler):
     def post(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_id = self.get_argument("user_id")
         user_right = self.get_argument("user_right")
@@ -109,16 +144,20 @@ class EditUserListHandler(tornado.web.RequestHandler):
         self.write(text)
 
 
-class AddNetworkHandler(tornado.web.RequestHandler):
+class AddNetworkHandler(BaseHandler):
     def post(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         network_name = self.get_argument("network_name")
         text = DbOperator.add_network(network_name)
         self.write(text)
 
 
-class QueryNetworkListHandler(tornado.web.RequestHandler):
+class QueryNetworkListHandler(BaseHandler):
     def post(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         network_name = self.get_argument("network_name")
         off_set = self.get_argument("off_set")
@@ -127,12 +166,38 @@ class QueryNetworkListHandler(tornado.web.RequestHandler):
         self.write(text)
 
 
-class DeleteNetworkListHandler(tornado.web.RequestHandler):
+class DeleteNetworkListHandler(BaseHandler):
     def post(self):
+        if not self.get_login_user():
+            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_id_list = self.get_argument("network_id_list")
         text = DbOperator.delete_network_list(user_id_list)
         self.write(text)
+
+
+class LoginHandler(BaseHandler):
+    def get(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        self.write('<html><body><form action="/login" method="post">'
+                   'Name: <input type="text" name="name">'
+                   '<input type="submit" value="Sign in">'
+                   '</form></body></html>')
+
+    def post(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        self.set_secure_cookie("user_name", self.get_argument("name"))
+        self.redirect("/")
+
+
+class LogoutHandler(BaseHandler):
+    def get(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        login_user = self.get_login_user()
+        if not login_user:
+            return
+        self.clear_cookie("user_name")
+        self.redirect("/")
 
 
 class LogFormatter(tornado.log.LogFormatter):
@@ -168,12 +233,15 @@ def __main__():
     logging.getLogger("tornado.application").addHandler(Logger.get_third_handler())
     logging.getLogger("tornado.general").addHandler(Logger.get_third_handler())
 
+    print "server is starting..."
     Logger.info("server is starting...")
     Logger.info("config.server_listen_port: %s" % config.server_listen_port)
 
     app = tornado.web.Application(
         [
             (r'/', MainHandler),
+            (r'/login', LoginHandler),
+            (r'/logout', LogoutHandler),
             (r'/day_count', DayCountHandler),
             (r'/hour_count', HourCountHandler),
             (r'/user_list', UserListHandler),
@@ -188,7 +256,7 @@ def __main__():
             (r'/query_network_list', QueryNetworkListHandler),
             (r'/delete_network_list', DeleteNetworkListHandler),
         ],
-        cookie_secret="__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__",
+        cookie_secret="RDIUF;05230D7@#$_+(!WEFGHNM*IJM_)(*&^_)(*YT%^_)(%%)YG0YFG%(H59",
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
         static_path=os.path.join(os.path.dirname(__file__), "static"),
         xsrf_cookies=False,
