@@ -20,7 +20,7 @@ from login.login import Login
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
-        return self.get_secure_cookie("user_name")
+        return self.get_secure_cookie("user_id")
 
     def get_login_user(self):
         if not self.current_user:
@@ -255,11 +255,12 @@ class LoginHandler(BaseHandler):
         if status != 200:
             self.write(content)
             return
+        Logger.info("get_access_token: [%s]" % content)
 
         try:
             a_dict = json.loads(content)
         except:
-            Logger.error("parse token error: contnet[%s]" % content)
+            Logger.error("parse token error: content[%s]" % content)
             self.write(content)
             return
 
@@ -269,6 +270,7 @@ class LoginHandler(BaseHandler):
         if status != 200:
             self.write(content)
             return
+        Logger.info("get_user_info: [%s]" % content)
 
         try:
             a_dict = json.loads(content)
@@ -282,8 +284,10 @@ class LoginHandler(BaseHandler):
         db_user = DbOperator.get_user_info(email)
         if not db_user:
             self.render('error.html')
+            return
 
         # 保存session
+        self.set_secure_cookie("user_id", email)
         self.set_secure_cookie("user_name", name)
 
         # 重向定
@@ -292,6 +296,7 @@ class LoginHandler(BaseHandler):
     # 本机登录用
     # def post(self):
     #     name = self.get_argument("name")
+    #     self.set_secure_cookie("user_id", name)
     #     self.set_secure_cookie("user_name", name)
     #     self.redirect("/")
 
@@ -302,6 +307,7 @@ class LogoutHandler(BaseHandler):
         if not login_user:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        self.clear_cookie("user_id")
         self.clear_cookie("user_name")
         self.render('logout.html')
 
