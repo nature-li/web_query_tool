@@ -122,12 +122,11 @@ class DayQueryHandler(BaseHandler):
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         ad_network_id = self.get_argument("ad_network_id")
-        ad_action = self.get_argument("ad_action")
         start_dt = self.get_argument('start_dt')
         end_dt = self.get_argument("end_dt")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
-        text = DbOperator.get_day_count(ad_network_id, ad_action, start_dt, end_dt, off_set, limit)
+        text = DbOperator.get_day_count(ad_network_id, start_dt, end_dt, off_set, limit)
         self.write(text)
 
 
@@ -138,12 +137,11 @@ class HourQueryHandler(BaseHandler):
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         dt = self.get_argument("dt")
         ad_network_id = self.get_argument("ad_network_id")
-        ad_action = self.get_argument("ad_action")
         start_hour = self.get_argument('start_hour')
         end_hour = self.get_argument("end_hour")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
-        text = DbOperator.get_hour_count(dt, ad_network_id, ad_action, start_hour, end_hour, off_set, limit)
+        text = DbOperator.get_hour_count(dt, ad_network_id, start_hour, end_hour, off_set, limit)
         self.write(text)
 
 

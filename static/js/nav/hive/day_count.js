@@ -48,7 +48,12 @@ function update_page_view(page_idx) {
     var html = "";
     for (var i = 0; i < window.save_data.item_list.length; i++) {
         var item = window.save_data.item_list[i];
-        html += "<tr><td>" + item.dt + "</td><td>" + item.ad_network_id + "</td><td>" + item.ad_action + "</td><td>" + item.count + "</td><td>" + item.update_time + "</td></tr>";
+        html += "<tr><td>" + item.dt + "</td>" +
+            "<td>" + item.ad_network_id + "</td>" +
+            "<td>" + item.pv + "</td>" +
+            "<td>" + item.impression + "</td>" +
+            "<td>" + item.click + "</td>" +
+            "<td>" + item.update_time + "</td></tr>";
     }
     $("#day_result").find("tr:gt(0)").remove();
     $("#day_result").append(html);
@@ -66,12 +71,6 @@ function query_and_update_view() {
     var ad_network_id = $("#ad_network_id_selector option:selected").text();
     if (ad_network_id == 'all_ad_network_id') {
         ad_network_id = "all";
-    }
-
-    // 获取 ad_action
-    var ad_action = $("#ad_action option:selected").text();
-    if (ad_action == "all_action") {
-        ad_action = "all";
     }
 
     // 获取开始日期
@@ -97,7 +96,6 @@ function query_and_update_view() {
             type: "post",
             data: {
                 'ad_network_id': ad_network_id,
-                'ad_action': ad_action,
                 'start_dt': start_dt,
                 'end_dt': end_dt,
                 'off_set': off_set,

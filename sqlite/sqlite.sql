@@ -1,9 +1,10 @@
 CREATE TABLE day_count(
 id integer primary key autoincrement,
 ad_network_id varchar(255) not null,
-ad_action varchar(32) not null,
 dt varchar(32) not null,
-count int not null,
+pv int not null,
+impression int not null,
+click int not null,
 update_time long not null);
 CREATE UNIQUE INDEX day_index on day_count (dt, ad_network_id, ad_action);
 
@@ -11,10 +12,11 @@ CREATE UNIQUE INDEX day_index on day_count (dt, ad_network_id, ad_action);
 CREATE TABLE hour_count(
 id integer primary key autoincrement,
 ad_network_id varchar(255) not null,
-ad_action varchar(32) not null,
 dt varchar(32) not null,
 hour varchar(32) not null,
-count int not null,
+pv int not null,
+impression int not null,
+click int not null,
 update_time long not null);
 CREATE UNIQUE INDEX hour_index on hour_count (dt, hour, ad_network_id, ad_action);
 

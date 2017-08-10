@@ -12,9 +12,10 @@ class DayCount(Base):
     __tablename__ = 'day_count'
     id = Column(Integer, primary_key=True, autoincrement=True)
     ad_network_id = Column(String(255))
-    ad_action = Column(String(32))
     dt = Column(String(32))
-    count = Column(Integer)
+    pv = Column(Integer)
+    impression = Column(Integer)
+    click = Column(Integer)
     update_time = Column(BigInteger)
 
 
@@ -26,7 +27,9 @@ class HourCount(Base):
     ad_action = Column(String(32))
     dt = Column(String(32))
     hour = Column(String(32))
-    count = Column(Integer)
+    pv = Column(Integer)
+    impression = Column(Integer)
+    click = Column(Integer)
     update_time = Column(BigInteger)
 
 
