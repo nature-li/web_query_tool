@@ -4,6 +4,7 @@ import os.path
 import sys
 import json
 import logging
+import time
 from urllib import quote
 
 import tornado.escape
@@ -23,11 +24,38 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.get_secure_cookie("user_id")
 
     def get_login_user(self):
-        if not self.current_user:
+        try:
+            # 是否登录
+            login_user = self.current_user
+            if not login_user:
+                self.redirect("/logout")
+                return None
+            login_user = tornado.escape.xhtml_escape(self.current_user)
+
+            # 登录时间
+            str_login_time = self.get_secure_cookie('last_time')
+            if not str_login_time:
+                self.redirect("/logout")
+                return None
+            str_login_time = tornado.escape.xhtml_escape(str_login_time)
+
+            # 是否过期
+            now = time.time()
+            last_time = float(str_login_time)
+            time_span = now - last_time
+            if time_span > config.server_expire_time:
+                self.redirect("/logout")
+                return None
+
+            # 重新设置过期时间,每1分钟设置一次
+            if time_span > 60:
+                self.set_secure_cookie("last_time", str(time.time()), expires_days=None)
+
+            # 返回用户信息
+            return login_user
+        except:
             self.redirect("/logout")
             return None
-        login_user = tornado.escape.xhtml_escape(self.current_user)
-        return login_user
 
 
 class MainHandler(BaseHandler):
@@ -232,9 +260,18 @@ class DeleteNetworkListHandler(BaseHandler):
 
 
 class LoginHandler(BaseHandler):
+    # 本机登录用
+    # def post(self):
+    #     name = self.get_argument("name")
+    #     self.set_secure_cookie("user_id", name, expires_days=None)
+    #     self.set_secure_cookie("user_name", name, expires_days=None)
+    #     self.set_secure_cookie("last_time", str(time.time()), expires_days=None)
+    #     self.redirect("/")
+
     def get(self):
         # 本机登录用
         # self.render("login.html")
+        # 部署使用
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         if self.get_current_user():
             self.redirect("/")
@@ -287,25 +324,16 @@ class LoginHandler(BaseHandler):
             return
 
         # 保存session
-        self.set_secure_cookie("user_id", email)
-        self.set_secure_cookie("user_name", name)
+        self.set_secure_cookie("user_id", email, expires_days=None)
+        self.set_secure_cookie("user_name", name, expires_days=None)
+        self.set_secure_cookie("last_time", str(time.time()), expires_days=None)
 
         # 重向定
         self.redirect("/")
 
-    # 本机登录用
-    # def post(self):
-    #     name = self.get_argument("name")
-    #     self.set_secure_cookie("user_id", name)
-    #     self.set_secure_cookie("user_name", name)
-    #     self.redirect("/")
-
 
 class LogoutHandler(BaseHandler):
     def get(self):
-        login_user = self.get_login_user()
-        if not login_user:
-            return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.clear_cookie("user_id")
         self.clear_cookie("user_name")
