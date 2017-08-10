@@ -34,7 +34,8 @@ class MainHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('index.html', iframe_src='/day_count', user_name=user_name)
+        user = DbOperator.get_user_info(user_name)
+        self.render('index.html', iframe_src='/day_count', user_name=user_name, login_user_right=user.user_right)
 
 
 class DayCountHandler(BaseHandler):
@@ -55,16 +56,26 @@ class HourCountHandler(BaseHandler):
 
 class NetworkListHandler(BaseHandler):
     def get(self):
-        if not self.get_login_user():
+        user_name = self.get_login_user()
+        if not user_name:
             return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        user = DbOperator.get_user_info(user_name)
+        if not user.user_right & 0X10:
+            self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('hive/network_list.html')
 
 
 class UserListHandler(BaseHandler):
     def get(self):
-        if not self.get_login_user():
+        user_name = self.get_login_user()
+        if not user_name:
             return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        user = DbOperator.get_user_info(user_name)
+        if not user.user_right & 0X01:
+            self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('system/user_list.html')
 
@@ -102,9 +113,13 @@ class HourQueryHandler(BaseHandler):
 
 class AddUserHandler(BaseHandler):
     def post(self):
-        if not self.get_login_user():
+        user_name = self.get_login_user()
+        if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        user = DbOperator.get_user_info(user_name)
+        if not user.user_right & 0X01:
+            self.redirect("/")
         user_account = self.get_argument("user_account")
         user_right = self.get_argument("user_right")
         text = DbOperator.add_user_account(user_account, user_right)
@@ -113,9 +128,13 @@ class AddUserHandler(BaseHandler):
 
 class QueryUserListHandler(BaseHandler):
     def post(self):
-        if not self.get_login_user():
+        user_name = self.get_login_user()
+        if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        user = DbOperator.get_user_info(user_name)
+        if not user.user_right & 0X01:
+            self.redirect("/")
         user_account = self.get_argument("user_account")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
@@ -125,8 +144,12 @@ class QueryUserListHandler(BaseHandler):
 
 class DeleteUserListHandler(BaseHandler):
     def post(self):
-        if not self.get_login_user():
+        user_name = self.get_login_user()
+        if not user_name:
             return
+        user = DbOperator.get_user_info(user_name)
+        if not user.user_right & 0X01:
+            self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_id_list = self.get_argument("user_id_list")
         text = DbOperator.delete_user_list(user_id_list)
@@ -135,8 +158,12 @@ class DeleteUserListHandler(BaseHandler):
 
 class EditUserListHandler(BaseHandler):
     def post(self):
-        if not self.get_login_user():
+        user_name = self.get_login_user()
+        if not user_name:
             return
+        user = DbOperator.get_user_info(user_name)
+        if not user.user_right & 0X01:
+            self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_id = self.get_argument("user_id")
         user_right = self.get_argument("user_right")
@@ -146,8 +173,12 @@ class EditUserListHandler(BaseHandler):
 
 class AddNetworkHandler(BaseHandler):
     def post(self):
-        if not self.get_login_user():
+        user_name = self.get_login_user()
+        if not user_name:
             return
+        user = DbOperator.get_user_info(user_name)
+        if not user.user_right & 0X10:
+            self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         network_name = self.get_argument("network_name")
         text = DbOperator.add_network(network_name)
@@ -168,8 +199,12 @@ class QueryNetworkListHandler(BaseHandler):
 
 class DeleteNetworkListHandler(BaseHandler):
     def post(self):
-        if not self.get_login_user():
+        user_name = self.get_login_user()
+        if not user_name:
             return
+        user = DbOperator.get_user_info(user_name)
+        if not user.user_right & 0X10:
+            self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_id_list = self.get_argument("network_id_list")
         text = DbOperator.delete_network_list(user_id_list)
@@ -192,10 +227,10 @@ class LoginHandler(BaseHandler):
 
 class LogoutHandler(BaseHandler):
     def get(self):
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         login_user = self.get_login_user()
         if not login_user:
             return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.clear_cookie("user_name")
         self.render('login.html')
 

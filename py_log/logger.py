@@ -109,12 +109,16 @@ class Logger(object):
                 '[%(asctime)s]',
                 '[%(levelname)s]',
                 '[%(thread)d]',
+                '[position]',
+                '[env]',
+                '[pvid]',
+                '[keyword]'
                 '[%(message)s]'
             ]
             third_formatter = Logger.Formatter(fmt=cls.__sep.join(third_argv), datefmt="%Y-%m-%d %H:%M:%S.%f")
 
-            # Third logger to third.log
-            third_file = os.path.join(target, file_name + '.third.log')
+            # Third logger to process.log
+            third_file = os.path.join(target, file_name + '.process.log')
             cls.__third_handler = MtTimedFileHandler(third_file, file_size, max_file_count)
             cls.__third_handler.setLevel(LogSev.trace[0])
             cls.__third_handler.setFormatter(third_formatter)

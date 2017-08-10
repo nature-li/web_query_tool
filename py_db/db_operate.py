@@ -636,3 +636,33 @@ class DbOperator(object):
             a_dict['success'] = 'false'
             a_dict['content'] = list()
             return json.dumps(a_dict)
+
+    # 获取用户信息
+    @classmethod
+    def get_user_info(cls, user_account):
+        """
+        :type user_account: str
+        :rtype: UserList
+        """
+        try:
+            # 创建session
+            session = sessionmaker(bind=cls.engine)()
+            # 查询用户
+            values = session.query(UserList).filter(UserList.user_account == user_account)
+            # 关闭session
+            session.close()
+
+            # 获取用户信息
+            user = None
+            for value in values:
+                user = value
+                break
+
+            # 未查到用户
+            if not user:
+                Logger.error("user_account[%s] number[%s] != 0" % (user_account, len(values)))
+                return None
+            return user
+        except:
+            Logger.error(traceback.format_exc())
+            return None

@@ -11,10 +11,15 @@
 </head>
 <body>
 
+<div style="display: none">
+    <input id="login_user_right" type="text" value="{{ login_user_right }}"/>
+</div>
+
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -25,7 +30,8 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">数据统计<span class="caret"></span></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">数据统计<span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="#" id="nav_hive_ref_a">hive统计</a></li>
                         <li role="separator" class="divider"></li>
@@ -33,14 +39,17 @@
                     </ul>
                 </li>
             </ul>
+            {% if login_user_right & 0B01 != 0 %}
             <ul class="nav navbar-nav">
                 <li><a href="#" id="nav_user_ref_a">系统管理</a></li>
             </ul>
+            {% end %}
             <ul class="nav navbar-nav navbar-right">
                 <li><a id="login_user" href="#">{{ user_name }}</a></li>
                 <li><a id="logout_user" href="/logout">退出</a></li>
             </ul>
         </div>
+    </div>
     </div>
 </nav>
 

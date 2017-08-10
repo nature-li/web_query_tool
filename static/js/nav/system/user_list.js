@@ -180,9 +180,9 @@ function show_edit_dialog(user_id, user_account, user_control, hive_control) {
             var user_bit = 0B00;
             if (user_control == '是') {
                 user_bit = 0B01;
-                content += '<label style="margin: 0 10px;"><input id="user_control_in_dialog" type="checkbox" name="is_admin" value="'+ user_bit + '" checked/>用户管理</label>';
+                content += '<label style="margin: 0 10px;"><input id="user_control_in_dialog" type="checkbox" name="is_admin" value="'+ user_bit + '" checked/>系统管理</label>';
             } else {
-                content += '<label style="margin: 0 10px;"><input id="user_control_in_dialog" type="checkbox" name="is_admin" value="'+ user_bit + '"/>用户管理</label>';
+                content += '<label style="margin: 0 10px;"><input id="user_control_in_dialog" type="checkbox" name="is_admin" value="'+ user_bit + '"/>系统管理</label>';
             }
 
             var hive_bit = 0B00;
@@ -302,7 +302,7 @@ $("#add_user_button").click(function () {
             // 权限
             content += '<div class="checkbox">';
             content += '<span style="margin-right: 30px;">权限:</span>';
-            content += '<label style="margin: 0 10px;"><input id="user_control_in_dialog" type="checkbox" name="user_right[]" value="1" />用户管理</label>';
+            content += '<label style="margin: 0 10px;"><input id="user_control_in_dialog" type="checkbox" name="user_right[]" value="1" />系统管理</label>';
             content += '<label style="margin: 0 10px;"><input id="hive_control_in_dialog" type="checkbox" name="user_right[]" value="2" />hive管理</label>';
             content += '</div>';
 

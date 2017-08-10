@@ -15,8 +15,12 @@ function init_main_page() {
             <li><a id="a_day_count" href="#">日统计<i id="i_day_count" class="glyphicon glyphicon-eye-open"></i></a></li>
             <li><a id="a_hour_count" href="#">时统计<i id="i_hour_count" class="glyphicon glyphicon-eye-open"></i></a></li>
         </ul>
-    </li>
-    <li><a href="#systemControl" class="nav-header collapse" data-toggle="collapse"><i
+    </li>`;
+
+    var login_user_right = $("#login_user_right").val();
+    if (login_user_right & 0B10) {
+        html +=
+            `<li><a href="#systemControl" class="nav-header collapse" data-toggle="collapse"><i
             class="glyphicon glyphicon-th-list"></i>hive管理<span
             class="pull-right glyphicon glyphicon-chevron-down"></span></a>
         <ul id="systemControl" class="nav nav-list collapse secondmenu" aria-expanded="true" style="height: 0px;">
@@ -24,6 +28,7 @@ function init_main_page() {
             </li>
         </ul>
     </li>`;
+    }
 
     $("#main-nav").append(html);
 
