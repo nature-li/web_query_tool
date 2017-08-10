@@ -51,7 +51,6 @@ class DbOperator(object):
             if ad_network_id != "all":
                 count = session.query(DayCount.dt,
                                       DayCount.ad_network_id,
-                                      DayCount.ad_action,
                                       DayCount.pv,
                                       DayCount.impression,
                                       DayCount.click,
@@ -61,7 +60,6 @@ class DbOperator(object):
                     DayCount.ad_network_id == ad_network_id).count()
                 values = session.query(DayCount.dt,
                                        DayCount.ad_network_id,
-                                       DayCount.ad_action,
                                        DayCount.pv,
                                        DayCount.impression,
                                        DayCount.click,
@@ -74,7 +72,6 @@ class DbOperator(object):
             else:
                 count = session.query(DayCount.dt,
                                       DayCount.ad_network_id,
-                                      DayCount.ad_action,
                                       DayCount.pv,
                                       DayCount.impression,
                                       DayCount.click,
@@ -83,7 +80,6 @@ class DbOperator(object):
                     DayCount.dt.in_(dt_list)).count()
                 values = session.query(DayCount.dt,
                                        DayCount.ad_network_id,
-                                       DayCount.ad_action,
                                        DayCount.pv,
                                        DayCount.impression,
                                        DayCount.click,
@@ -162,7 +158,6 @@ class DbOperator(object):
                 count = session.query(HourCount.dt,
                                       HourCount.hour,
                                       HourCount.ad_network_id,
-                                      HourCount.ad_action,
                                       HourCount.pv,
                                       HourCount.impression,
                                       HourCount.click,
@@ -173,7 +168,6 @@ class DbOperator(object):
                 values = session.query(HourCount.dt,
                                        HourCount.hour,
                                        HourCount.ad_network_id,
-                                       HourCount.ad_action,
                                        HourCount.pv,
                                        HourCount.impression,
                                        HourCount.click,
@@ -186,16 +180,18 @@ class DbOperator(object):
                 count = session.query(HourCount.dt,
                                       HourCount.hour,
                                       HourCount.ad_network_id,
-                                      HourCount.ad_action,
-                                      HourCount.count,
+                                      HourCount.pv,
+                                      HourCount.impression,
+                                      HourCount.click,
                                       HourCount.update_time
                                       ).filter(HourCount.dt == dt).filter(
                     HourCount.hour.in_(hour_list)).count()
                 values = session.query(HourCount.dt,
                                        HourCount.hour,
                                        HourCount.ad_network_id,
-                                       HourCount.ad_action,
-                                       HourCount.count,
+                                       HourCount.pv,
+                                       HourCount.impression,
+                                       HourCount.click,
                                        HourCount.update_time
                                        ).filter(HourCount.dt == dt).filter(
                     HourCount.hour.in_(hour_list)).order_by(

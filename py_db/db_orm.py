@@ -24,7 +24,6 @@ class HourCount(Base):
     __tablename__ = 'hour_count'
     id = Column(Integer, primary_key=True, autoincrement=True)
     ad_network_id = Column(String(255))
-    ad_action = Column(String(32))
     dt = Column(String(32))
     hour = Column(String(32))
     pv = Column(Integer)
