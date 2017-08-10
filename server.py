@@ -95,8 +95,8 @@ class NetworkListHandler(BaseHandler):
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0X10:
-            self.redirect("/")
+        if not user.user_right & 0B10:
+            self.redirect("/reload")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('hive/network_list.html')
 
@@ -110,8 +110,8 @@ class UserListHandler(BaseHandler):
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0X01:
-            self.redirect("/")
+        if not user.user_right & 0B01:
+            self.redirect("/reload")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('system/user_list.html')
 
@@ -156,8 +156,8 @@ class AddUserHandler(BaseHandler):
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0X01:
-            self.redirect("/")
+        if not user.user_right & 0B01:
+            self.redirect("/reload")
         user_account = self.get_argument("user_account")
         user_right = self.get_argument("user_right")
         text = DbOperator.add_user_account(user_account, user_right)
@@ -173,8 +173,8 @@ class QueryUserListHandler(BaseHandler):
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0X01:
-            self.redirect("/")
+        if not user.user_right & 0B01:
+            self.redirect("/reload")
         user_account = self.get_argument("user_account")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
@@ -190,8 +190,8 @@ class DeleteUserListHandler(BaseHandler):
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0X01:
-            self.redirect("/")
+        if not user.user_right & 0B01:
+            self.redirect("/reload")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_id_list = self.get_argument("user_id_list")
         text = DbOperator.delete_user_list(user_id_list)
@@ -206,8 +206,8 @@ class EditUserListHandler(BaseHandler):
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0X01:
-            self.redirect("/")
+        if not user.user_right & 0B01:
+            self.redirect("/reload")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_id = self.get_argument("user_id")
         user_right = self.get_argument("user_right")
@@ -223,8 +223,8 @@ class AddNetworkHandler(BaseHandler):
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0X10:
-            self.redirect("/")
+        if not user.user_right & 0B10:
+            self.redirect("/reload")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         network_name = self.get_argument("network_name")
         text = DbOperator.add_network(network_name)
@@ -251,8 +251,8 @@ class DeleteNetworkListHandler(BaseHandler):
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0X10:
-            self.redirect("/")
+        if not user.user_right & 0B10:
+            self.redirect("/reload")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user_id_list = self.get_argument("network_id_list")
         text = DbOperator.delete_network_list(user_id_list)
@@ -340,6 +340,12 @@ class LogoutHandler(BaseHandler):
         self.render('logout.html')
 
 
+class ReloadHandler(BaseHandler):
+    def get(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        self.render('reload.html')
+
+
 class LogFormatter(tornado.log.LogFormatter):
     def __init__(self):
         super(LogFormatter, self).__init__(
@@ -380,6 +386,7 @@ def __main__():
     app = tornado.web.Application(
         [
             (r'/', MainHandler),
+            (r'/reload', ReloadHandler),
             (r'/login', LoginHandler),
             (r'/logout', LogoutHandler),
             (r'/day_count', DayCountHandler),

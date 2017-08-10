@@ -9,9 +9,9 @@ function init_main_page() {
 
     // 添加侧边栏
     var html = `
-    <li><a href="#systemViewer" class="nav-header collapse" data-toggle="collapse" aria-expanded="true"><i
+    <li><a href="#systemViewer" class="nav-header collapse" data-toggle="collapse"><i
             class="glyphicon glyphicon-th-list"></i>hive统计<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
-        <ul id="systemViewer" class="nav nav-list collapse secondmenu" aria-expanded="true"">
+        <ul id="systemViewer" class="nav nav-list collapse secondmenu" aria-expanded="true">
             <li><a id="a_day_count" href="#">日统计<i id="i_day_count" class="glyphicon glyphicon-eye-open"></i></a></li>
             <li><a id="a_hour_count" href="#">时统计<i id="i_hour_count" class="glyphicon glyphicon-eye-open"></i></a></li>
         </ul>
@@ -23,7 +23,7 @@ function init_main_page() {
             `<li><a href="#systemControl" class="nav-header collapse" data-toggle="collapse"><i
             class="glyphicon glyphicon-th-list"></i>hive管理<span
             class="pull-right glyphicon glyphicon-chevron-down"></span></a>
-        <ul id="systemControl" class="nav nav-list collapse secondmenu" aria-expanded="true" style="height: 0px;">
+        <ul id="systemControl" class="nav nav-list collapse secondmenu" aria-expanded="true">
             <li><a id="a_network_control" href="#">渠道管理<i id="i_network_control" class="glyphicon glyphicon-pencil"></i></a>
             </li>
         </ul>
