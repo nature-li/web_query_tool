@@ -35,6 +35,8 @@ class MainHandler(BaseHandler):
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/login')
         self.render('index.html', iframe_src='/day_count', user_name=user_name, login_user_right=user.user_right)
 
 
@@ -61,6 +63,8 @@ class NetworkListHandler(BaseHandler):
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/login')
         if not user.user_right & 0X10:
             self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -74,6 +78,8 @@ class UserListHandler(BaseHandler):
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/login')
         if not user.user_right & 0X01:
             self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -118,6 +124,8 @@ class AddUserHandler(BaseHandler):
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/login')
         if not user.user_right & 0X01:
             self.redirect("/")
         user_account = self.get_argument("user_account")
@@ -133,6 +141,8 @@ class QueryUserListHandler(BaseHandler):
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/login')
         if not user.user_right & 0X01:
             self.redirect("/")
         user_account = self.get_argument("user_account")
@@ -148,6 +158,8 @@ class DeleteUserListHandler(BaseHandler):
         if not user_name:
             return
         user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/login')
         if not user.user_right & 0X01:
             self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -162,6 +174,8 @@ class EditUserListHandler(BaseHandler):
         if not user_name:
             return
         user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/login')
         if not user.user_right & 0X01:
             self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -177,6 +191,8 @@ class AddNetworkHandler(BaseHandler):
         if not user_name:
             return
         user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/login')
         if not user.user_right & 0X10:
             self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -203,6 +219,8 @@ class DeleteNetworkListHandler(BaseHandler):
         if not user_name:
             return
         user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/login')
         if not user.user_right & 0X10:
             self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
