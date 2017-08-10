@@ -23,3 +23,4 @@ server_oauth_app_secret = ''
 server_oauth_redirect_url = ''
 server_oauth_token_url = ""
 server_oauth_user_url = ""
+server_oauth_auth_url = ''

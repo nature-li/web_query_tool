@@ -245,7 +245,7 @@ class LoginHandler(BaseHandler):
             redirect_url = config.server_oauth_auth_url
             redirect_url += '?appid=%s' % config.server_oauth_app_id
             redirect_url += '&response_type=code'
-            redirect_url += '&redirect_uri=%s' % quote(config.server_oauth_login_callback)
+            redirect_url += '&redirect_uri=%s' % quote(config.server_oauth_redirect_url)
             redirect_url += '&scope=user_info'
             redirect_url += '&state=test'
             self.redirect(redirect_url)
