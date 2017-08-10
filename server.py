@@ -242,11 +242,10 @@ class LoginHandler(BaseHandler):
 
         code_from_auth = self.get_argument('code', None)
         if not code_from_auth:
-            call_back_url = "http://admin.adapi.meitu.com/"
-            redirect_url = 'http://oauth.meitu.com/oauth2/authorize'
-            redirect_url += '?appid=1291267'
+            redirect_url = config.server_oauth_auth_url
+            redirect_url += '?appid=%s' % config.server_oauth_app_id
             redirect_url += '&response_type=code'
-            redirect_url += '&redirect_uri=%s' % quote(call_back_url)
+            redirect_url += '&redirect_uri=%s' % quote(config.server_oauth_login_callback)
             redirect_url += '&scope=user_info'
             redirect_url += '&state=test'
             self.redirect(redirect_url)
