@@ -153,13 +153,14 @@ $(document).on("click", ".user-edit-button", function () {
     var $tr = $(this).parent().parent();
     var user_id = $tr.find("td:eq(1)").text();
     var user_account = $tr.find("td:eq(2)").text();
-    var user_right = $tr.find("td:eq(3)").text();
+    var user_control = $tr.find("td:eq(3)").text();
+    var hive_control = $tr.find("td:eq(4)").text();
 
-    show_edit_dialog(user_id, user_account, user_right);
+    show_edit_dialog(user_id, user_account, user_control, hive_control);
 });
 
 // 弹出编辑对话框
-function show_edit_dialog(user_id, user_account, user_right) {
+function show_edit_dialog(user_id, user_account, user_control, hive_control) {
     var old_user_right = 0;
 
     BootstrapDialog.show({
@@ -173,17 +174,25 @@ function show_edit_dialog(user_id, user_account, user_right) {
             // 账号
             content += '<div><input id="edit_user_account" type="text" class="form-control" value="' + user_account + '" disabled></div>';
 
-            // 是否为管理员
-            content += '<div class="radio">';
-            content += '<span style="margin-right: 30px;">是否为管理员:</span>';
-            if (user_right == '是') {
-                old_user_right = 1;
-                content += '<label style="margin: 0 10px;"><input id="edit_user_right_yes" type="radio" name="is_admin" value="yes" checked/>是</label>';
-                content += '<label style="margin: 0 10px;"><input id="edit_user_right_no" type="radio" name="is_admin" value="no" />否</label>';
+            // 用户管理
+            content += '<div class="checkbox">';
+            content += '<span style="margin-right: 30px;">权限:</span>';
+            var user_bit = 0B00;
+            if (user_control == '是') {
+                user_bit = 0B01;
+                content += '<label style="margin: 0 10px;"><input id="user_control_in_dialog" type="checkbox" name="is_admin" value="'+ user_bit + '" checked/>用户管理</label>';
             } else {
-                content += '<label style="margin: 0 10px;"><input id="edit_user_right_yes" type="radio" name="is_admin" value="yes" />是</label>';
-                content += '<label style="margin: 0 10px;"><input id="edit_user_right_no" type="radio" name="is_admin" value="no" checked/>否</label>';
+                content += '<label style="margin: 0 10px;"><input id="user_control_in_dialog" type="checkbox" name="is_admin" value="'+ user_bit + '"/>用户管理</label>';
             }
+
+            var hive_bit = 0B00;
+            if (hive_control == '是') {
+                hive_bit = 0B10;
+                content += '<label style="margin: 0 10px;"><input id="hive_control_in_dialog" type="checkbox" name="is_admin" value="' + hive_bit + '" checked/>hive管理</label>';
+            } else {
+                content += '<label style="margin: 0 10px;"><input id="hive_control_in_dialog" type="checkbox" name="is_admin" value="' + hive_bit + '"/>hive管理</label>';
+            }
+            old_user_right = user_bit | hive_bit;
             content += '</div>';
 
             // footer
@@ -198,22 +207,26 @@ function show_edit_dialog(user_id, user_account, user_right) {
             action: function (dialogItself) {
                 // 获取用户添加数据
                 var user_id = $("#edit_user_id").val();
-                var user_user_right_yes = $("#edit_user_right_yes").prop('checked');
 
-                var is_admin = 0;
-                if (user_user_right_yes) {
-                    is_admin = 1;
+                var user_bit = 0B00;
+                if ($("#user_control_in_dialog").prop('checked')) {
+                    user_bit = 0B01;
                 }
+                var hive_bit = 0B00;
+                if ($("#hive_control_in_dialog").prop('checked')) {
+                    hive_bit = 0B10;
+                }
+                var user_right = user_bit | hive_bit;
 
                 // 权限发生变化后发送请求
-                if (old_user_right != is_admin) {
+                if (old_user_right != user_right) {
                     // 发送请求
                     $.ajax({
                             url: '/edit_user',
                             type: "post",
                             data: {
                                 'user_id': user_id,
-                                'user_right': is_admin
+                                'user_right': user_right
                             },
                             dataType: 'json',
                             success: function (response) {
@@ -256,14 +269,22 @@ function edit_user_page_view(response) {
         var bind_user_id = $check_box.val();
 
         if (bind_user_id == user_id) {
-            var is_admin = '否';
-            if (user_right == 1) {
-                is_admin = '是';
+
+            var user_control = '是';
+            if ((user_right & 0B01) == 0) {
+                user_control = '否';
             }
+
+            var hive_control = '是';
+            if ((user_right & 0B10) == 0) {
+                hive_control = '否';
+            }
+
             $(this).find("td:eq(1)").html(user_id);
             $(this).find("td:eq(2)").html(user_account);
-            $(this).find("td:eq(3)").html(is_admin);
-            $(this).find("td:eq(4)").html(update_time);
+            $(this).find("td:eq(3)").html(user_control);
+            $(this).find("td:eq(4)").html(hive_control);
+            $(this).find("td:eq(5)").html(update_time);
         }
     });
 }
@@ -278,11 +299,11 @@ $("#add_user_button").click(function () {
             // 账号
             content += '<div><input id="add_user_account" type="text" class="form-control" placeholder="输入账号"></div>';
 
-            // 是否为管理员
-            content += '<div class="radio">';
-            content += '<span style="margin-right: 30px;">是否为管理员:</span>';
-            content += '<label style="margin: 0 10px;"><input id="add_user_right_yes" type="radio" name="user_right[]" value="yes" />是</label>';
-            content += '<label style="margin: 0 10px;"><input id="add_user_right_no" type="radio" name="user_right[]" value="no" checked/>否</label>';
+            // 权限
+            content += '<div class="checkbox">';
+            content += '<span style="margin-right: 30px;">权限:</span>';
+            content += '<label style="margin: 0 10px;"><input id="user_control_in_dialog" type="checkbox" name="user_right[]" value="1" />用户管理</label>';
+            content += '<label style="margin: 0 10px;"><input id="hive_control_in_dialog" type="checkbox" name="user_right[]" value="2" />hive管理</label>';
             content += '</div>';
 
             // footer
@@ -297,12 +318,16 @@ $("#add_user_button").click(function () {
             action: function (dialogItself) {
                 // 获取用户添加数据
                 var user_account = $("#add_user_account").val();
-                var user_user_right_yes = $("#add_user_right_yes").prop('checked');
 
-                var is_admin = 0;
-                if (user_user_right_yes) {
-                    is_admin = 1;
+                var user_control = 0B00;
+                if ($("#user_control_in_dialog").prop('checked')) {
+                    user_control = 0B01;
                 }
+                var hive_control = 0B00;
+                if ($("#hive_control_in_dialog").prop('checked')) {
+                    hive_control = 0B10;
+                }
+                var user_right = user_control | hive_control;
 
                 // 发送请求
                 $.ajax({
@@ -310,7 +335,7 @@ $("#add_user_button").click(function () {
                         type: "post",
                         data: {
                             'user_account': user_account,
-                            'user_right': is_admin,
+                            'user_right': user_right,
                         },
                         dataType: 'json',
                         success: function (response) {
@@ -358,9 +383,14 @@ function append_user_list_to_view(data) {
 
 // 在表格中增加用户
 function add_row(user_id, user_account, user_right, update_time) {
-    var is_admin = '否';
-    if (user_right == 1) {
-        is_admin = '是';
+    var user_control = '是';
+    if ((user_right & 0B01) == 0) {
+        user_control = '否';
+    }
+
+    var hive_control = '是';
+    if ((user_right & 0B10) == 0) {
+        hive_control = '否';
     }
 
     var table = $("#t_user_control");
@@ -368,7 +398,8 @@ function add_row(user_id, user_account, user_right, update_time) {
         '<td style="text-align:center;"><input name="user_list[]" type="checkbox" value="' + user_id + '"></td>' +
         '<td style="text-align:center;">' + user_id + '</td>' +
         '<td style="text-align:center;">' + user_account + '</td>' +
-        '<td style="text-align:center;">' + is_admin + '</td>' +
+        '<td style="text-align:center;">' + user_control + '</td>' +
+        '<td style="text-align:center;">' + hive_control + '</td>' +
         '<td style="text-align:center;">' + update_time + '</td>' +
         '<td style="text-align:center;"><button type="button" class="btn btn-primary user-edit-button">编辑</button></td>');
     table.append(tr);
