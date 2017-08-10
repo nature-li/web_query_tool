@@ -24,7 +24,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def get_login_user(self):
         if not self.current_user:
-            self.redirect("/login")
+            self.redirect("/logout")
             return None
         login_user = tornado.escape.xhtml_escape(self.current_user)
         return login_user
@@ -38,7 +38,7 @@ class MainHandler(BaseHandler):
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user = DbOperator.get_user_info(user_name)
         if not user:
-            self.redirect('/login')
+            self.redirect('/logout')
         self.render('index.html', iframe_src='/day_count', user_name=user_name, login_user_right=user.user_right)
 
 
@@ -66,7 +66,7 @@ class NetworkListHandler(BaseHandler):
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user = DbOperator.get_user_info(user_name)
         if not user:
-            self.redirect('/login')
+            self.redirect('/logout')
         if not user.user_right & 0X10:
             self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -81,7 +81,7 @@ class UserListHandler(BaseHandler):
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user = DbOperator.get_user_info(user_name)
         if not user:
-            self.redirect('/login')
+            self.redirect('/logout')
         if not user.user_right & 0X01:
             self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -127,7 +127,7 @@ class AddUserHandler(BaseHandler):
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user = DbOperator.get_user_info(user_name)
         if not user:
-            self.redirect('/login')
+            self.redirect('/logout')
         if not user.user_right & 0X01:
             self.redirect("/")
         user_account = self.get_argument("user_account")
@@ -144,7 +144,7 @@ class QueryUserListHandler(BaseHandler):
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user = DbOperator.get_user_info(user_name)
         if not user:
-            self.redirect('/login')
+            self.redirect('/logout')
         if not user.user_right & 0X01:
             self.redirect("/")
         user_account = self.get_argument("user_account")
@@ -161,7 +161,7 @@ class DeleteUserListHandler(BaseHandler):
             return
         user = DbOperator.get_user_info(user_name)
         if not user:
-            self.redirect('/login')
+            self.redirect('/logout')
         if not user.user_right & 0X01:
             self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -177,7 +177,7 @@ class EditUserListHandler(BaseHandler):
             return
         user = DbOperator.get_user_info(user_name)
         if not user:
-            self.redirect('/login')
+            self.redirect('/logout')
         if not user.user_right & 0X01:
             self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -194,7 +194,7 @@ class AddNetworkHandler(BaseHandler):
             return
         user = DbOperator.get_user_info(user_name)
         if not user:
-            self.redirect('/login')
+            self.redirect('/logout')
         if not user.user_right & 0X10:
             self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -222,7 +222,7 @@ class DeleteNetworkListHandler(BaseHandler):
             return
         user = DbOperator.get_user_info(user_name)
         if not user:
-            self.redirect('/login')
+            self.redirect('/logout')
         if not user.user_right & 0X10:
             self.redirect("/")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
