@@ -4,6 +4,7 @@ import os.path
 import sys
 import json
 import logging
+from urllib import quote
 
 import tornado.escape
 import tornado.ioloop
@@ -14,6 +15,7 @@ from tornado.options import define, options, parse_command_line
 from config import config
 from py_log.logger import Logger, LogEnv
 from py_db.db_operate import DbOperator
+from login.login import Login
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -231,16 +233,68 @@ class DeleteNetworkListHandler(BaseHandler):
 
 class LoginHandler(BaseHandler):
     def get(self):
+        # 本机登录用
+        # self.render("login.html")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        if not self.get_current_user():
-            self.render('login.html')
-        else:
+        if self.get_current_user():
             self.redirect("/")
+            return
 
-    def post(self):
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.set_secure_cookie("user_name", self.get_argument("name"))
+        code_from_auth = self.get_argument('code', None)
+        if not code_from_auth:
+            call_back_url = "http://admin.adapi.meitu.com/"
+            redirect_url = 'http://oauth.meitu.com/oauth2/authorize'
+            redirect_url += '?appid=1291267'
+            redirect_url += '&response_type=code'
+            redirect_url += '&redirect_uri=%s' % quote(call_back_url)
+            redirect_url += '&scope=user_info'
+            redirect_url += '&state=test'
+            self.redirect(redirect_url)
+            return
+
+        status, content = Login.get_access_token(code_from_auth)
+        if status != 200:
+            self.write(content)
+            return
+
+        try:
+            a_dict = json.loads(content)
+        except:
+            Logger.error("parse token error: contnet[%s]" % content)
+            self.write(content)
+            return
+
+        access_token = a_dict.get("access_token", None)
+        openid = a_dict.get("openid", None)
+        status, content = Login.get_user_info(access_token, openid)
+        if status != 200:
+            self.write(content)
+            return
+
+        try:
+            a_dict = json.loads(content)
+        except:
+            Logger.error("parse user_info error: contnet[%s]" % content)
+            self.write(content)
+            return
+
+        name = a_dict.get("name")
+        email = a_dict.get("email")
+        db_user = DbOperator.get_user_info(email)
+        if not db_user:
+            self.render('error.html')
+
+        # 保存session
+        self.set_secure_cookie("user_name", name)
+
+        # 重向定
         self.redirect("/")
+
+    # 本机登录用
+    # def post(self):
+    #     name = self.get_argument("name")
+    #     self.set_secure_cookie("user_name", name)
+    #     self.redirect("/")
 
 
 class LogoutHandler(BaseHandler):
@@ -250,7 +304,7 @@ class LogoutHandler(BaseHandler):
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.clear_cookie("user_name")
-        self.render('login.html')
+        self.render('logout.html')
 
 
 class LogFormatter(tornado.log.LogFormatter):

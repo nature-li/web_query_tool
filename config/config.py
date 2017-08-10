@@ -14,4 +14,11 @@ server_listen_port = 8888
 server_debug_mode = False
 
 # 数据库所在位置
-server_db_uri = 'sqlite:////Users/liyanguo/work/web/hive/sqlite/count.db'
+server_db_uri = 'sqlite:////Users/xxxxxx/sqlite/count.db'
+
+# OAUTH登录
+server_oauth_app_id = ''
+server_oauth_app_secret = ''
+server_oauth_redirect_url = ''
+server_oauth_token_url = ""
+server_oauth_user_url = ""
