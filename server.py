@@ -32,6 +32,13 @@ class BaseHandler(tornado.web.RequestHandler):
                 return None
             login_user = tornado.escape.xhtml_escape(self.current_user)
 
+            # 获取用户名
+            show_name = self.get_secure_cookie('show_name')
+            if not show_name:
+                self.redirect("/logout")
+                return None
+            show_name = tornado.escape.xhtml_escape(show_name)
+
             # 登录时间
             str_login_time = self.get_secure_cookie('last_time')
             if not str_login_time:
@@ -52,27 +59,28 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.set_secure_cookie("last_time", str(time.time()), expires_days=None)
 
             # 返回用户信息
-            return login_user
+            return login_user, show_name
         except:
             self.redirect("/logout")
-            return None
+            return None, None
 
 
 class MainHandler(BaseHandler):
     def get(self):
-        user_name = self.get_login_user()
+        user_name, show_name = self.get_login_user()
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        self.render('index.html', iframe_src='/day_count', user_name=user_name, login_user_right=user.user_right)
+        self.render('index.html', iframe_src='/day_count', user_name=show_name, login_user_right=user.user_right)
 
 
 class DayCountHandler(BaseHandler):
     def get(self):
-        if not self.get_login_user():
+        user_name, show_name = self.get_login_user()
+        if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('hive/day_count.html')
@@ -80,7 +88,8 @@ class DayCountHandler(BaseHandler):
 
 class HourCountHandler(BaseHandler):
     def get(self):
-        if not self.get_login_user():
+        user_name, show_name = self.get_login_user()
+        if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.render('hive/hour_count.html')
@@ -88,7 +97,7 @@ class HourCountHandler(BaseHandler):
 
 class NetworkListHandler(BaseHandler):
     def get(self):
-        user_name = self.get_login_user()
+        user_name, show_name = self.get_login_user()
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -103,7 +112,7 @@ class NetworkListHandler(BaseHandler):
 
 class UserListHandler(BaseHandler):
     def get(self):
-        user_name = self.get_login_user()
+        user_name, show_name = self.get_login_user()
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -118,7 +127,8 @@ class UserListHandler(BaseHandler):
 
 class DayQueryHandler(BaseHandler):
     def post(self):
-        if not self.get_login_user():
+        user_name, show_name = self.get_login_user()
+        if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         ad_network_id = self.get_argument("ad_network_id")
@@ -132,7 +142,8 @@ class DayQueryHandler(BaseHandler):
 
 class HourQueryHandler(BaseHandler):
     def post(self):
-        if not self.get_login_user():
+        user_name, show_name = self.get_login_user()
+        if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         dt = self.get_argument("dt")
@@ -147,7 +158,7 @@ class HourQueryHandler(BaseHandler):
 
 class AddUserHandler(BaseHandler):
     def post(self):
-        user_name = self.get_login_user()
+        user_name, show_name = self.get_login_user()
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -164,7 +175,7 @@ class AddUserHandler(BaseHandler):
 
 class QueryUserListHandler(BaseHandler):
     def post(self):
-        user_name = self.get_login_user()
+        user_name, show_name = self.get_login_user()
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -182,7 +193,7 @@ class QueryUserListHandler(BaseHandler):
 
 class DeleteUserListHandler(BaseHandler):
     def post(self):
-        user_name = self.get_login_user()
+        user_name, show_name = self.get_login_user()
         if not user_name:
             return
         user = DbOperator.get_user_info(user_name)
@@ -198,7 +209,7 @@ class DeleteUserListHandler(BaseHandler):
 
 class EditUserListHandler(BaseHandler):
     def post(self):
-        user_name = self.get_login_user()
+        user_name, show_name = self.get_login_user()
         if not user_name:
             return
         user = DbOperator.get_user_info(user_name)
@@ -215,7 +226,7 @@ class EditUserListHandler(BaseHandler):
 
 class AddNetworkHandler(BaseHandler):
     def post(self):
-        user_name = self.get_login_user()
+        user_name, show_name = self.get_login_user()
         if not user_name:
             return
         user = DbOperator.get_user_info(user_name)
@@ -231,7 +242,8 @@ class AddNetworkHandler(BaseHandler):
 
 class QueryNetworkListHandler(BaseHandler):
     def post(self):
-        if not self.get_login_user():
+        user_name, show_name = self.get_login_user()
+        if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         network_name = self.get_argument("network_name")
@@ -243,7 +255,7 @@ class QueryNetworkListHandler(BaseHandler):
 
 class DeleteNetworkListHandler(BaseHandler):
     def post(self):
-        user_name = self.get_login_user()
+        user_name, show_name = self.get_login_user()
         if not user_name:
             return
         user = DbOperator.get_user_info(user_name)
@@ -262,7 +274,7 @@ class LoginHandler(BaseHandler):
     # def post(self):
     #     name = self.get_argument("name")
     #     self.set_secure_cookie("user_id", name, expires_days=None)
-    #     self.set_secure_cookie("user_name", name, expires_days=None)
+    #     self.set_secure_cookie("show_name", name, expires_days=None)
     #     self.set_secure_cookie("last_time", str(time.time()), expires_days=None)
     #     self.redirect("/")
 
@@ -323,7 +335,7 @@ class LoginHandler(BaseHandler):
 
         # 保存session
         self.set_secure_cookie("user_id", email, expires_days=None)
-        self.set_secure_cookie("user_name", name, expires_days=None)
+        self.set_secure_cookie("show_name", name, expires_days=None)
         self.set_secure_cookie("last_time", str(time.time()), expires_days=None)
 
         # 重向定
@@ -334,7 +346,7 @@ class LogoutHandler(BaseHandler):
     def get(self):
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.clear_cookie("user_id")
-        self.clear_cookie("user_name")
+        self.clear_cookie("show_name")
         self.render('logout.html')
 
 
