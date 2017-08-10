@@ -363,7 +363,7 @@ def __main__():
             (r'/query_network_list', QueryNetworkListHandler),
             (r'/delete_network_list', DeleteNetworkListHandler),
         ],
-        cookie_secret="RDIUF;05230D7@#$_+(!WEFGHNM*IJM_)(*&^_)(*YT%^_)(%%)YG0YFG%(H59",
+        cookie_secret=config.server_cookie_secret,
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
         static_path=os.path.join(os.path.dirname(__file__), "static"),
         xsrf_cookies=False,

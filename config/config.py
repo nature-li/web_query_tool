@@ -12,6 +12,7 @@ server_log_count = 100
 # 服务配置
 server_listen_port = 8888
 server_debug_mode = False
+server_cookie_secret = "write_your_own_password"
 
 # 数据库所在位置
 server_db_uri = 'sqlite:////Users/xxxxxx/sqlite/count.db'
