@@ -32,52 +32,51 @@
 <div class="container">
     <div class="row">
         <div class="col-xs-12">
+            <form class="form-inline">
 
-            <div class="query-button-group query-button-date-size">
-                <div class="form-group">
-                    <span style="float: left; margin-top: 7px;">开始日期：</span>
-                    <div class='input-group date' id='start_date'>
+                <!--开始小时-->
+                <div class="form-group form-group-margin">
+                    <label>开始日期:</label>
+                    <div class='input-group date' id='start_date' style="width: 220px;">
                         <input type='text' class="form-control"/>
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
                     </div>
                 </div>
-            </div>
 
-            <div class="query-button-group query-button-date-size">
-                <div class="form-group">
-                    <span style="float: left; margin-top: 7px;">结束日期：</span>
-                    <div class='input-group date' id='end_date'>
+                <!--结束日期-->
+                <div class="form-group form-group-margin">
+                    <label>结束日期:</label>
+                    <div class='input-group date' id='end_date' style="width: 220px;">
                         <input type='text' class="form-control"/>
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
                     </div>
                 </div>
-            </div>
 
-            <div class="query-button-group">
-                <div class="form-group">
-                    <span>选择渠道：</span>
+                <!--选择渠道-->
+                <div class="form-group form-group-margin">
+                    <label>选择渠道:</label>
                     <select id="ad_network_id_selector" class="selectpicker" data-size="10">
                         <option>all_ad_network_id</option>
                     </select>
                 </div>
-            </div>
 
-            <div class="query-button-group">
-                <div class="form-group">
+                <!--查询-->
+                <div class="form-group form-group-margin">
                     <div>
                         <button id="query_day" type="button" class="btn btn-primary">查询</button>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
+
 
         <div class="row">
             <div class="col-xs-12">
-                <hr />
+                <hr/>
             </div>
         </div>
 
