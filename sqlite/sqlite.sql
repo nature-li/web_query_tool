@@ -27,7 +27,6 @@ user_account varchar(255) not null,
 user_right integer not null,
 update_time long not null);
 CREATE UNIQUE INDEX user_index on user_list (user_account);
-INSERT INTO user_list(user_account, user_right, update_time) VALUES('lyg@meitu.com', 3, STRFTIME('%s', 'now'));
 
 
 CREATE TABLE network_list(
