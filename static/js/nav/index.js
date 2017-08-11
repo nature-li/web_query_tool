@@ -18,10 +18,10 @@ function init_main_page() {
     </li>`;
 
     var login_user_right = $("#login_user_right").val();
-    if (login_user_right & 0B10) {
+    if (login_user_right & 0B01) {
         html +=
             `<li><a href="#systemControl" class="nav-header collapse" data-toggle="collapse"><i
-            class="glyphicon glyphicon-th-list"></i>hive管理<span
+            class="glyphicon glyphicon-th-list"></i>开发者<span
             class="pull-right glyphicon glyphicon-chevron-down"></span></a>
         <ul id="systemControl" class="nav nav-list collapse secondmenu" aria-expanded="true">
             <li><a id="a_network_control" href="#">渠道管理<i id="i_network_control" class="glyphicon glyphicon-pencil"></i></a>
