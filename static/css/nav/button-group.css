@@ -10,5 +10,6 @@ hr {  -moz-border-bottom-colors: none;
 }
 
 .form-group-margin {
+    margin-top: 10px;
     margin-right: 10px;
 }
