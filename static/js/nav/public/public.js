@@ -74,8 +74,12 @@ function init_ad_network_select() {
                     $("#ad_network_id_selector").selectpicker('refresh');
                 }
             },
-            error: function () {
-                $.showErr("查询失败");
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status == 302) {
+                    window.parent.location.replace("/");
+                } else {
+                    $.showErr("发生错误");
+                }
             }
         }
     );

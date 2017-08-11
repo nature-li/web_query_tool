@@ -29,21 +29,21 @@ class BaseHandler(tornado.web.RequestHandler):
             login_user = self.current_user
             if not login_user:
                 self.redirect("/logout")
-                return None
+                return None, None
             login_user = tornado.escape.xhtml_escape(self.current_user)
 
             # 获取用户名
             show_name = self.get_secure_cookie('show_name')
             if not show_name:
                 self.redirect("/logout")
-                return None
+                return None, None
             show_name = tornado.escape.xhtml_escape(show_name)
 
             # 登录时间
             str_login_time = self.get_secure_cookie('last_time')
             if not str_login_time:
                 self.redirect("/logout")
-                return None
+                return None, None
             str_login_time = tornado.escape.xhtml_escape(str_login_time)
 
             # 是否过期
@@ -52,7 +52,7 @@ class BaseHandler(tornado.web.RequestHandler):
             time_span = now - last_time
             if time_span > config.server_expire_time:
                 self.redirect("/logout")
-                return None
+                return None, None
 
             # 重新设置过期时间,每1分钟设置一次
             if time_span > 60:
@@ -347,6 +347,7 @@ class LogoutHandler(BaseHandler):
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         self.clear_cookie("user_id")
         self.clear_cookie("show_name")
+        self.set_status(302)
         self.render('logout.html')
 
 

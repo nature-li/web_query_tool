@@ -46,8 +46,12 @@ function query_and_update_view() {
             success: function (response) {
                 save_data_and_update_page_view(response);
             },
-            error: function () {
-                $.showErr("查询失败");
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status == 302) {
+                    window.parent.location.replace("/");
+                } else {
+                    $.showErr("查询失败");
+                }
             }
         }
     );
@@ -124,8 +128,12 @@ function query_delete_selected_network() {
                 success: function (response) {
                     delete_network_list_from_view(response);
                 },
-                error: function () {
-                    $.showErr("删除失败");
+                error: function (jqXHR, textStatus, errorThrown) {
+                    if (jqXHR.status == 302) {
+                        window.parent.location.replace("/");
+                    } else {
+                        $.showErr("删除失败");
+                    }
                 }
             }
         );
@@ -187,8 +195,12 @@ $("#add_network_button").click(function () {
                         success: function (response) {
                             append_network_list_to_view(response);
                         },
-                        error: function () {
-                            $.showErr("添加失败");
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            if (jqXHR.status == 302) {
+                                window.parent.location.replace("/");
+                            } else {
+                                $.showErr("添加失败");
+                            }
                         }
                     }
                 );

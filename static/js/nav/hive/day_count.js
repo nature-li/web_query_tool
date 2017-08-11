@@ -111,8 +111,12 @@ function query_and_update_view() {
             success: function (data) {
                 save_data_and_update_page_view(data);
             },
-            error: function () {
-                $.showErr("查询失败");
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status == 302) {
+                    window.parent.location.replace("/");
+                } else {
+                    $.showErr("查询失败");
+                }
             }
         }
     );

@@ -44,8 +44,12 @@ function query_and_update_view() {
             success: function (response) {
                 save_data_and_update_page_view(response);
             },
-            error: function () {
-                $.showErr("查询失败");
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status == 302) {
+                    window.parent.location.replace("/");
+                } else {
+                    $.showErr("查询失败");
+                }
             }
         }
     );
@@ -122,8 +126,12 @@ function query_delete_selected_user() {
                 success: function (response) {
                     delete_user_list_from_view(response);
                 },
-                error: function () {
-                    $.showErr("删除失败");
+                error: function (jqXHR, textStatus, errorThrown) {
+                    if (jqXHR.status == 302) {
+                        window.parent.location.replace("/");
+                    } else {
+                        $.showErr("删除失败");
+                    }
                 }
             }
         );
@@ -235,8 +243,12 @@ function show_edit_dialog(user_id, user_account, user_control, adtech_control) {
                             success: function (response) {
                                 edit_user_page_view(response);
                             },
-                            error: function () {
-                                $.showErr("更新失败");
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                if (jqXHR.status == 302) {
+                                    window.parent.location.replace("/");
+                                } else {
+                                    $.showErr("更新失败");
+                                }
                             }
                         }
                     );
@@ -344,8 +356,12 @@ $("#add_user_button").click(function () {
                         success: function (response) {
                             append_user_list_to_view(response);
                         },
-                        error: function () {
-                            $.showErr("添加失败");
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            if (jqXHR.status == 302) {
+                                window.parent.location.replace("/");
+                            } else {
+                                $.showErr("添加失败");
+                            }
                         }
                     }
                 );
