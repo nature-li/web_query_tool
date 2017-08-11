@@ -1,4 +1,9 @@
 $(document).ready(function () {
+    // 改变菜单背景色
+    $("#li_day_count", window.parent.document).addClass("selected_menu");
+    $("#li_hour_count", window.parent.document).removeClass("selected_menu");
+    $("#li_network_control", window.parent.document).removeClass("selected_menu");
+
     // 开始日期
     $('#start_date').datepicker({
         language: 'zh-CN',
