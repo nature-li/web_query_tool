@@ -29,7 +29,7 @@
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-                <li class="dropdown">
+                <li id="menu_data_statistic" class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                        aria-expanded="false">数据统计<span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -41,7 +41,7 @@
             </ul>
             {% if login_user_right & 0B10 != 0 %}
             <ul class="nav navbar-nav">
-                <li><a href="#" id="nav_user_ref_a">系统管理</a></li>
+                <li id="menu_system_control" ><a href="#" id="nav_user_ref_a">系统管理</a></li>
             </ul>
             {% end %}
             <ul class="nav navbar-nav navbar-right">
