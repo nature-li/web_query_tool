@@ -213,6 +213,7 @@ function show_edit_dialog(user_id, user_account, user_control, adtech_control) {
         },
         title: "编辑用户",
         closable: false,
+        draggable: true,
         buttons: [{
             label: '确定',
             action: function (dialogItself) {
@@ -328,6 +329,7 @@ $("#add_user_button").click(function () {
         },
         title: "增加用户",
         closable: false,
+        draggable: true,
         buttons: [{
             label: '确定',
             action: function (dialogItself) {

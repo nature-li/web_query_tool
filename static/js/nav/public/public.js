@@ -5,6 +5,7 @@ $.showErr = function (str, func) {
         title: '错误 ',
         message: str,
         size: BootstrapDialog.SIZE_SMALL,
+        draggable: true,
         buttons: [{
             label: '关闭',
             action: function (dialogItself) {
@@ -17,21 +18,28 @@ $.showErr = function (str, func) {
 
 // 确认对话框
 $.showConfirm = function (str, func_ok, func_close) {
-    BootstrapDialog.confirm({
+    BootstrapDialog.show({
         title: '确认',
         message: str,
+        cssClass: 'bootstrap_center_dialog',
         type: BootstrapDialog.TYPE_WARNING,
-        draggable: true,
-        btnCancelLabel: '取消',
-        btnOKLabel: '确定',
-        btnOKClass: 'btn-warning',
         size: BootstrapDialog.SIZE_SMALL,
-        onhide: func_close,
-        callback: function (result) {
-            if (result) {
-                func_ok.call();
+        draggable: true,
+        closable: false,
+        buttons: [{
+            label: '取消',
+            action: function (dialogItself) {
+                dialogItself.close();
             }
-        }
+        },{
+            label: '确定',
+            cssClass: 'btn-warning',
+            action: function (dialogItself) {
+                dialogItself.close();
+                func_ok();
+            }
+        }],
+        onhide: func_close,
     });
 };
 
