@@ -159,6 +159,9 @@ function delete_network_list_from_view(response) {
             }
         });
     }
+
+    // 改变窗口大小
+    change_frame_size();
 }
 
 // 点击增加按钮
@@ -229,12 +232,7 @@ function append_network_list_to_view(data) {
         }
 
         // 改变窗口大小
-        var newHeight = $(document).contents().find('body').height();
-        if (newHeight < 1000) {
-            newHeight = 1000;
-        }
-        $("#left_frame_col", window.parent.document).height(newHeight);
-        $("#right_frame_col", window.parent.document).height(newHeight);
+        change_frame_size();
     } else {
         $.showErr("添加失败");
     }

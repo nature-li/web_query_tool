@@ -43,7 +43,7 @@ function change_frame_size() {
     }
     $("#left_frame_col", window.parent.document).height(newHeight);
     $("#right_frame_col", window.parent.document).height(newHeight);
-    $("#right_frame", window.parent.document).height(newHeight);
+    $("#right_frame", window.parent.document).height = newHeight;
 }
 
 // 初始化渠道下拉列表框

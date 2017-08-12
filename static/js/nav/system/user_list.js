@@ -389,12 +389,7 @@ function append_user_list_to_view(data) {
         }
 
         // 改变窗口大小
-        var newHeight = $(document).contents().find('body').height();
-        if (newHeight < 1000) {
-            newHeight = 1000;
-        }
-        $("#left_frame_col", window.parent.document).height(newHeight);
-        $("#right_frame_col", window.parent.document).height(newHeight);
+        change_frame_size();
     } else {
         $.showErr("添加失败");
     }
