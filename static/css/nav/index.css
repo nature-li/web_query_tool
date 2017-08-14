@@ -1,5 +1,13 @@
 body {
-    min-height: 300px;
-    padding-top: 60px;
     background-color: lightgray;
+}
+
+.navbar-nav > li > a, .navbar-brand {
+    padding-top: 5px !important;
+    padding-bottom: 0 !important;
+    height: 32px !important;
+}
+.navbar {
+    min-height:32px !important;
+    margin-bottom: 10px !important;
 }

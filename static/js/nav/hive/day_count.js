@@ -40,7 +40,7 @@ function reset_save_data() {
         'db_return_item_count': 0,
         'db_max_page_idx': 0,
         'view_max_page_count': 5,
-        'view_item_count_per_page': 10,
+        'view_item_count_per_page': 15,
         'view_start_page_idx': 0,
         'view_current_page_idx': 0,
         'view_current_page_count': 0

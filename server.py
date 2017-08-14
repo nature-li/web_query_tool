@@ -281,6 +281,7 @@ class LoginHandler(BaseHandler):
     def get(self):
         # 本机登录用
         # self.render("login.html")
+		# return
         # 部署使用
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         if self.get_current_user():
