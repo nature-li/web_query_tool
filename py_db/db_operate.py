@@ -103,6 +103,8 @@ class DbOperator(object):
                 a_dict['click'] = value.click
                 if value.impression != 0:
                     a_dict['ctr'] = '%.2f%%' % (100.0 * value.click / value.impression)
+                else:
+                    a_dict['ctr'] = 0
                 a_dict['update_time'] = datetime.datetime.fromtimestamp(value.update_time).strftime('%Y-%m-%d %H:%M:%S')
                 a_list.append(a_dict)
 
@@ -214,6 +216,8 @@ class DbOperator(object):
                 a_dict['click'] = value.click
                 if value.impression != 0:
                     a_dict['ctr'] = '%.2f%%' % (100.0 * value.click / value.impression)
+                else:
+                    a_dict['ctr'] = 0
                 a_dict['update_time'] = datetime.datetime.fromtimestamp(value.update_time).strftime('%Y-%m-%d %H:%M:%S')
                 a_list.append(a_dict)
 
