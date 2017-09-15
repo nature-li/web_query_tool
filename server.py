@@ -16,6 +16,7 @@ from tornado.options import define, options, parse_command_line
 from config import config
 from py_log.logger import Logger, LogEnv
 from py_db.db_operate import DbOperator
+from py_db.db_redis import RedisFetcher
 from login.login import Login
 
 
@@ -174,7 +175,8 @@ class PositionQueryHandler(BaseHandler):
         dt = self.get_argument("dt")
         ad_network_id = self.get_argument("ad_network_id")
         position_id = self.get_argument('position_id')
-        text = DbOperator.get_hour_count(dt, ad_network_id, start_hour, end_hour, off_set, limit)
+        fetcher = RedisFetcher(config.redis_host, config.redis_port, config.redis_password)
+        text = fetcher.fetch(dt, ad_network_id, position_id)
         self.write(text)
 
 

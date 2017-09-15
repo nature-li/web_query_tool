@@ -57,16 +57,17 @@ class RedisFetcher(object):
                 click = 0
             return impression, click
 
-    def fetch(self, ad_network_id, position_id):
+    def fetch(self, dt, ad_network_id, position_id):
         try:
             a_list = list()
 
-            # 获取当前时间
+            # 获取日期
             now = datetime.now()
-            dt = now.strftime("%Y-%m-%d")
+            day = datetime.strptime(dt, '%Y-%m-%d')
+            dt = day.strftime("%Y-%m-%d")
 
             # 获取天数据
-            impression, click = self.get_day_impression_click(ad_network_id, position_id, now)
+            impression, click = self.get_day_impression_click(ad_network_id, position_id, day)
             a_dict = dict()
             a_dict['dt'] = dt
             a_dict['hour'] = '--'
@@ -82,10 +83,10 @@ class RedisFetcher(object):
             a_list.append(a_dict)
 
             # 获取小时数据
-            hour = now.hour
+            hour = day.hour
             for idx in xrange(0, hour + 1):
                 str_hour = '%02d' % idx
-                impression, click = self.get_hour_impression_click(ad_network_id, position_id, now, str_hour)
+                impression, click = self.get_hour_impression_click(ad_network_id, position_id, day, str_hour)
                 a_dict = dict()
                 a_dict['dt'] = dt
                 a_dict['hour'] = str_hour
