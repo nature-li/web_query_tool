@@ -38,6 +38,18 @@ $(document).on("click", "#a_hour_count", function () {
     frame_auto_size();
 });
 
+// a_position 点击事件
+$(document).on("click", "#a_position", function () {
+    $("#right_frame").attr("src", "position");
+
+    // 菜单 active 状态改变
+    $("#menu_data_statistic").addClass("active");
+    $("#menu_system_control").removeClass("active");
+
+    // 自适应框架大小
+    frame_auto_size();
+});
+
 // a_user_control 点击事件
 $(document).on("click", "#a_user_control", function () {
     $("#right_frame").attr("src", "user_list");

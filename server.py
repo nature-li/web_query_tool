@@ -95,6 +95,15 @@ class HourCountHandler(BaseHandler):
         self.render('hive/hour_count.html')
 
 
+class PositionHandler(BaseHandler):
+    def get(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        self.render('hive/position.html')
+
+
 class NetworkListHandler(BaseHandler):
     def get(self):
         user_name, show_name = self.get_login_user()
@@ -152,6 +161,19 @@ class HourQueryHandler(BaseHandler):
         end_hour = self.get_argument("end_hour")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
+        text = DbOperator.get_hour_count(dt, ad_network_id, start_hour, end_hour, off_set, limit)
+        self.write(text)
+
+
+class PositionQueryHandler(BaseHandler):
+    def post(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        dt = self.get_argument("dt")
+        ad_network_id = self.get_argument("ad_network_id")
+        position_id = self.get_argument('position_id')
         text = DbOperator.get_hour_count(dt, ad_network_id, start_hour, end_hour, off_set, limit)
         self.write(text)
 
@@ -403,10 +425,12 @@ def __main__():
             (r'/logout', LogoutHandler),
             (r'/day_count', DayCountHandler),
             (r'/hour_count', HourCountHandler),
+            (r'/position', PositionHandler),
             (r'/user_list', UserListHandler),
             (r'/network_list', NetworkListHandler),
             (r'/query_day_page', DayQueryHandler),
             (r'/query_hour_page', HourQueryHandler),
+            (r'/query_position_page', PositionQueryHandler),
             (r'/add_user', AddUserHandler),
             (r'/query_user_list', QueryUserListHandler),
             (r'/delete_user_list', DeleteUserListHandler),

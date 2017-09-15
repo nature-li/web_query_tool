@@ -1,8 +1,8 @@
 $(document).ready(function () {
     // 改变菜单背景色
     $("#li_day_count", window.parent.document).removeClass("selected_menu");
-    $("#li_hour_count", window.parent.document).addClass("selected_menu");
-    $("#li_position", window.parent.document).removeClass("selected_menu");
+    $("#li_hour_count", window.parent.document).removeClass("selected_menu");
+    $("#li_position", window.parent.document).addClass("selected_menu");
     $("#li_network_control", window.parent.document).removeClass("selected_menu");
 
     // 默认日期
@@ -20,9 +20,6 @@ $(document).ready(function () {
     if (!window.save_data) {
         reset_save_data();
     }
-
-    // 查询数据并更新页面
-    query_and_update_view();
 });
 
 // 初始化全局变量
@@ -33,7 +30,7 @@ function reset_save_data() {
         'db_return_item_count': 0,
         'db_max_page_idx': 0,
         'view_max_page_count': 5,
-        'view_item_count_per_page': 15,
+        'view_item_count_per_page': 100,
         'view_start_page_idx': 0,
         'view_current_page_idx': 0,
         'view_current_page_count': 0
@@ -73,32 +70,21 @@ function query_and_update_view() {
     var month = date.getMonth() + 1;
     var day = date.getDate();
     var dt = year + "-" + month + "-" + day;
-    var off_set = window.save_data.view_current_page_idx * window.save_data.view_item_count_per_page;
-    var limit = window.save_data.view_item_count_per_page;
 
     // 获取 ad_network_id
     var ad_network_id = $("#ad_network_id_selector option:selected").text();
-    if (ad_network_id == 'all_ad_network_id') {
-        ad_network_id = "all";
-    }
 
-    // 获取开始时间
-    var start_hour = $("#start_hour option:selected").text();
+    // 获取位置id
+    var position_id = $("#position_id").text()
 
-    // 获取结束时间
-    var end_hour = $("#end_hour option:selected").text();
-
-    // 加载数据
+    // 发送请求获取数据
     $.ajax({
-            url: '/query_hour_page',
+            url: '/query_position_page',
             type: "post",
             data: {
                 'dt': dt,
                 'ad_network_id': ad_network_id,
-                'start_hour': start_hour,
-                'end_hour': end_hour,
-                'off_set': off_set,
-                'limit': limit
+                'position_id': position_id,
             },
             dataType: 'json',
             success: function (data) {

@@ -18,6 +18,11 @@ server_expire_time = 30 * 60
 # 数据库所在位置
 server_db_uri = 'sqlite:////Users/xxxxxx/sqlite/count.db'
 
+# redis 配置
+redis_host = 'xxxxx.com'
+redis_port = 1234
+redis_password = 'password'
+
 # OAUTH登录
 server_oauth_app_id = ''
 server_oauth_app_secret = ''
