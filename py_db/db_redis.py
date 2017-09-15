@@ -73,8 +73,7 @@ class RedisFetcher(object):
             dt = day.strftime("%Y-%m-%d")
 
             # 获取小时数据
-            hour = day.hour
-            for idx in xrange(0, hour + 1):
+            for idx in xrange(0, 24):
                 str_hour = '%02d' % idx
                 impression, click = self.get_hour_impression_click(ad_network_id, position_id, day, str_hour)
                 a_dict = dict()
