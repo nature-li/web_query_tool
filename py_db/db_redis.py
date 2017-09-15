@@ -30,8 +30,11 @@ class RedisFetcher(object):
         finally:
             if not impression:
                 impression = 0
+            impression = int(impression)
+
             if not click:
                 click = 0
+            click = int(click)
             return impression, click
 
     def get_hour_impression_click(self, ad_network_id, position_id, day, hour):
@@ -53,8 +56,11 @@ class RedisFetcher(object):
         finally:
             if not impression:
                 impression = 0
+            impression = int(impression)
+
             if not click:
                 click = 0
+            click = int(click)
             return impression, click
 
     def fetch(self, dt, ad_network_id, position_id):
