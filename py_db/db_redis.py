@@ -24,7 +24,7 @@ class RedisFetcher(object):
         try:
             dt = day.strftime("%Y%m%d")
             impression = self.redis.get('%s|%s|%s|2' % (ad_network_id, position_id, dt))
-            click = self.redis.get('%s|%s|3' % (ad_network_id, dt))
+            click = self.redis.get('%s|%s|%s|3' % (ad_network_id, position_id, dt))
         except:
             Logger.error(traceback.format_exc())
         finally:
@@ -47,7 +47,7 @@ class RedisFetcher(object):
         try:
             dt = day.strftime("%Y%m%d")
             impression = self.redis.get('%s|%s|%s%s|2' % (ad_network_id, position_id, dt, hour))
-            click = self.redis.get('%s|%s%s|3' % (ad_network_id, dt, hour))
+            click = self.redis.get('%s|%s|%s%s|3' % (ad_network_id, position_id, dt, hour))
         except:
             Logger.error(traceback.format_exc())
         finally:
@@ -75,6 +75,7 @@ class RedisFetcher(object):
                 a_dict['dt'] = dt
                 a_dict['hour'] = str_hour
                 a_dict['ad_network_id'] = ad_network_id
+                a_dict['position_id'] = position_id
                 a_dict['pv'] = 0
                 a_dict['impression'] = impression
                 a_dict['click'] = click
@@ -91,6 +92,7 @@ class RedisFetcher(object):
             a_dict['dt'] = dt
             a_dict['hour'] = '--'
             a_dict['ad_network_id'] = ad_network_id
+            a_dict['position_id'] = position_id
             a_dict['pv'] = 0
             a_dict['impression'] = impression
             a_dict['click'] = click

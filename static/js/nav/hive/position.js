@@ -46,6 +46,7 @@ function update_page_view(page_idx) {
         html += "<tr><td>" + item.dt + "</td>" +
             "<td>" + item.hour + "</td>" +
             "<td>" + item.ad_network_id + "</td>" +
+            "<td>" + item.position_id + "</td>" +
             "<td>" + item.pv + "</td>" +
             "<td>" + item.impression + "</td>" +
             "<td>" + item.click + "</td>" +
