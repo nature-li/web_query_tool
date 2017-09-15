@@ -66,22 +66,6 @@ class RedisFetcher(object):
             day = datetime.strptime(dt, '%Y-%m-%d')
             dt = day.strftime("%Y-%m-%d")
 
-            # 获取天数据
-            impression, click = self.get_day_impression_click(ad_network_id, position_id, day)
-            a_dict = dict()
-            a_dict['dt'] = dt
-            a_dict['hour'] = '--'
-            a_dict['ad_network_id'] = ad_network_id
-            a_dict['pv'] = 0
-            a_dict['impression'] = impression
-            a_dict['click'] = click
-            if impression != 0:
-                a_dict['ctr'] = '%.2f%%' % (100.0 * click / impression)
-            else:
-                a_dict['ctr'] = "0.00%"
-            a_dict['update_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
-            a_list.append(a_dict)
-
             # 获取小时数据
             hour = day.hour
             for idx in xrange(0, hour + 1):
@@ -100,6 +84,22 @@ class RedisFetcher(object):
                     a_dict['ctr'] = "0.00%"
                 a_dict['update_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
                 a_list.append(a_dict)
+
+            # 获取天数据
+            impression, click = self.get_day_impression_click(ad_network_id, position_id, day)
+            a_dict = dict()
+            a_dict['dt'] = dt
+            a_dict['hour'] = '--'
+            a_dict['ad_network_id'] = ad_network_id
+            a_dict['pv'] = 0
+            a_dict['impression'] = impression
+            a_dict['click'] = click
+            if impression != 0:
+                a_dict['ctr'] = '%.2f%%' % (100.0 * click / impression)
+            else:
+                a_dict['ctr'] = "0.00%"
+            a_dict['update_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
+            a_list.append(a_dict)
 
             # 返回结果
             a_dict = dict()

@@ -75,7 +75,7 @@ function query_and_update_view() {
     var ad_network_id = $("#ad_network_id_selector option:selected").text();
 
     // 获取位置id
-    var position_id = $("#position_id").text()
+    var position_id = $("#position_id").val();
 
     // 发送请求获取数据
     $.ajax({
