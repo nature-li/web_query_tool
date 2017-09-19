@@ -176,7 +176,10 @@ class PositionQueryHandler(BaseHandler):
         ad_network_id = self.get_argument("ad_network_id")
         position_id = self.get_argument('position_id')
         fetcher = RedisFetcher(config.redis_host, config.redis_port, config.redis_password)
-        text = fetcher.fetch(dt, ad_network_id, position_id)
+        if position_id:
+            text = fetcher.fetch_position(dt, ad_network_id, position_id)
+        else:
+            text = fetcher.fetch_network(dt, ad_network_id)
         self.write(text)
 
 
