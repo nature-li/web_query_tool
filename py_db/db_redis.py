@@ -48,7 +48,7 @@ class RedisFetcher(object):
         try:
             dt = day.strftime("%Y%m%d")
             impression = self.redis.get('%s|%s|2' % (ad_network_id, dt))
-            click = self.redis.get('%s%s|3' % (ad_network_id, dt))
+            click = self.redis.get('%s|%s|3' % (ad_network_id, dt))
         except:
             Logger.error(traceback.format_exc())
         finally:
