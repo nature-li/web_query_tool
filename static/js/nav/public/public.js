@@ -79,8 +79,8 @@ function init_ad_network_select() {
                     var network_name = network.network_name;
                     var option = '<option>' + network_name + '</option>';
                     $("#ad_network_id_selector").append(option);
-                    $("#ad_network_id_selector").selectpicker('refresh');
                 }
+                $("#ad_network_id_selector").selectpicker('refresh');
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {

@@ -20,9 +20,6 @@ $(document).ready(function () {
     if (!window.save_data) {
         reset_save_data();
     }
-
-    // 查询数据并更新页面
-    query_and_update_view();
 });
 
 // 初始化全局变量
