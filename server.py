@@ -398,6 +398,7 @@ class LogFormatter(tornado.log.LogFormatter):
 
 
 class HourAdIdeaPositionCount(tornado.web.RequestHandler):
+    @tornado.web.asynchronous
     def handle(self):
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
         start_dt = self.get_argument('sdate', None)
@@ -412,7 +413,7 @@ class HourAdIdeaPositionCount(tornado.web.RequestHandler):
         limit = self.get_argument("limit", None)
 
         if ad_network_id is None:
-            ad_network_id = "mt_dsp"
+            ad_network_id = "meitu"
 
         r_dict = {
             'sdate': start_dt,
@@ -430,15 +431,15 @@ class HourAdIdeaPositionCount(tornado.web.RequestHandler):
         Logger.info(url)
 
         http_client = AsyncHTTPClient()
-        response = yield http_client.fetch(url)
+        http_client.fetch(url, self.on_fetch)
+
+    def on_fetch(self, response):
         self.write(response.body)
         self.finish()
 
-    @gen.coroutine
     def get(self):
         self.handle()
 
-    @gen.coroutine
     def post(self):
         self.handle()
 
