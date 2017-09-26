@@ -415,18 +415,27 @@ class HourAdIdeaPositionCount(tornado.web.RequestHandler):
         if ad_network_id is None:
             ad_network_id = "meitu"
 
-        r_dict = {
-            'sdate': start_dt,
-            'edate': end_dt,
-            'shour': start_hour,
-            'ehour': end_hour,
-            'ad_network_id': ad_network_id,
-            'ad_id': ad_id,
-            'creative_id': ad_idea_id,
-            'position_id': ad_position_id,
-            'offset': offset,
-            'limit': limit,
-        }
+        r_dict = dict()
+        if start_dt:
+            r_dict['sdate'] = start_dt
+        if end_dt:
+            r_dict['edate'] = end_dt
+        if start_hour:
+            r_dict['shour'] = start_hour
+        if end_hour:
+            r_dict['ehour'] = end_hour
+        if ad_position_id:
+            r_dict['ad_network_id'] = ad_network_id
+        if ad_id:
+            r_dict['ad_id'] = ad_id
+        if ad_idea_id:
+            r_dict['creative_id'] = ad_idea_id
+        if ad_position_id:
+            r_dict['position_id'] = ad_position_id
+        if offset:
+            r_dict['offset'] = offset
+        if limit:
+            r_dict['limit'] = limit
         url = url_concat(config.api_server, r_dict)
         Logger.info(url)
 
