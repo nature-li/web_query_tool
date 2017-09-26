@@ -427,6 +427,7 @@ class HourAdIdeaPositionCount(tornado.web.RequestHandler):
             'limit': limit,
         }
         url = url_concat(config.api_server, r_dict)
+        Logger.info(url)
 
         http_client = AsyncHTTPClient()
         response = yield http_client.fetch(url)
