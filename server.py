@@ -6,11 +6,15 @@ import json
 import logging
 import time
 from urllib import quote
+import requests
 
 import tornado.escape
 import tornado.ioloop
 import tornado.web
 import tornado.log
+from tornado import gen
+from tornado.httpclient import AsyncHTTPClient
+from tornado.httputil import url_concat
 from tornado.options import define, options, parse_command_line
 
 from config import config
@@ -393,6 +397,51 @@ class LogFormatter(tornado.log.LogFormatter):
         )
 
 
+class HourAdIdeaPositionCount(tornado.web.RequestHandler):
+    def handle(self):
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        start_dt = self.get_argument('sdate', None)
+        end_dt = self.get_argument("edate", None)
+        start_hour = self.get_argument('shour', None)
+        end_hour = self.get_argument("ehour", None)
+        ad_network_id = self.get_argument("ad_network_id", None)
+        ad_id = self.get_argument("ad_id", None)
+        ad_idea_id = self.get_argument("creative_id", None)
+        ad_position_id = self.get_argument("position_id", None)
+        offset = self.get_argument("offset", None)
+        limit = self.get_argument("limit", None)
+
+        if ad_network_id is None:
+            ad_network_id = "mt_dsp"
+
+        r_dict = {
+            'sdate': start_dt,
+            'edate': end_dt,
+            'shour': start_hour,
+            'ehour': end_hour,
+            'ad_network_id': ad_network_id,
+            'ad_id': ad_id,
+            'creative_id': ad_idea_id,
+            'position_id': ad_position_id,
+            'offset': offset,
+            'limit': limit,
+        }
+        url = url_concat(config.api_server, r_dict)
+
+        http_client = AsyncHTTPClient()
+        response = yield http_client.fetch(url)
+        self.write(response.body)
+        self.finish()
+
+    @gen.coroutine
+    def get(self):
+        self.handle()
+
+    @gen.coroutine
+    def post(self):
+        self.handle()
+
+
 def __main__():
     # 设置编码
     reload(sys)
@@ -443,6 +492,7 @@ def __main__():
             (r'/add_network', AddNetworkHandler),
             (r'/query_network_list', QueryNetworkListHandler),
             (r'/delete_network_list', DeleteNetworkListHandler),
+            (r'/invalid', HourAdIdeaPositionCount),
         ],
         cookie_secret=config.server_cookie_secret,
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
