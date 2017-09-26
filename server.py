@@ -424,7 +424,7 @@ class HourAdIdeaPositionCount(tornado.web.RequestHandler):
             r_dict['shour'] = start_hour
         if end_hour:
             r_dict['ehour'] = end_hour
-        if ad_position_id:
+        if ad_network_id:
             r_dict['ad_network_id'] = ad_network_id
         if ad_id:
             r_dict['ad_id'] = ad_id
