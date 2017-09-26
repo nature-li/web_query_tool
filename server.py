@@ -503,7 +503,7 @@ def __main__():
             (r'/add_network', AddNetworkHandler),
             (r'/query_network_list', QueryNetworkListHandler),
             (r'/delete_network_list', DeleteNetworkListHandler),
-            (r'/invalid', HourAdIdeaPositionCount),
+            (r'/position_count', HourAdIdeaPositionCount),
         ],
         cookie_secret=config.server_cookie_secret,
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
