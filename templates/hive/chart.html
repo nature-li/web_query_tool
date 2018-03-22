@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>时统计</title>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <script src="static/js/jquery.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="static/css/bootstrap-datepicker/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="static/css/bootstrap-select/bootstrap-select.css">
+    <link rel="stylesheet" href="static/css/bootstrap-dialog/bootstrap-dialog.min.css">
+    <link rel="stylesheet" href="static/css/nav/button-group.css">
+    <link rel="stylesheet" href="static/css/nav/public.css">
+
+    <script src="static/js/bootstrap-datepicker/bootstrap-datepicker.js"></script>
+    <script src="static/js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+    <script src="static/js/moment/moment-with-locales.js"></script>
+    <script src="static/js/bootstrap-select/bootstrap-select.js"></script>
+    <script src="static/js/bootstrap-dialog/bootstrap-dialog.min.js"></script>
+
+    <script src="static/js/highcharts/highcharts.js"></script>
+    <script src="static/js/highcharts/modules/exporting.js"></script>
+    <script src="static/js/highcharts/modules/series-label.js"></script>
+    <script src="static/js/highcharts/modules/oldie.js"></script>
+    <script src="static/js/highcharts/highcharts-plugins/highcharts-zh_CN.js"></script>
+</head>
+<body>
+
+<!--面包屑导航-->
+<ol class="breadcrumb">
+    <li><a href="/day_count">数据统计</a></li>
+    <li><a href="/day_count">hive统计</a></li>
+    <li><a href="/chart">可视化</a></li>
+</ol>
+
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+
+            <form class="form-inline">
+                <!--开始日期-->
+                <div class="form-group form-group-margin">
+                    <label>开始:</label>
+                    <div class='input-group date' id='begin_date' style="width: 220px;">
+                        <input type='text' class="form-control"/>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+
+                <!--结束日期-->
+                <div class="form-group form-group-margin">
+                    <label>结束:</label>
+                    <div class='input-group date' id='end_date' style="width: 220px;">
+                        <input type='text' class="form-control"/>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+
+                <!--选择渠道1-->
+                <div class="form-group  form-group-margin">
+                    <label>渠道:</label>
+                    <select id="ad_network_id_selector_1" class="selectpicker" data-size="10" data-live-search="true">
+                    </select>
+                </div>
+
+                <!--选择渠道2-->
+                <div class="form-group  form-group-margin">
+                    <label>渠道:</label>
+                    <select id="ad_network_id_selector_2" class="selectpicker" data-size="10" data-live-search="true">
+                    </select>
+                </div>
+
+                <!--位置id-->
+                <div class="form-group  form-group-margin">
+                    <label>位置:</label>
+                    <input id="position_id" type="text" class="form-control" placeholder="输入位置id">
+                </div>
+
+                <!--图片类型-->
+                <div class="form-group  form-group-margin">
+                    <label>类型:</label>
+                    <select id="chart_type_id_selector" class="selectpicker" data-size="10"></select>
+                </div>
+
+                <!--查询-->
+                <div class="form-group form-group-margin">
+                    <div>
+                        <button id="query_hour" type="button" class="btn btn-primary">查询</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <hr/>
+    </div>
+
+    <!--<div id="container" style="max-width:800px;height:400px"></div>-->
+    <div id="container"></div>
+</div>
+
+<script src="static/js/nav/public/public.js"></script>
+<script src="static/js/nav/public/page_partition.js"></script>
+<script src="static/js/nav/hive/hive_index.js"></script>
+<script src="static/js/nav/hive/chart.js"></script>
+</body>
+</html>

@@ -109,6 +109,32 @@ class PositionHandler(BaseHandler):
         self.render('hive/position.html')
 
 
+class ChartHandler(BaseHandler):
+    def get(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        self.render('hive/chart.html')
+
+
+class ChartDataQueryHandler(BaseHandler):
+    def post(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        start_dt = self.get_argument("start_dt")
+        end_dt = self.get_argument("end_dt")
+        ad_network_id_1 = self.get_argument("ad_network_id_1")
+        ad_network_id_2 = self.get_argument("ad_network_id_2")
+        position_id = self.get_argument('position_id')
+        chart_type = self.get_argument('chart_type')
+        fetcher = RedisFetcher(config.redis_host, config.redis_port, config.redis_password)
+        json_dict = fetcher.fetch_chart_data(start_dt, end_dt, ad_network_id_1, ad_network_id_2, position_id, chart_type)
+        self.write(json.dumps(json_dict, ensure_ascii=False))
+
+
 class NetworkListHandler(BaseHandler):
     def get(self):
         user_name, show_name = self.get_login_user()
@@ -504,6 +530,8 @@ def __main__():
             (r'/query_network_list', QueryNetworkListHandler),
             (r'/delete_network_list', DeleteNetworkListHandler),
             (r'/position_count', HourAdIdeaPositionCount),
+            (r'/chart', ChartHandler),
+            (r'/query_chart_data', ChartDataQueryHandler),
         ],
         cookie_secret=config.server_cookie_secret,
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
