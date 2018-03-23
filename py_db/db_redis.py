@@ -348,7 +348,7 @@ class RedisFetcher(object):
         end_imp_list_2 = list()
         end_click_list_2 = list()
 
-        for idx in reversed(xrange(0, 24)):
+        for idx in xrange(0, 24):
             str_hour = '%02d' % idx
             if position_id:
                 impression_1, click_1 = self.get_hour_position_impression_click(ad_network_id_1, position_id, start_date, str_hour)
@@ -361,7 +361,7 @@ class RedisFetcher(object):
             start_imp_list_2.append(impression_2)
             start_click_list_2.append(click_2)
 
-        for idx in reversed(xrange(0, 24)):
+        for idx in xrange(0, 24):
             str_hour = '%02d' % idx
             if position_id:
                 impression_1, click_1 = self.get_hour_position_impression_click(ad_network_id_1, position_id, end_date, str_hour)
