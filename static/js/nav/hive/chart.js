@@ -24,9 +24,6 @@ $(document).ready(function () {
     });
     $("#end_date").datepicker('setDate', new Date());
 
-    // 初始化渠道下拉列表框
-    init_two_ad_network_select();
-
     // 初始化图片类型
     init_chart_type_list();
 
@@ -35,8 +32,8 @@ $(document).ready(function () {
         reset_save_data();
     }
 
-    // 查询数据并更新页面
-    query_and_update_view();
+    // 初始化渠道下拉列表框
+    init_two_ad_network_select();
 });
 
 // 初始化渠道下拉列表框
@@ -74,6 +71,9 @@ function init_two_ad_network_select() {
                     $("#ad_network_id_selector_2").append(option);
                 }
                 $("#ad_network_id_selector_2").selectpicker('refresh');
+
+                // 查询数据并更新页面
+                query_and_update_view();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
