@@ -429,5 +429,6 @@ class RedisFetcher(object):
         json_dict['title'] = {'text': chart_type}
         json_dict['xAxis'] = {'categories': x_axis}
         json_dict['yAxis'] = {'title': {'text': '计数'}}
+        json_dict['credits'] = {'text': '', 'href': ''}
         json_dict['series'] = series
         return json_dict
