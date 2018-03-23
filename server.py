@@ -328,76 +328,79 @@ class DeleteNetworkListHandler(BaseHandler):
 
 class LoginHandler(BaseHandler):
     # 本机登录用
-    # def post(self):
-    #     name = self.get_argument("name")
-    #     self.set_secure_cookie("user_id", name, expires_days=None)
-    #     self.set_secure_cookie("show_name", name, expires_days=None)
-    #     self.set_secure_cookie("last_time", str(time.time()), expires_days=None)
-    #     self.redirect("/")
+    def post(self):
+        if config.server_local_fake:
+            name = self.get_argument("name")
+            self.set_secure_cookie("user_id", name, expires_days=None)
+            self.set_secure_cookie("show_name", name, expires_days=None)
+            self.set_secure_cookie("last_time", str(time.time()), expires_days=None)
+            self.redirect("/")
+        self.redirect("/")
 
     def get(self):
-        # 本机登录用
-        # self.render("login.html")
-		# return
-        # 部署使用
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        if self.get_current_user():
+        if config.server_local_fake:
+            # 本机fake登录
+            self.render("login.html")
+        else:
+            # 线上真实登录
+            Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+            if self.get_current_user():
+                self.redirect("/")
+                return
+
+            code_from_auth = self.get_argument('code', None)
+            if not code_from_auth:
+                redirect_url = config.server_oauth_auth_url
+                redirect_url += '?appid=%s' % config.server_oauth_app_id
+                redirect_url += '&response_type=code'
+                redirect_url += '&redirect_uri=%s' % quote(config.server_oauth_redirect_url)
+                redirect_url += '&scope=user_info'
+                redirect_url += '&state=test'
+                self.redirect(redirect_url)
+                return
+
+            status, content = Login.get_access_token(code_from_auth)
+            if status != 200:
+                self.write(content)
+                return
+            Logger.info("get_access_token: [%s]" % content)
+
+            try:
+                a_dict = json.loads(content)
+            except:
+                Logger.error("parse token error: content[%s]" % content)
+                self.write(content)
+                return
+
+            access_token = a_dict.get("access_token", None)
+            openid = a_dict.get("openid", None)
+            status, content = Login.get_user_info(access_token, openid)
+            if status != 200:
+                self.write(content)
+                return
+            Logger.info("get_user_info: [%s]" % content)
+
+            try:
+                a_dict = json.loads(content)
+            except:
+                Logger.error("parse user_info error: contnet[%s]" % content)
+                self.write(content)
+                return
+
+            name = a_dict.get("name")
+            email = a_dict.get("email")
+            db_user = DbOperator.get_user_info(email)
+            if not db_user:
+                self.render('error.html')
+                return
+
+            # 保存session
+            self.set_secure_cookie("user_id", email, expires_days=None)
+            self.set_secure_cookie("show_name", name, expires_days=None)
+            self.set_secure_cookie("last_time", str(time.time()), expires_days=None)
+
+            # 重向定
             self.redirect("/")
-            return
-
-        code_from_auth = self.get_argument('code', None)
-        if not code_from_auth:
-            redirect_url = config.server_oauth_auth_url
-            redirect_url += '?appid=%s' % config.server_oauth_app_id
-            redirect_url += '&response_type=code'
-            redirect_url += '&redirect_uri=%s' % quote(config.server_oauth_redirect_url)
-            redirect_url += '&scope=user_info'
-            redirect_url += '&state=test'
-            self.redirect(redirect_url)
-            return
-
-        status, content = Login.get_access_token(code_from_auth)
-        if status != 200:
-            self.write(content)
-            return
-        Logger.info("get_access_token: [%s]" % content)
-
-        try:
-            a_dict = json.loads(content)
-        except:
-            Logger.error("parse token error: content[%s]" % content)
-            self.write(content)
-            return
-
-        access_token = a_dict.get("access_token", None)
-        openid = a_dict.get("openid", None)
-        status, content = Login.get_user_info(access_token, openid)
-        if status != 200:
-            self.write(content)
-            return
-        Logger.info("get_user_info: [%s]" % content)
-
-        try:
-            a_dict = json.loads(content)
-        except:
-            Logger.error("parse user_info error: contnet[%s]" % content)
-            self.write(content)
-            return
-
-        name = a_dict.get("name")
-        email = a_dict.get("email")
-        db_user = DbOperator.get_user_info(email)
-        if not db_user:
-            self.render('error.html')
-            return
-
-        # 保存session
-        self.set_secure_cookie("user_id", email, expires_days=None)
-        self.set_secure_cookie("show_name", name, expires_days=None)
-        self.set_secure_cookie("last_time", str(time.time()), expires_days=None)
-
-        # 重向定
-        self.redirect("/")
 
 
 class LogoutHandler(BaseHandler):

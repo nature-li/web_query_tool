@@ -8,6 +8,7 @@ from datetime import datetime
 from datetime import timedelta
 import random
 from py_log.logger import Logger
+from config import config
 
 
 class RedisFetcher(object):
@@ -21,6 +22,9 @@ class RedisFetcher(object):
         :type day: datetime
         :rtype: (int, int)
         """
+        if config.server_local_fake:
+            return self.__get_random_data()
+
         impression = None
         click = None
         try:
@@ -45,6 +49,9 @@ class RedisFetcher(object):
         :type day: datetime
         :rtype: (int, int)
         """
+        if config.server_local_fake:
+            return self.__get_random_data()
+
         impression = None
         click = None
         try:
@@ -71,6 +78,9 @@ class RedisFetcher(object):
         :type hour: str
         :rtype: (int, int)
         """
+        if config.server_local_fake:
+            return self.__get_random_data()
+
         impression = None
         click = None
         try:
@@ -96,6 +106,9 @@ class RedisFetcher(object):
         :type hour: str
         :rtype: (int, int)
         """
+        if config.server_local_fake:
+            return self.__get_random_data()
+
         impression = None
         click = None
         try:
@@ -294,13 +307,9 @@ class RedisFetcher(object):
             if position_id:
                 impression_1, click_1 = self.get_day_position_impression_click(ad_network_id_1, position_id, day)
                 impression_2, click_2 = self.get_day_position_impression_click(ad_network_id_2, position_id, day)
-                # impression_1, click_1 = self.__get_random_data()
-                # impression_2, click_2 = self.__get_random_data()
             else:
                 impression_1, click_1 = self.get_day_impression_click(ad_network_id_1, day)
                 impression_2, click_2 = self.get_day_impression_click(ad_network_id_2, day)
-                # impression_1, click_1 = self.__get_random_data()
-                # impression_2, click_2 = self.__get_random_data()
             impression_list_1.append(impression_1)
             click_list_1.append(click_1)
             impression_list_2.append(impression_2)
@@ -344,13 +353,9 @@ class RedisFetcher(object):
             if position_id:
                 impression_1, click_1 = self.get_hour_position_impression_click(ad_network_id_1, position_id, start_date, str_hour)
                 impression_2, click_2 = self.get_hour_position_impression_click(ad_network_id_2, position_id, start_date, str_hour)
-                # impression_1, click_1 = self.__get_random_data()
-                # impression_2, click_2 = self.__get_random_data()
             else:
                 impression_1, click_1 = self.get_hour_impression_click(ad_network_id_1, start_date, str_hour)
                 impression_2, click_2 = self.get_hour_impression_click(ad_network_id_2, start_date, str_hour)
-                # impression_1, click_1 = self.__get_random_data()
-                # impression_2, click_2 = self.__get_random_data()
             start_imp_list_1.append(impression_1)
             start_click_list_1.append(click_1)
             start_imp_list_2.append(impression_2)
@@ -361,13 +366,9 @@ class RedisFetcher(object):
             if position_id:
                 impression_1, click_1 = self.get_hour_position_impression_click(ad_network_id_1, position_id, end_date, str_hour)
                 impression_2, click_2 = self.get_hour_position_impression_click(ad_network_id_2, position_id, end_date, str_hour)
-                # impression_1, click_1 = self.__get_random_data()
-                # impression_2, click_2 = self.__get_random_data()
             else:
                 impression_1, click_1 = self.get_hour_impression_click(ad_network_id_1, end_date, str_hour)
                 impression_2, click_2 = self.get_hour_impression_click(ad_network_id_2, end_date, str_hour)
-                # impression_1, click_1 = self.__get_random_data()
-                # impression_2, click_2 = self.__get_random_data()
             end_imp_list_1.append(impression_1)
             end_click_list_1.append(click_1)
             end_imp_list_2.append(impression_2)

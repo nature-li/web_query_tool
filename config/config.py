@@ -30,3 +30,9 @@ server_oauth_redirect_url = ''
 server_oauth_token_url = ""
 server_oauth_user_url = ""
 server_oauth_auth_url = ''
+
+# API_SERVER
+api_server = 'http://xxx:8888/position_count'
+
+# FAKE_LOGIN
+server_local_fake = False
