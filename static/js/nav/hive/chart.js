@@ -262,7 +262,11 @@ function update_column_charts(div_id, title, a_dict) {
         series: [{
             name: '点击率',
             data: ctr_list
-        }]
+        }],
+        credits: {
+            text: '',
+            href: ''
+        }
     });
 
 }
