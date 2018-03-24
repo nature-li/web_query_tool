@@ -88,7 +88,7 @@ function init_two_ad_network_select() {
 
 // 初始化图片类型
 function init_chart_type_list() {
-    $("#chart_type_id_selector").append('<option>趋势图</option>');
+    $("#chart_type_id_selector").append('<option>走势图</option>');
     $("#chart_type_id_selector").append('<option>对比图</option>');
 }
 
@@ -174,8 +174,8 @@ function query_and_update_view() {
                 'chart_type': chart_type
             },
             dataType: 'json',
-            success: function (data) {
-                update_high_charts(data);
+            success: function (total_data) {
+                update_high_charts(total_data);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -189,8 +189,69 @@ function query_and_update_view() {
 }
 
 // 更新 high charts
-function update_high_charts(json_data) {
-    var chart = Highcharts.chart('container', json_data);
+function update_high_charts(total_data) {
+    // 更新线状图
+    var line_dict = total_data['line'];
+    var line_chart = Highcharts.chart('container', line_dict);
+
+    // 更新饼状图
+    var pie_data = total_data['pie'];
+    var name = pie_data['start_imp']['name'];
+    var list_data = pie_data['start_imp']['list'];
+    update_pie_charts("start_imp_pie", name, list_data);
+
+    name = pie_data['start_clk']['name'];
+    list_data = pie_data['start_clk']['list'];
+    update_pie_charts("start_clk_pie", name, list_data);
+
+    name = pie_data['end_imp']['name'];
+    list_data = pie_data['end_imp']['list'];
+    update_pie_charts("end_imp_pie", name, list_data);
+
+    name = pie_data['end_clk']['name'];
+    list_data = pie_data['end_clk']['list'];
+    update_pie_charts("end_clk_pie", name, list_data);
+}
+
+// 更新饼状图
+function update_pie_charts(div_id, title, list_data) {
+    var this_id = "#" + div_id;
+    $(this_id).highcharts({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false
+        },
+        title: {
+            text: title
+        },
+        tooltip: {
+            headerFormat: '{series.name}<br>',
+            pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    }
+                }
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: title,
+            data: list_data
+        }],
+        credits: {
+            text: '',
+            href: ''
+        }
+    });
 }
 
 $("#query_hour").click(function () {

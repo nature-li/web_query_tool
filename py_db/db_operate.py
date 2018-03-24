@@ -514,14 +514,14 @@ class DbOperator(object):
             a_dict['success'] = 'true'
             a_dict['content'] = a_network_list
             a_dict['item_count'] = count
-            return json.dumps(a_dict)
+            return a_dict
         except:
             Logger.error(traceback.format_exc())
             a_dict = dict()
             a_dict['success'] = 'false'
             a_dict['content'] = list()
             a_dict['item_count'] = 0
-            return json.dumps(a_dict)
+            return a_dict
 
     # 删除渠道
     @classmethod

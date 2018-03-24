@@ -9,6 +9,7 @@ from datetime import timedelta
 import random
 from py_log.logger import Logger
 from config import config
+from py_db.db_operate import DbOperator
 
 
 class RedisFetcher(object):
@@ -271,7 +272,7 @@ class RedisFetcher(object):
         if str(chart_type) == '对比图':
             for point in xrange(24):
                 point_list.append(point)
-        elif str(chart_type) == '趋势图':
+        elif str(chart_type) == '走势图':
             when = start_date
             while when <= end_date:
                 point_list.append(when.strftime("%Y-%m-%d"))
@@ -351,8 +352,10 @@ class RedisFetcher(object):
         for idx in xrange(0, 24):
             str_hour = '%02d' % idx
             if position_id:
-                impression_1, click_1 = self.get_hour_position_impression_click(ad_network_id_1, position_id, start_date, str_hour)
-                impression_2, click_2 = self.get_hour_position_impression_click(ad_network_id_2, position_id, start_date, str_hour)
+                impression_1, click_1 = self.get_hour_position_impression_click(ad_network_id_1, position_id,
+                                                                                start_date, str_hour)
+                impression_2, click_2 = self.get_hour_position_impression_click(ad_network_id_2, position_id,
+                                                                                start_date, str_hour)
             else:
                 impression_1, click_1 = self.get_hour_impression_click(ad_network_id_1, start_date, str_hour)
                 impression_2, click_2 = self.get_hour_impression_click(ad_network_id_2, start_date, str_hour)
@@ -364,8 +367,10 @@ class RedisFetcher(object):
         for idx in xrange(0, 24):
             str_hour = '%02d' % idx
             if position_id:
-                impression_1, click_1 = self.get_hour_position_impression_click(ad_network_id_1, position_id, end_date, str_hour)
-                impression_2, click_2 = self.get_hour_position_impression_click(ad_network_id_2, position_id, end_date, str_hour)
+                impression_1, click_1 = self.get_hour_position_impression_click(ad_network_id_1, position_id, end_date,
+                                                                                str_hour)
+                impression_2, click_2 = self.get_hour_position_impression_click(ad_network_id_2, position_id, end_date,
+                                                                                str_hour)
             else:
                 impression_1, click_1 = self.get_hour_impression_click(ad_network_id_1, end_date, str_hour)
                 impression_2, click_2 = self.get_hour_impression_click(ad_network_id_2, end_date, str_hour)
@@ -416,19 +421,83 @@ class RedisFetcher(object):
 
         return series_list
 
+    @classmethod
+    def __handle_pie_list(cls, data_list):
+        sort_data_list = sorted(data_list, key=lambda node: node[1], reverse=True)
+        if len(sort_data_list) > 0:
+            raw_data = sort_data_list[0]
+            sort_data_list[0] = {
+                'name': raw_data[0],
+                'y': raw_data[1],
+                'sliced': True,
+                'selected': True
+            }
+        return sort_data_list
+
+    def __get_pie_data(self, start_date, end_date):
+        a_dict = DbOperator.query_network_list('', 0, -1)
+
+        a_network_list = list()
+        for item in a_dict['content']:
+            a_network_list.append(item['network_name'])
+
+        start_imp_list = list()
+        end_imp_list = list()
+        start_clk_list = list()
+        end_clk_list = list()
+
+        for network in a_network_list:
+            imp, clk = self.get_day_impression_click(network, start_date)
+            start_imp_list.append([network, imp])
+            start_clk_list.append([network, clk])
+
+        for network in a_network_list:
+            imp, clk = self.get_day_impression_click(network, end_date)
+            end_imp_list.append([network, imp])
+            end_clk_list.append([network, clk])
+
+        imp_clk_data = dict()
+        imp_clk_data['start_imp'] = {
+            'name': start_date.strftime('%Y年%m月%d日各渠道曝光量占比'),
+            'list': self.__handle_pie_list(start_imp_list)
+        }
+        imp_clk_data['end_imp'] = {
+            'name': end_date.strftime('%Y年%m月%d日各渠道曝光量占比'),
+            'list': self.__handle_pie_list(end_imp_list)
+        }
+        imp_clk_data['start_clk'] = {
+            'name': start_date.strftime('%Y年%m月%d日各渠道点击量占比'),
+            'list': self.__handle_pie_list(start_clk_list)
+        }
+        imp_clk_data['end_clk'] = {
+            'name': end_date.strftime('%Y年%m月%d日各渠道点击量占比'),
+            'list': self.__handle_pie_list(end_clk_list)
+        }
+        return imp_clk_data
+
     def fetch_chart_data(self, start_dt, end_dt, ad_network_id_1, ad_network_id_2, position_id, chart_type):
         start_date = datetime.strptime(start_dt, '%Y-%m-%d')
         end_date = datetime.strptime(end_dt, '%Y-%m-%d')
         x_axis = self.__get_x_axis(start_date, end_date, chart_type)
-        if str(chart_type) == '趋势图':
+
+        if str(chart_type) == '走势图':
             series = self.__get_trend_series(start_date, end_date, ad_network_id_1, ad_network_id_2, position_id)
         else:
             series = self.__get_compare_series(start_date, end_date, ad_network_id_1, ad_network_id_2, position_id)
-        json_dict = dict()
-        json_dict['chart'] = {'type': 'line'}
-        json_dict['title'] = {'text': chart_type}
-        json_dict['xAxis'] = {'categories': x_axis}
-        json_dict['yAxis'] = {'title': {'text': '计数'}}
-        json_dict['credits'] = {'text': '', 'href': ''}
-        json_dict['series'] = series
-        return json_dict
+
+        # line data
+        line_dict = dict()
+        line_dict['chart'] = {'type': 'line'}
+        line_dict['title'] = {'text': chart_type}
+        line_dict['xAxis'] = {'categories': x_axis}
+        line_dict['yAxis'] = {'title': {'text': '计数'}}
+        line_dict['credits'] = {'text': '', 'href': ''}
+        line_dict['series'] = series
+
+        # pie data
+        pie_data = self.__get_pie_data(start_date, end_date)
+
+        total_data = dict()
+        total_data['line'] = line_dict
+        total_data['pie'] = pie_data
+        return total_data

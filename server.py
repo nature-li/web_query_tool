@@ -306,7 +306,8 @@ class QueryNetworkListHandler(BaseHandler):
         network_name = self.get_argument("network_name")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
-        text = DbOperator.query_network_list(network_name, off_set, limit)
+        a_dict = DbOperator.query_network_list(network_name, off_set, limit)
+        text = json.dumps(a_dict)
         self.write(text)
 
 
