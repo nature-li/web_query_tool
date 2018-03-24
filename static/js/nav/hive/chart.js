@@ -204,10 +204,6 @@ function update_high_charts(total_data) {
     list_data = pie_data['start_clk']['list'];
     update_pie_charts("start_clk_pie", name, list_data);
 
-    name = pie_data['start_ctr']['name'];
-    list_data = pie_data['start_ctr']['list'];
-    update_pie_charts("start_ctr_pie", name, list_data);
-
     name = pie_data['end_imp']['name'];
     list_data = pie_data['end_imp']['list'];
     update_pie_charts("end_imp_pie", name, list_data);
@@ -216,9 +212,59 @@ function update_high_charts(total_data) {
     list_data = pie_data['end_clk']['list'];
     update_pie_charts("end_clk_pie", name, list_data);
 
-    name = pie_data['end_ctr']['name'];
-    list_data = pie_data['end_ctr']['list'];
-    update_pie_charts("end_ctr_pie", name, list_data);
+    // 更新柱状图
+    var column_data = total_data['column'];
+    name = column_data['start_ctr']['name'];
+    var a_dict = column_data['start_ctr']['list'];
+    update_column_charts("start_ctr_column", name, a_dict);
+
+    name = column_data['end_ctr']['name'];
+    a_dict = column_data['end_ctr']['list'];
+    update_column_charts("end_ctr_column", name, a_dict);
+}
+
+// 更新柱状图
+function update_column_charts(div_id, title, a_dict) {
+    var this_id = "#" + div_id;
+    var name_list = a_dict['name'];
+    var ctr_list = a_dict['ctr'];
+
+    $(this_id).highcharts({
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: title
+        },
+        xAxis: {
+            categories: name_list,
+            crosshair: true
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: '点击率'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: '点击率',
+            data: ctr_list
+        }]
+    });
+
 }
 
 // 更新饼状图

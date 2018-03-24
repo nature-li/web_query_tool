@@ -462,6 +462,19 @@ class RedisFetcher(object):
         return series_list
 
     @classmethod
+    def __handle_column_list(cls, data_list, top_count=20):
+        sort_data_list = sorted(data_list, key=lambda node: node[1], reverse=True)
+        first_part_of_list = list()
+        for idx, item in enumerate(sort_data_list):
+            if idx < top_count:
+                first_part_of_list.append(item)
+
+        data_dict = dict()
+        data_dict['name'] = [item[0] for item in sort_data_list]
+        data_dict['ctr'] = [item[1] for item in sort_data_list]
+        return data_dict
+
+    @classmethod
     def __handle_pie_list(cls, data_list, top_count=10, other_add_enable=True):
         sort_data_list = sorted(data_list, key=lambda node: node[1], reverse=True)
         if len(sort_data_list) > 0:
@@ -487,7 +500,7 @@ class RedisFetcher(object):
 
         return first_part_of_list
 
-    def __get_pie_data(self, start_date, end_date):
+    def __get_pie_column_data(self, start_date, end_date):
         a_dict = DbOperator.query_network_list('', 0, -1)
 
         a_network_list = list()
@@ -507,13 +520,13 @@ class RedisFetcher(object):
             imp, clk = self.get_day_impression_click(network, start_date)
             start_imp_list.append([network, imp])
             start_clk_list.append([network, clk])
-            start_ctr_list.append([network, clk * 1.0 / imp if imp > 0 else 0])
+            start_ctr_list.append([network, clk * 100.0 / imp if imp > 0 else 0])
 
         for network in a_network_list:
             imp, clk = self.get_day_impression_click(network, end_date)
             end_imp_list.append([network, imp])
             end_clk_list.append([network, clk])
-            end_ctr_list.append([network, clk * 1.0 / imp if imp > 0 else 0])
+            end_ctr_list.append([network, clk * 100.0 / imp if imp > 0 else 0])
 
         pie_data = dict()
         # start date
@@ -525,10 +538,6 @@ class RedisFetcher(object):
             'name': start_date.strftime('%Y年%m月%d日各渠道点击量占比'),
             'list': self.__handle_pie_list(start_clk_list)
         }
-        pie_data['start_ctr'] = {
-            'name': start_date.strftime('%Y年%m月%d日各渠道ctr占比'),
-            'list': self.__handle_pie_list(start_ctr_list, top_count=20, other_add_enable=False)
-        }
 
         # end date
         pie_data['end_imp'] = {
@@ -539,11 +548,19 @@ class RedisFetcher(object):
             'name': end_date.strftime('%Y年%m月%d日各渠道点击量占比'),
             'list': self.__handle_pie_list(end_clk_list)
         }
-        pie_data['end_ctr'] = {
-            'name': end_date.strftime('%Y年%m月%d日各渠道ctr占比'),
-            'list': self.__handle_pie_list(end_ctr_list, top_count=20, other_add_enable=False)
+
+        # column data
+        column_data = dict()
+        column_data['start_ctr'] = {
+            'name': start_date.strftime('%Y年%m月%d日各渠道点击率'),
+            'list': self.__handle_column_list(start_ctr_list)
         }
-        return pie_data
+        column_data['end_ctr'] = {
+            'name': end_date.strftime('%Y年%m月%d日各渠道点击率'),
+            'list': self.__handle_column_list(end_ctr_list)
+        }
+
+        return pie_data, column_data
 
     def fetch_chart_data(self, start_dt, end_dt, ad_network_id_1, ad_network_id_2, position_id, chart_type):
         start_date = datetime.strptime(start_dt, '%Y-%m-%d')
@@ -565,9 +582,10 @@ class RedisFetcher(object):
         line_dict['series'] = series
 
         # pie data
-        pie_data = self.__get_pie_data(start_date, end_date)
+        pie_data, column_data = self.__get_pie_column_data(start_date, end_date)
 
         total_data = dict()
         total_data['line'] = line_dict
         total_data['pie'] = pie_data
+        total_data['column'] = column_data
         return total_data
