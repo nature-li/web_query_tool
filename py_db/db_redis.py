@@ -462,7 +462,7 @@ class RedisFetcher(object):
         return series_list
 
     @classmethod
-    def __handle_pie_list(cls, data_list):
+    def __handle_pie_list(cls, data_list, top_count=10, other_add_enable=True):
         sort_data_list = sorted(data_list, key=lambda node: node[1], reverse=True)
         if len(sort_data_list) > 0:
             raw_data = sort_data_list[0]
@@ -476,12 +476,14 @@ class RedisFetcher(object):
         first_part_of_list = list()
         rest_total = 0
         for idx, item in enumerate(sort_data_list):
-            if idx < 10:
+            if idx < top_count:
                 first_part_of_list.append(item)
             else:
                 rest_total += item[1]
+
         if len(first_part_of_list) < len(sort_data_list):
-            first_part_of_list.append(['其它', rest_total])
+            if other_add_enable:
+                first_part_of_list.append(['其它', rest_total])
 
         return first_part_of_list
 
@@ -525,7 +527,7 @@ class RedisFetcher(object):
         }
         pie_data['start_ctr'] = {
             'name': start_date.strftime('%Y年%m月%d日各渠道ctr占比'),
-            'list': self.__handle_pie_list(start_ctr_list)
+            'list': self.__handle_pie_list(start_ctr_list, top_count=20, other_add_enable=False)
         }
 
         # end date
@@ -539,7 +541,7 @@ class RedisFetcher(object):
         }
         pie_data['end_ctr'] = {
             'name': end_date.strftime('%Y年%m月%d日各渠道ctr占比'),
-            'list': self.__handle_pie_list(end_ctr_list)
+            'list': self.__handle_pie_list(end_ctr_list, top_count=20, other_add_enable=False)
         }
         return pie_data
 
