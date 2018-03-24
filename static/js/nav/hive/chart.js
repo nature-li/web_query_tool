@@ -204,6 +204,10 @@ function update_high_charts(total_data) {
     list_data = pie_data['start_clk']['list'];
     update_pie_charts("start_clk_pie", name, list_data);
 
+    name = pie_data['start_ctr']['name'];
+    list_data = pie_data['start_ctr']['list'];
+    update_pie_charts("start_ctr_pie", name, list_data);
+
     name = pie_data['end_imp']['name'];
     list_data = pie_data['end_imp']['list'];
     update_pie_charts("end_imp_pie", name, list_data);
@@ -211,6 +215,10 @@ function update_high_charts(total_data) {
     name = pie_data['end_clk']['name'];
     list_data = pie_data['end_clk']['list'];
     update_pie_charts("end_clk_pie", name, list_data);
+
+    name = pie_data['end_ctr']['name'];
+    list_data = pie_data['end_ctr']['list'];
+    update_pie_charts("end_ctr_pie", name, list_data);
 }
 
 // 更新饼状图

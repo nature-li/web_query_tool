@@ -301,8 +301,10 @@ class RedisFetcher(object):
     def __get_trend_series(self, start_date, end_date, ad_network_id_1, ad_network_id_2, position_id):
         impression_list_1 = list()
         click_list_1 = list()
+        ctr_list_1 = list()
         impression_list_2 = list()
         click_list_2 = list()
+        ctr_list_2 = list()
         day = start_date
         while day <= end_date:
             if position_id:
@@ -311,10 +313,14 @@ class RedisFetcher(object):
             else:
                 impression_1, click_1 = self.get_day_impression_click(ad_network_id_1, day)
                 impression_2, click_2 = self.get_day_impression_click(ad_network_id_2, day)
+
             impression_list_1.append(impression_1)
             click_list_1.append(click_1)
+            ctr_list_1.append(float("%.2f" % (click_1 * 1.0 / impression_1 if impression_1 > 0 else 0)))
+
             impression_list_2.append(impression_2)
             click_list_2.append(click_2)
+            ctr_list_2.append(float("%.2f" % (click_2 * 1.0 / impression_2 if impression_2 > 0 else 0)))
             day += timedelta(days=1)
 
         series_list = list()
@@ -326,6 +332,10 @@ class RedisFetcher(object):
             'name': ad_network_id_1 + '-clk',
             'data': click_list_1
         })
+        series_list.append({
+            'name': ad_network_id_1 + '-ctr',
+            'data': ctr_list_1
+        })
 
         if ad_network_id_1 != ad_network_id_2:
             series_list.append({
@@ -336,18 +346,26 @@ class RedisFetcher(object):
                 'name': ad_network_id_2 + '-clk',
                 'data': click_list_2
             })
+            series_list.append({
+                'name': ad_network_id_2 + '-ctr',
+                'data': ctr_list_2
+            })
         return series_list
 
     def __get_compare_series(self, start_date, end_date, ad_network_id_1, ad_network_id_2, position_id):
         """:type start_date: datetime"""
         start_imp_list_1 = list()
         start_click_list_1 = list()
+        start_ctr_list_1 = list()
         end_imp_list_1 = list()
         end_click_list_1 = list()
+        end_ctr_list_1 = list()
         start_imp_list_2 = list()
         start_click_list_2 = list()
+        start_ctr_list_2 = list()
         end_imp_list_2 = list()
         end_click_list_2 = list()
+        end_ctr_list_2 = list()
 
         for idx in xrange(0, 24):
             str_hour = '%02d' % idx
@@ -361,8 +379,11 @@ class RedisFetcher(object):
                 impression_2, click_2 = self.get_hour_impression_click(ad_network_id_2, start_date, str_hour)
             start_imp_list_1.append(impression_1)
             start_click_list_1.append(click_1)
+            start_ctr_list_1.append(float("%.2f" % (click_1 * 1.0 / impression_1 if impression_1 > 0 else 0)))
+
             start_imp_list_2.append(impression_2)
             start_click_list_2.append(click_2)
+            start_ctr_list_2.append(float("%.2f" % (click_2 * 1.0 / impression_2 if impression_2 > 0 else 0)))
 
         for idx in xrange(0, 24):
             str_hour = '%02d' % idx
@@ -376,8 +397,11 @@ class RedisFetcher(object):
                 impression_2, click_2 = self.get_hour_impression_click(ad_network_id_2, end_date, str_hour)
             end_imp_list_1.append(impression_1)
             end_click_list_1.append(click_1)
+            end_ctr_list_1.append(float("%.2f" % (click_1 * 1.0 / impression_1 if impression_1 > 0 else 0)))
+
             end_imp_list_2.append(impression_2)
             end_click_list_2.append(click_2)
+            end_ctr_list_2.append(float("%.2f" % (click_2 * 1.0 / impression_2 if impression_2 > 0 else 0)))
 
         series_list = list()
         series_list.append({
@@ -387,6 +411,10 @@ class RedisFetcher(object):
         series_list.append({
             'name': start_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-clk',
             'data': start_click_list_1
+        })
+        series_list.append({
+            'name': start_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-ctr',
+            'data': start_ctr_list_1
         })
 
         if start_date != end_date:
@@ -398,6 +426,10 @@ class RedisFetcher(object):
                 'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-clk',
                 'data': end_click_list_1
             })
+            series_list.append({
+                'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-ctr',
+                'data': end_ctr_list_1
+            })
 
         if ad_network_id_1 != ad_network_id_2:
             series_list.append({
@@ -408,6 +440,10 @@ class RedisFetcher(object):
                 'name': start_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-clk',
                 'data': start_click_list_2
             })
+            series_list.append({
+                'name': start_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-ctr',
+                'data': start_ctr_list_2
+            })
 
             if start_date != end_date:
                 series_list.append({
@@ -417,6 +453,10 @@ class RedisFetcher(object):
                 series_list.append({
                     'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-clk',
                     'data': end_click_list_2
+                })
+                series_list.append({
+                    'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-ctr',
+                    'data': end_ctr_list_2
                 })
 
         return series_list
@@ -454,37 +494,54 @@ class RedisFetcher(object):
 
         start_imp_list = list()
         end_imp_list = list()
+
         start_clk_list = list()
         end_clk_list = list()
+
+        start_ctr_list = list()
+        end_ctr_list = list()
 
         for network in a_network_list:
             imp, clk = self.get_day_impression_click(network, start_date)
             start_imp_list.append([network, imp])
             start_clk_list.append([network, clk])
+            start_ctr_list.append([network, clk * 1.0 / imp if imp > 0 else 0])
 
         for network in a_network_list:
             imp, clk = self.get_day_impression_click(network, end_date)
             end_imp_list.append([network, imp])
             end_clk_list.append([network, clk])
+            end_ctr_list.append([network, clk * 1.0 / imp if imp > 0 else 0])
 
-        imp_clk_data = dict()
-        imp_clk_data['start_imp'] = {
+        pie_data = dict()
+        # start date
+        pie_data['start_imp'] = {
             'name': start_date.strftime('%Y年%m月%d日各渠道曝光量占比'),
             'list': self.__handle_pie_list(start_imp_list)
         }
-        imp_clk_data['end_imp'] = {
-            'name': end_date.strftime('%Y年%m月%d日各渠道曝光量占比'),
-            'list': self.__handle_pie_list(end_imp_list)
-        }
-        imp_clk_data['start_clk'] = {
+        pie_data['start_clk'] = {
             'name': start_date.strftime('%Y年%m月%d日各渠道点击量占比'),
             'list': self.__handle_pie_list(start_clk_list)
         }
-        imp_clk_data['end_clk'] = {
+        pie_data['start_ctr'] = {
+            'name': start_date.strftime('%Y年%m月%d日各渠道ctr占比'),
+            'list': self.__handle_pie_list(start_ctr_list)
+        }
+
+        # end date
+        pie_data['end_imp'] = {
+            'name': end_date.strftime('%Y年%m月%d日各渠道曝光量占比'),
+            'list': self.__handle_pie_list(end_imp_list)
+        }
+        pie_data['end_clk'] = {
             'name': end_date.strftime('%Y年%m月%d日各渠道点击量占比'),
             'list': self.__handle_pie_list(end_clk_list)
         }
-        return imp_clk_data
+        pie_data['end_ctr'] = {
+            'name': end_date.strftime('%Y年%m月%d日各渠道ctr占比'),
+            'list': self.__handle_pie_list(end_ctr_list)
+        }
+        return pie_data
 
     def fetch_chart_data(self, start_dt, end_dt, ad_network_id_1, ad_network_id_2, position_id, chart_type):
         start_date = datetime.strptime(start_dt, '%Y-%m-%d')
