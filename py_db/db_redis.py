@@ -432,7 +432,18 @@ class RedisFetcher(object):
                 'sliced': True,
                 'selected': True
             }
-        return sort_data_list
+
+        first_part_of_list = list()
+        rest_total = 0
+        for idx, item in enumerate(sort_data_list):
+            if idx < 10:
+                first_part_of_list.append(item)
+            else:
+                rest_total += item[1]
+        if len(first_part_of_list) < len(sort_data_list):
+            first_part_of_list.append(['其它', rest_total])
+
+        return first_part_of_list
 
     def __get_pie_data(self, start_date, end_date):
         a_dict = DbOperator.query_network_list('', 0, -1)
