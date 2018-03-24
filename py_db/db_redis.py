@@ -324,28 +324,32 @@ class RedisFetcher(object):
             day += timedelta(days=1)
 
         series_list = list()
+        # imp
         series_list.append({
             'name': ad_network_id_1 + '-imp',
             'data': impression_list_1
         })
-        series_list.append({
-            'name': ad_network_id_1 + '-clk',
-            'data': click_list_1
-        })
-        series_list.append({
-            'name': ad_network_id_1 + '-ctr',
-            'data': ctr_list_1
-        })
-
         if ad_network_id_1 != ad_network_id_2:
             series_list.append({
                 'name': ad_network_id_2 + '-imp',
                 'data': impression_list_2
             })
+        # clk
+        series_list.append({
+            'name': ad_network_id_1 + '-clk',
+            'data': click_list_1
+        })
+        if ad_network_id_1 != ad_network_id_2:
             series_list.append({
                 'name': ad_network_id_2 + '-clk',
                 'data': click_list_2
             })
+        # ctr
+        series_list.append({
+            'name': ad_network_id_1 + '-ctr',
+            'data': ctr_list_1
+        })
+        if ad_network_id_1 != ad_network_id_2:
             series_list.append({
                 'name': ad_network_id_2 + '-ctr',
                 'data': ctr_list_2
@@ -404,61 +408,66 @@ class RedisFetcher(object):
             end_ctr_list_2.append(float("%.2f" % (click_2 * 1.0 / impression_2 if impression_2 > 0 else 0)))
 
         series_list = list()
+        # imp
         series_list.append({
             'name': start_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-imp',
             'data': start_imp_list_1
         })
-        series_list.append({
-            'name': start_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-clk',
-            'data': start_click_list_1
-        })
-        series_list.append({
-            'name': start_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-ctr',
-            'data': start_ctr_list_1
-        })
-
         if start_date != end_date:
             series_list.append({
                 'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-imp',
                 'data': end_imp_list_1
             })
-            series_list.append({
-                'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-clk',
-                'data': end_click_list_1
-            })
-            series_list.append({
-                'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-ctr',
-                'data': end_ctr_list_1
-            })
-
         if ad_network_id_1 != ad_network_id_2:
             series_list.append({
                 'name': start_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-imp',
                 'data': start_imp_list_2
             })
+        if start_date != end_date and ad_network_id_1 != ad_network_id_2:
+            series_list.append({
+                'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-imp',
+                'data': end_imp_list_2
+            })
+        # click
+        series_list.append({
+            'name': start_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-clk',
+            'data': start_click_list_1
+        })
+        if start_date != end_date:
+            series_list.append({
+                'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-clk',
+                'data': end_click_list_1
+            })
+        if ad_network_id_1 != ad_network_id_2:
             series_list.append({
                 'name': start_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-clk',
                 'data': start_click_list_2
             })
+        if start_date != end_date and ad_network_id_1 != ad_network_id_2:
+            series_list.append({
+                'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-clk',
+                'data': end_click_list_2
+            })
+        # ctr
+        series_list.append({
+            'name': start_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-ctr',
+            'data': start_ctr_list_1
+        })
+        if start_date != end_date:
+            series_list.append({
+                'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_1 + '-ctr',
+                'data': end_ctr_list_1
+            })
+        if ad_network_id_1 != ad_network_id_2:
             series_list.append({
                 'name': start_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-ctr',
                 'data': start_ctr_list_2
             })
-
-            if start_date != end_date:
-                series_list.append({
-                    'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-imp',
-                    'data': end_imp_list_2
-                })
-                series_list.append({
-                    'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-clk',
-                    'data': end_click_list_2
-                })
-                series_list.append({
-                    'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-ctr',
-                    'data': end_ctr_list_2
-                })
-
+        if start_date != end_date and ad_network_id_1 != ad_network_id_2:
+            series_list.append({
+                'name': end_date.strftime('%Y%m%d') + '-' + ad_network_id_2 + '-ctr',
+                'data': end_ctr_list_2
+            })
         return series_list
 
     @classmethod
