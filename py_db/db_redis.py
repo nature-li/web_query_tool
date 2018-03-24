@@ -462,7 +462,7 @@ class RedisFetcher(object):
         return series_list
 
     @classmethod
-    def __handle_column_list(cls, data_list, top_count=20):
+    def __handle_column_list(cls, data_list, top_count=10):
         sort_data_list = sorted(data_list, key=lambda node: node[1], reverse=True)
         first_part_of_list = list()
         for idx, item in enumerate(sort_data_list):
