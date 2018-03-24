@@ -243,13 +243,13 @@ function update_column_charts(div_id, title, a_dict) {
         yAxis: {
             min: 0,
             title: {
-                text: '点击率'
+                text: '点击率 (%)'
             }
         },
         tooltip: {
             headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
             pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-            '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+            '<td style="padding:0"><b>{point.y:.1f}%</b></td></tr>',
             footerFormat: '</table>',
             shared: true,
             useHTML: true
