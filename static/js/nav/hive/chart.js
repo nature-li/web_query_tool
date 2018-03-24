@@ -194,6 +194,16 @@ function update_high_charts(total_data) {
     var line_dict = total_data['line'];
     var line_chart = Highcharts.chart('container', line_dict);
 
+    // 更新柱状图
+    var column_data = total_data['column'];
+    name = column_data['start_ctr']['name'];
+    var a_dict = column_data['start_ctr']['list'];
+    update_column_charts("start_ctr_column", name, a_dict);
+
+    name = column_data['end_ctr']['name'];
+    a_dict = column_data['end_ctr']['list'];
+    update_column_charts("end_ctr_column", name, a_dict);
+
     // 更新饼状图
     var pie_data = total_data['pie'];
     var name = pie_data['start_imp']['name'];
@@ -211,16 +221,6 @@ function update_high_charts(total_data) {
     name = pie_data['end_clk']['name'];
     list_data = pie_data['end_clk']['list'];
     update_pie_charts("end_clk_pie", name, list_data);
-
-    // 更新柱状图
-    var column_data = total_data['column'];
-    name = column_data['start_ctr']['name'];
-    var a_dict = column_data['start_ctr']['list'];
-    update_column_charts("start_ctr_column", name, a_dict);
-
-    name = column_data['end_ctr']['name'];
-    a_dict = column_data['end_ctr']['list'];
-    update_column_charts("end_ctr_column", name, a_dict);
 }
 
 // 更新柱状图
