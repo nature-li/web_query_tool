@@ -221,6 +221,9 @@ function update_high_charts(total_data) {
     name = pie_data['end_clk']['name'];
     list_data = pie_data['end_clk']['list'];
     update_pie_charts("end_clk_pie", name, list_data);
+
+    // 改变窗口大小
+    change_frame_size();
 }
 
 // 更新柱状图
