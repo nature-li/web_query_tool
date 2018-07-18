@@ -52,6 +52,7 @@ function update_page_view(page_idx) {
             "<td>" + item.impression + "</td>" +
             "<td>" + item.click + "</td>" +
             "<td>" + item.ctr + "</td>" +
+            "<td>" + item.req + "</td>" +
             "<td>" + item.update_time + "</td></tr>";
     }
     $("#hour_result").find("tr:gt(0)").remove();
