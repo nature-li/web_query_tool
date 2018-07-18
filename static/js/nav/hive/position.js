@@ -61,8 +61,57 @@ function update_page_view(page_idx) {
     // 更新分页标签
     update_page_partition(page_idx);
 
+    // 画图
+    refresh_trend_chart(window.save_data.item_list);
+
     // 改变窗口大小
     change_frame_size();
+}
+
+// 画图
+function refresh_trend_chart(item_list) {
+    if (item_list.length <= 1) {
+        return;
+    }
+
+    var categories = [];
+    var pv_list = [];
+    var imp_list = [];
+    var clk_list = [];
+    var ctr_list = [];
+    var req_list = [];
+    for (var i = item_list.length - 1; i > 0; i--) {
+        var item = item_list[i];
+        var pv = parseInt(item.pv);
+        var imp = parseInt(item.impression);
+        var clk = parseInt(item.click);
+        var ctr = 0;
+        if (imp > 0) {
+            ctr = parseFloat((100 * clk / imp).toFixed(2));
+        }
+        var req = parseInt(item.req);
+
+        categories.push(parseInt(item.hour));
+        pv_list.push(pv);
+        imp_list.push(imp);
+        clk_list.push(clk);
+        ctr_list.push(ctr);
+        req_list.push(req);
+    }
+
+    var line_dict = [];
+    line_dict['chart'] = {'type': 'line'};
+    line_dict['title'] = {'text': '走势图'};
+    line_dict['credits'] = {'text': '', 'href': ''};
+    line_dict['yAxis'] = {'title': {'text': '计数'}};
+    line_dict['xAxis'] = {'categories': categories};
+    line_dict['series'] = [
+        {'name': 'pv', 'data': pv_list},
+        {'name': 'imp', 'data': imp_list},
+        {'name': 'ctr(%)', 'data': ctr_list},
+        {'name': 'req', 'data': req_list}
+    ];
+    var line_chart = Highcharts.chart('trend_chart', line_dict);
 }
 
 // 查询并更新页面
