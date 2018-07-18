@@ -22,7 +22,7 @@ $(document).ready(function () {
     var now = new Date();
 
     var begin_date = new Date();
-    begin_date.setDate(now.getDate() - 7);
+    begin_date.setDate(now.getDate() - 30);
     begin_date.setHours(0);
     begin_date.setMinutes(0);
     begin_date.setSeconds(0);
@@ -424,7 +424,7 @@ $(document).on('change', '#begin_date', function () {
         now_date.setMilliseconds(0);
 
         var seven_days_after_begin_date = new Date();
-        seven_days_after_begin_date.setDate(begin_date.getDate() + 7);
+        seven_days_after_begin_date.setDate(begin_date.getDate() + 30);
         seven_days_after_begin_date.setHours(0);
         seven_days_after_begin_date.setMinutes(0);
         seven_days_after_begin_date.setSeconds(0);
