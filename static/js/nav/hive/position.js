@@ -116,6 +116,7 @@ function refresh_trend_chart(item_list) {
     line_dict['series'] = [
         {'name': 'pv', 'data': pv_list},
         {'name': 'imp', 'data': imp_list},
+        {'name': 'clk', 'data': clk_list},
         {'name': 'ctr(%)', 'data': ctr_list},
         {'name': 'req', 'data': req_list},
         {'name': 'res', 'data': res_list},
