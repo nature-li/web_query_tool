@@ -747,7 +747,7 @@ class RedisFetcher(object):
         end_date = datetime.strptime(end_dt, '%Y-%m-%d')
         x_axis = self.__get_x_axis(start_date, end_date, chart_type)
 
-        if str(chart_type) == '0':
+        if str(chart_type) == '0' or str(chart_type) == "1":
             series = self.__get_trend_series(start_date, end_date, ad_network_id_1, ad_network_id_2, position_id)
         else:
             series = self.__get_compare_series(start_date, end_date, ad_network_id_1, ad_network_id_2, position_id)

@@ -10,19 +10,43 @@ $(document).ready(function () {
     $('#begin_date').datepicker({
         language: 'zh-CN',
         autoclose: true,
-        todayHighlight: true
+        todayHighlight: true,
     });
-    // $("#begin_date").datepicker('setDate', new Date() - 7 * 24 * 60 * 60 * 1000);
-    var when = new Date(new Date() - 7 * 24 * 60 * 60 * 1000);
-    $("#begin_date").datepicker('setDate', when);
-
     // 结束日期
     $('#end_date').datepicker({
         language: 'zh-CN',
         autoclose: true,
         todayHighlight: true
     });
-    $("#end_date").datepicker('setDate', new Date());
+
+    var now = new Date();
+
+    var begin_date = new Date();
+    begin_date.setDate(now.getDate() - 7);
+    begin_date.setHours(0);
+    begin_date.setMinutes(0);
+    begin_date.setSeconds(0);
+    begin_date.setMilliseconds(0);
+
+    var now_date = new Date();
+    now_date.setHours(0);
+    now_date.setMinutes(0);
+    now_date.setSeconds(0);
+    now_date.setMilliseconds(0);
+
+    var end_date = new Date();
+    end_date.setHours(23);
+    end_date.setMinutes(59);
+    end_date.setSeconds(59);
+    end_date.setMilliseconds(59);
+
+
+    $("#begin_date").datepicker('setDate', begin_date);
+    $("#begin_date").datepicker('setEndDate', end_date);
+
+    $("#end_date").datepicker('setDate', now_date);
+    $("#end_date").datepicker('setStartDate', begin_date);
+    $("#end_date").datepicker('setEndDate', end_date);
 
     // 定义全局变量
     if (!window.save_data) {
@@ -86,7 +110,7 @@ function init_two_ad_network_select() {
 // 初始化全局变量
 function reset_save_data() {
     window.save_data = {
-       'item_list': [],
+        'item_list': [],
         'db_total_item_count': 0,
         'db_return_item_count': 0,
         'db_max_page_idx': 0,
@@ -151,6 +175,19 @@ function query_and_update_view() {
 
     // 获取图片类型
     var chart_type = $("#chart_type input[name=chart_type]:checked").val();
+
+    if (chart_type === "0") {
+        // 同源走势图
+        ad_network_id_2 = ad_network_id_1;
+    } else if (chart_type === "1") {
+        // 异源走势图
+    } else if (chart_type === "2") {
+        // 同源异日对比
+        ad_network_id_2 = ad_network_id_1;
+    } else if (chart_type === "3") {
+        // 同日异源对比
+        end_dt = begin_dt;
+    }
 
     // 发送请求获取数据
     $.ajax({
@@ -315,11 +352,89 @@ $("#query_hour").click(function () {
 $(document).on('change', '#chart_type input', function () {
     var value = $("#chart_type input[name=chart_type]:checked").val();
 
-    if (value === "1") {
-        $("#compare_network").addClass("form-group");
-        $("#compare_network").removeClass("no-display");
-    } else {
+    if (value === "0") {
+        // 单源走势图
+        $("#begin_span").html("开始:");
+        $("#end_span").html("结束:");
+
+        $("#end_date_div").addClass("form-group");
+        $("#end_date_div").removeClass("no-display");
+
         $("#compare_network").removeClass("form-group");
         $("#compare_network").addClass("no-display");
+    } else if (value === "1") {
+        // 异源走势图
+        $("#begin_span").html("开始:");
+        $("#end_span").html("结束:");
+
+        $("#end_date_div").addClass("form-group");
+        $("#end_date_div").removeClass("no-display");
+
+        $("#compare_network").addClass("form-group");
+        $("#compare_network").removeClass("no-display");
+    } else if (value === "2") {
+        // 同源异日对比
+        $("#begin_span").html("日期:");
+        $("#end_span").html("对比日:");
+
+        $("#end_date_div").addClass("form-group");
+        $("#end_date_div").removeClass("no-display");
+
+        $("#compare_network").removeClass("form-group");
+        $("#compare_network").addClass("no-display");
+    } else if (value === "3") {
+        // 异源同日对比
+        $("#begin_span").html("日期:");
+
+        $("#end_date_div").removeClass("form-group");
+        $("#end_date_div").addClass("no-display");
+
+        $("#compare_network").addClass("form-group");
+        $("#compare_network").removeClass("no-display");
     }
+});
+
+$(document).on('change', '#begin_date', function () {
+    var begin_date = $("#begin_date").datepicker('getDate');
+    if (!begin_date) {
+        return;
+    }
+    var begin_year = begin_date.getFullYear();
+    var begin_month = begin_date.getMonth() + 1;
+    var begin_day = begin_date.getDate();
+    var begin_dt = begin_year + "-" + begin_month + "-" + begin_day;
+    begin_date = new Date(begin_dt);
+
+    var end_date = $("#end_date").datepicker('getDate');
+    if (!end_date) {
+        return;
+    }
+    var end_year = end_date.getFullYear();
+    var end_month = end_date.getMonth() + 1;
+    var end_day = end_date.getDate();
+    var end_dt = end_year + "-" + end_month + "-" + end_day;
+    end_date = new Date(end_dt);
+
+
+    if (end_date < begin_date) {
+        var now_date = new Date();
+        now_date.setHours(0);
+        now_date.setMinutes(0);
+        now_date.setSeconds(0);
+        now_date.setMilliseconds(0);
+
+        var seven_days_after_begin_date = new Date();
+        seven_days_after_begin_date.setDate(begin_date.getDate() + 7);
+        seven_days_after_begin_date.setHours(0);
+        seven_days_after_begin_date.setMinutes(0);
+        seven_days_after_begin_date.setSeconds(0);
+        seven_days_after_begin_date.setMinutes(0);
+
+        if (seven_days_after_begin_date > now_date) {
+            $("#end_date").datepicker('setDate', now_date);
+        } else {
+            $("#end_date").datepicker('setDate', seven_days_after_begin_date);
+        }
+    }
+    $("#end_date").datepicker('setStartDate', begin_date);
 });

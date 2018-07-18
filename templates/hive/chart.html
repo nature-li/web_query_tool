@@ -44,25 +44,24 @@
                 <!--图片类型-->
                 <div id="chart_type" class="form-group  form-group-margin">
                     <label class="radio-inline">
-                        <input type="radio" name="chart_type" value="0" checked><span>走势图</span>
+                        <input type="radio" name="chart_type" value="0" checked><span>同源走势图</span>
                     </label>
                     <label class="radio-inline">
-                        <input type="radio" name="chart_type" value="1"><span>单日对比图</span>
+                        <input type="radio" name="chart_type" value="1"><span>异源走势图</span>
                     </label>
-                </div>
-
-                <!--对比渠道-->
-                <div id="compare_network" class="form-group-margin no-display">
-                    <span>对比渠道:</span>
-                    <select id="ad_network_id_selector_2" class="selectpicker" data-size="10" data-live-search="true">
-                    </select>
+                    <label class="radio-inline">
+                        <input type="radio" name="chart_type" value="2"><span>同源异日对比</span>
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="chart_type" value="3"><span>同日异源对比</span>
+                    </label>
                 </div>
             </form>
 
             <form class="form-inline">
                 <!--开始日期-->
-                <div class="form-group form-group-margin">
-                    <span>开始:</span>
+                <div id="begin_date_div" class="form-group form-group-margin">
+                    <span id="begin_span">开始:</span>
                     <div class='input-group date' id='begin_date' style="width: 220px;">
                         <input type='text' class="form-control"/>
                         <span class="input-group-addon">
@@ -72,8 +71,8 @@
                 </div>
 
                 <!--结束日期-->
-                <div class="form-group form-group-margin">
-                    <span>结束:</span>
+                <div id="end_date_div" class="form-group form-group-margin">
+                    <span id="end_span">结束:</span>
                     <div class='input-group date' id='end_date' style="width: 220px;">
                         <input type='text' class="form-control"/>
                         <span class="input-group-addon">
@@ -84,8 +83,15 @@
 
                 <!--选择渠道1-->
                 <div class="form-group  form-group-margin">
-                    <span>渠道:</span>
+                    <span>广告源:</span>
                     <select id="ad_network_id_selector_1" class="selectpicker" data-size="10" data-live-search="true">
+                    </select>
+                </div>
+
+                 <!--对比渠道2-->
+                <div id="compare_network" class="form-group-margin no-display">
+                    <span>对比源:</span>
+                    <select id="ad_network_id_selector_2" class="selectpicker" data-size="10" data-live-search="true">
                     </select>
                 </div>
 
