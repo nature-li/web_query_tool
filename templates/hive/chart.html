@@ -41,9 +41,28 @@
         <div class="col-xs-12">
 
             <form class="form-inline">
+                <!--图片类型-->
+                <div id="chart_type" class="form-group  form-group-margin">
+                    <label class="radio-inline">
+                        <input type="radio" name="chart_type" value="0" checked><span>走势图</span>
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="chart_type" value="1"><span>单日对比图</span>
+                    </label>
+                </div>
+
+                <!--对比渠道-->
+                <div id="compare_network" class="form-group-margin no-display">
+                    <span>对比渠道:</span>
+                    <select id="ad_network_id_selector_2" class="selectpicker" data-size="10" data-live-search="true">
+                    </select>
+                </div>
+            </form>
+
+            <form class="form-inline">
                 <!--开始日期-->
                 <div class="form-group form-group-margin">
-                    <label>开始:</label>
+                    <span>开始:</span>
                     <div class='input-group date' id='begin_date' style="width: 220px;">
                         <input type='text' class="form-control"/>
                         <span class="input-group-addon">
@@ -54,7 +73,7 @@
 
                 <!--结束日期-->
                 <div class="form-group form-group-margin">
-                    <label>结束:</label>
+                    <span>结束:</span>
                     <div class='input-group date' id='end_date' style="width: 220px;">
                         <input type='text' class="form-control"/>
                         <span class="input-group-addon">
@@ -65,34 +84,21 @@
 
                 <!--选择渠道1-->
                 <div class="form-group  form-group-margin">
-                    <label>渠道:</label>
+                    <span>渠道:</span>
                     <select id="ad_network_id_selector_1" class="selectpicker" data-size="10" data-live-search="true">
-                    </select>
-                </div>
-
-                <!--选择渠道2-->
-                <div class="form-group  form-group-margin">
-                    <label>渠道:</label>
-                    <select id="ad_network_id_selector_2" class="selectpicker" data-size="10" data-live-search="true">
                     </select>
                 </div>
 
                 <!--位置id-->
                 <div class="form-group  form-group-margin">
-                    <label>位置:</label>
+                    <span>位置:</span>
                     <input id="position_id" type="text" class="form-control" placeholder="输入位置id">
-                </div>
-
-                <!--图片类型-->
-                <div class="form-group  form-group-margin">
-                    <label>类型:</label>
-                    <select id="chart_type_id_selector" class="selectpicker" data-size="10"></select>
                 </div>
 
                 <!--查询-->
                 <div class="form-group form-group-margin">
                     <div>
-                        <button id="query_hour" type="button" class="btn btn-primary">查询</button>
+                        <button id="query_hour" type="button" class="btn btn-primary btn-sm">查询</button>
                     </div>
                 </div>
             </form>
@@ -107,7 +113,7 @@
     <div id="container"></div>
 
     <div id="column_chart_header" class="row">
-        <hr />
+        <hr/>
     </div>
 
     <div class="row">

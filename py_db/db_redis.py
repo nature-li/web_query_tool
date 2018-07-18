@@ -324,14 +324,14 @@ class RedisFetcher(object):
     @classmethod
     def __get_x_axis(cls, start_date, end_date, chart_type):
         point_list = list()
-        if str(chart_type) == '对比图':
-            for point in xrange(24):
-                point_list.append(point)
-        elif str(chart_type) == '走势图':
+        if str(chart_type) == '0':
             when = start_date
             while when <= end_date:
                 point_list.append(when.strftime("%Y-%m-%d"))
                 when += timedelta(days=1)
+        else:
+            for point in xrange(24):
+                point_list.append(point)
         return point_list
 
     @classmethod
@@ -631,7 +631,7 @@ class RedisFetcher(object):
         end_date = datetime.strptime(end_dt, '%Y-%m-%d')
         x_axis = self.__get_x_axis(start_date, end_date, chart_type)
 
-        if str(chart_type) == '走势图':
+        if str(chart_type) == '0':
             series = self.__get_trend_series(start_date, end_date, ad_network_id_1, ad_network_id_2, position_id)
         else:
             series = self.__get_compare_series(start_date, end_date, ad_network_id_1, ad_network_id_2, position_id)

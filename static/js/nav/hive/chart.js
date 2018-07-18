@@ -24,9 +24,6 @@ $(document).ready(function () {
     });
     $("#end_date").datepicker('setDate', new Date());
 
-    // 初始化图片类型
-    init_chart_type_list();
-
     // 定义全局变量
     if (!window.save_data) {
         reset_save_data();
@@ -84,12 +81,6 @@ function init_two_ad_network_select() {
             }
         }
     );
-}
-
-// 初始化图片类型
-function init_chart_type_list() {
-    $("#chart_type_id_selector").append('<option>走势图</option>');
-    $("#chart_type_id_selector").append('<option>对比图</option>');
 }
 
 // 初始化全局变量
@@ -159,7 +150,7 @@ function query_and_update_view() {
     var position_id = $("#position_id").val();
 
     // 获取图片类型
-    var chart_type = $("#chart_type_id_selector option:selected").text();
+    var chart_type = $("#chart_type input[name=chart_type]:checked").val();
 
     // 发送请求获取数据
     $.ajax({
@@ -319,4 +310,16 @@ $("#query_hour").click(function () {
     // reset_save_data();
     // 查询数据并更新页面
     query_and_update_view();
+});
+
+$(document).on('change', '#chart_type input', function () {
+    var value = $("#chart_type input[name=chart_type]:checked").val();
+
+    if (value === "1") {
+        $("#compare_network").addClass("form-group");
+        $("#compare_network").removeClass("no-display");
+    } else {
+        $("#compare_network").removeClass("form-group");
+        $("#compare_network").addClass("no-display");
+    }
 });

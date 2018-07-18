@@ -1,3 +1,11 @@
 .selected_menu {
     background-color: #e7e7e7;
 }
+
+.hidden-self {
+    visibility: hidden;
+}
+
+.no-display {
+    display: none;
+}
