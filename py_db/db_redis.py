@@ -440,7 +440,7 @@ class RedisFetcher(object):
     @classmethod
     def __get_x_axis(cls, start_date, end_date, chart_type):
         point_list = list()
-        if str(chart_type) == '0':
+        if chart_type in ("0", "1"):
             when = start_date
             while when <= end_date:
                 point_list.append(when.strftime("%Y-%m-%d"))
@@ -745,9 +745,10 @@ class RedisFetcher(object):
     def fetch_chart_data(self, start_dt, end_dt, ad_network_id_1, ad_network_id_2, position_id, chart_type):
         start_date = datetime.strptime(start_dt, '%Y-%m-%d')
         end_date = datetime.strptime(end_dt, '%Y-%m-%d')
+        chart_type = str(chart_type)
         x_axis = self.__get_x_axis(start_date, end_date, chart_type)
 
-        if str(chart_type) == '0' or str(chart_type) == "1":
+        if chart_type in ("0", "1"):
             series = self.__get_trend_series(start_date, end_date, ad_network_id_1, ad_network_id_2, position_id)
         else:
             series = self.__get_compare_series(start_date, end_date, ad_network_id_1, ad_network_id_2, position_id)
