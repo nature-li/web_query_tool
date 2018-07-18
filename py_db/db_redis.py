@@ -123,6 +123,52 @@ class RedisFetcher(object):
             req = int(req)
             return req
 
+    def get_hour_position_res(self, ad_network_id, position_id, day, hour):
+        """
+        :type ad_network_id: str
+        :type position_id: str
+        :type day: datetime
+        :type hour: str
+        :rtype: int
+        """
+        if config.server_local_fake:
+            return random.randint(100, 10000)
+
+        res = None
+        try:
+            dt = day.strftime("%Y%m%d")
+            res = self.redis.get('%s|%s|%s|%s|res' % (ad_network_id, position_id, dt, hour))
+        except:
+            Logger.error(traceback.format_exc())
+        finally:
+            if not res:
+                res = 0
+            res = int(res)
+            return res
+
+    def get_hour_position_win(self, ad_network_id, position_id, day, hour):
+        """
+        :type ad_network_id: str
+        :type position_id: str
+        :type day: datetime
+        :type hour: str
+        :rtype: int
+        """
+        if config.server_local_fake:
+            return random.randint(100, 10000)
+
+        win = None
+        try:
+            dt = day.strftime("%Y%m%d")
+            win = self.redis.get('%s|%s|%s|%s|win' % (ad_network_id, position_id, dt, hour))
+        except:
+            Logger.error(traceback.format_exc())
+        finally:
+            if not win:
+                win = 0
+            win = int(win)
+            return win
+
     def get_hour_impression_click(self, ad_network_id, day, hour):
         """
         :type ad_network_id: str
@@ -173,6 +219,50 @@ class RedisFetcher(object):
             req = int(req)
             return req
 
+    def get_hour_res(self, ad_network_id, day, hour):
+        """
+        :type ad_network_id: str
+        :type day: datetime
+        :type hour: str
+        :rtype: int
+        """
+        if config.server_local_fake:
+            return random.randint(100, 10000)
+
+        res = None
+        try:
+            dt = day.strftime("%Y%m%d")
+            res = self.redis.get('%s|%s|%s|res' % (ad_network_id, dt, hour))
+        except:
+            Logger.error(traceback.format_exc())
+        finally:
+            if not res:
+                res = 0
+            res = int(res)
+            return res
+
+    def get_hour_win(self, ad_network_id, day, hour):
+        """
+        :type ad_network_id: str
+        :type day: datetime
+        :type hour: str
+        :rtype: int
+        """
+        if config.server_local_fake:
+            return random.randint(100, 10000)
+
+        win = None
+        try:
+            dt = day.strftime("%Y%m%d")
+            win = self.redis.get('%s|%s|%s|win' % (ad_network_id, dt, hour))
+        except:
+            Logger.error(traceback.format_exc())
+        finally:
+            if not win:
+                win = 0
+            win = int(win)
+            return win
+
     def fetch_position(self, dt, ad_network_id, position_id):
         try:
             a_list = list()
@@ -197,6 +287,8 @@ class RedisFetcher(object):
             else:
                 total_dict['ctr'] = "0.00%"
             total_dict['req'] = 0
+            total_dict['res'] = 0
+            total_dict['win'] = 0
             total_dict['update_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
             a_list.append(total_dict)
 
@@ -209,6 +301,8 @@ class RedisFetcher(object):
 
             # 获取小时数据
             total_req = 0
+            total_res = 0
+            total_win = 0
             for idx in reversed(xrange(0, end_hour)):
                 str_hour = '%02d' % idx
                 impression, click = self.get_hour_position_impression_click(ad_network_id, position_id, day, str_hour)
@@ -224,11 +318,20 @@ class RedisFetcher(object):
                     a_dict['ctr'] = '%.2f%%' % (100.0 * click / impression)
                 else:
                     a_dict['ctr'] = "0.00%"
-                a_dict['req'] = self.get_hour_position_req(ad_network_id, position_id, day, str_hour)
-                total_req += a_dict['req']
+                req = self.get_hour_position_req(ad_network_id, position_id, day, str_hour)
+                res = self.get_hour_position_res(ad_network_id, position_id, day, str_hour)
+                win = self.get_hour_position_win(ad_network_id, position_id, day, str_hour)
+                a_dict['req'] = req
+                a_dict['res'] = res
+                a_dict['win'] = win
+                total_req += req
+                total_res += res
+                total_win += win
                 a_dict['update_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
                 a_list.append(a_dict)
             total_dict['req'] = total_req
+            total_dict['res'] = total_res
+            total_dict['win'] = total_win
 
             # 返回结果
             a_dict = dict()
@@ -268,6 +371,8 @@ class RedisFetcher(object):
             else:
                 total_dict['ctr'] = "0.00%"
             total_dict['req'] = 0
+            total_dict['res'] = 0
+            total_dict['win'] = 0
             total_dict['update_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
             a_list.append(total_dict)
 
@@ -280,6 +385,8 @@ class RedisFetcher(object):
 
             # 获取小时数据
             total_req = 0
+            total_res = 0
+            total_win = 0
             for idx in reversed(xrange(0, end_hour)):
                 str_hour = '%02d' % idx
                 impression, click = self.get_hour_impression_click(ad_network_id, day, str_hour)
@@ -295,11 +402,20 @@ class RedisFetcher(object):
                     a_dict['ctr'] = '%.2f%%' % (100.0 * click / impression)
                 else:
                     a_dict['ctr'] = "0.00%"
-                a_dict['req'] = self.get_hour_req(ad_network_id, day, str_hour)
-                total_req += a_dict['req']
+                req = self.get_hour_req(ad_network_id, day, str_hour)
+                res = self.get_hour_res(ad_network_id, day, str_hour)
+                win = self.get_hour_win(ad_network_id, day, str_hour)
+                a_dict['req'] = req
+                a_dict['res'] = res
+                a_dict['win'] = win
+                total_req += req
+                total_res += res
+                total_win += win
                 a_dict['update_time'] = now.strftime('%Y-%m-%d %H:%M:%S')
                 a_list.append(a_dict)
             total_dict['req'] = total_req
+            total_dict['res'] = total_res
+            total_dict['win'] = total_win
 
             # 返回结果
             a_dict = dict()

@@ -53,6 +53,8 @@ function update_page_view(page_idx) {
             "<td>" + item.click + "</td>" +
             "<td>" + item.ctr + "</td>" +
             "<td>" + item.req + "</td>" +
+            "<td>" + item.res + "</td>" +
+            "<td>" + item.win + "</td>" +
             "<td>" + item.update_time + "</td></tr>";
     }
     $("#hour_result").find("tr:gt(0)").remove();
@@ -80,6 +82,8 @@ function refresh_trend_chart(item_list) {
     var clk_list = [];
     var ctr_list = [];
     var req_list = [];
+    var res_list = [];
+    var win_list = [];
     for (var i = item_list.length - 1; i > 0; i--) {
         var item = item_list[i];
         var pv = parseInt(item.pv);
@@ -90,6 +94,8 @@ function refresh_trend_chart(item_list) {
             ctr = parseFloat((100 * clk / imp).toFixed(2));
         }
         var req = parseInt(item.req);
+        var res = parseInt(item.res);
+        var win = parseInt(item.win);
 
         categories.push(parseInt(item.hour));
         pv_list.push(pv);
@@ -97,6 +103,8 @@ function refresh_trend_chart(item_list) {
         clk_list.push(clk);
         ctr_list.push(ctr);
         req_list.push(req);
+        res_list.push(res);
+        win_list.push(win);
     }
 
     var line_dict = [];
@@ -109,7 +117,9 @@ function refresh_trend_chart(item_list) {
         {'name': 'pv', 'data': pv_list},
         {'name': 'imp', 'data': imp_list},
         {'name': 'ctr(%)', 'data': ctr_list},
-        {'name': 'req', 'data': req_list}
+        {'name': 'req', 'data': req_list},
+        {'name': 'res', 'data': res_list},
+        {'name': 'win', 'data': win_list}
     ];
     var line_chart = Highcharts.chart('trend_chart', line_dict);
 }
