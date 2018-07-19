@@ -14,13 +14,13 @@ $(document).ready(function () {
     });
     $("#select_date").datepicker('setDate', new Date());
 
-    // 初始化渠道下拉列表框
-    init_ad_network_select();
-
     // 定义全局变量
     if (!window.save_data) {
         reset_save_data();
     }
+
+    // 初始化渠道下拉列表框
+    init_ad_network_select(query_and_update_view);
 });
 
 // 初始化全局变量

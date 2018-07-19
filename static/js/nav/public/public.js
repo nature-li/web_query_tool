@@ -55,7 +55,7 @@ function change_frame_size() {
 }
 
 // 初始化渠道下拉列表框
-function init_ad_network_select() {
+function init_ad_network_select(function_on_success) {
     $.ajax({
             url: '/query_network_list',
             data: {
@@ -81,6 +81,10 @@ function init_ad_network_select() {
                     $("#ad_network_id_selector").append(option);
                 }
                 $("#ad_network_id_selector").selectpicker('refresh');
+
+                if (function_on_success) {
+                    function_on_success();
+                }
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
