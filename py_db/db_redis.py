@@ -18,7 +18,7 @@ class RedisFetcher(object):
 
     @classmethod
     def init_redis(cls, redis_host, redis_port, redis_password):
-        cls.redis_pool = redis.ConnectionPool(host=redis_host, port=redis_port, redis_password=redis_password)
+        cls.redis_pool = redis.ConnectionPool(host=redis_host, port=redis_port, password=redis_password)
 
     def __init__(self):
         self.redis = redis.Redis(connection_pool=self.redis_pool)
