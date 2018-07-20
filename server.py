@@ -130,7 +130,7 @@ class ChartDataQueryHandler(BaseHandler):
         ad_network_id_2 = self.get_argument("ad_network_id_2")
         position_id = self.get_argument('position_id')
         chart_type = self.get_argument('chart_type')
-        fetcher = RedisFetcher(config.redis_host, config.redis_port, config.redis_password)
+        fetcher = RedisFetcher()
         json_dict = fetcher.fetch_chart_data(start_dt, end_dt, ad_network_id_1, ad_network_id_2, position_id, chart_type)
         self.write(json.dumps(json_dict, ensure_ascii=False))
 
@@ -205,7 +205,7 @@ class PositionQueryHandler(BaseHandler):
         dt = self.get_argument("dt")
         ad_network_id = self.get_argument("ad_network_id")
         position_id = self.get_argument('position_id')
-        fetcher = RedisFetcher(config.redis_host, config.redis_port, config.redis_password)
+        fetcher = RedisFetcher()
         if position_id:
             text = fetcher.fetch_position(dt, ad_network_id, position_id)
         else:
@@ -502,6 +502,9 @@ def __main__():
     # 初始化日志
     Logger.init(config.server_log_env, config.server_log_target, config.server_log_name, config.server_log_size,
                 config.server_log_count)
+
+    # 初始化 redis
+    RedisFetcher.init_redis(config.redis_host, config.redis_port, config.redis_password)
 
     # 重定向tornado自带日志
     logging.getLogger("tornado.access").addHandler(Logger.get_third_handler())

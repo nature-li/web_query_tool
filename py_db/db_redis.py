@@ -14,8 +14,14 @@ from py_db.db_operate import DbOperator
 
 
 class RedisFetcher(object):
-    def __init__(self, redis_host, redis_port, redis_password):
-        self.redis = redis.Redis(host=redis_host, port=redis_port, password=redis_password)
+    redis_pool = None
+
+    @classmethod
+    def init_redis(cls, redis_host, redis_port, redis_password):
+        cls.redis_pool = redis.ConnectionPool(host=redis_host, port=redis_port, redis_password=redis_password)
+
+    def __init__(self):
+        self.redis = redis.Redis(connection_pool=self.redis_pool)
 
     def get_day_position_impression_click(self, ad_network_id, position_id, day):
         """
