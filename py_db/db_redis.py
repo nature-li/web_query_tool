@@ -7,6 +7,7 @@ import json
 from datetime import datetime
 from datetime import timedelta
 import random
+import time
 from py_log.logger import Logger
 from config import config
 from py_db.db_operate import DbOperator
@@ -57,8 +58,11 @@ class RedisFetcher(object):
         click = None
         try:
             dt = day.strftime("%Y%m%d")
+            start = time.time()
             impression = self.redis.get('%s|%s|2' % (ad_network_id, dt))
             click = self.redis.get('%s|%s|3' % (ad_network_id, dt))
+            end = time.time()
+            Logger.info("get_day_impression_click time: %s" % (end - start))
         except:
             Logger.error(traceback.format_exc())
         finally:
@@ -183,8 +187,11 @@ class RedisFetcher(object):
         click = None
         try:
             dt = day.strftime("%Y%m%d")
+            start = time.time()
             impression = self.redis.get('%s|%s%s|2' % (ad_network_id, dt, hour))
             click = self.redis.get('%s|%s%s|3' % (ad_network_id, dt, hour))
+            end = time.time()
+            Logger.info("get_hour_impression_click time: %s" % (end - start))
         except:
             Logger.error(traceback.format_exc())
         finally:
@@ -210,7 +217,10 @@ class RedisFetcher(object):
         req = None
         try:
             dt = day.strftime("%Y%m%d")
+            start = time.time()
             req = self.redis.get('%s|%s|%s|req' % (ad_network_id, dt, hour))
+            end = time.time()
+            Logger.info("get_hour_req time: %s" % (end - start))
         except:
             Logger.error(traceback.format_exc())
         finally:
@@ -232,7 +242,10 @@ class RedisFetcher(object):
         res = None
         try:
             dt = day.strftime("%Y%m%d")
+            start = time.time()
             res = self.redis.get('%s|%s|%s|res' % (ad_network_id, dt, hour))
+            end = time.time()
+            Logger.info("get_hour_res time: %s" % (end - start))
         except:
             Logger.error(traceback.format_exc())
         finally:
@@ -254,7 +267,10 @@ class RedisFetcher(object):
         win = None
         try:
             dt = day.strftime("%Y%m%d")
+            start = time.time()
             win = self.redis.get('%s|%s|%s|win' % (ad_network_id, dt, hour))
+            end = time.time()
+            Logger.info("get_hour_win time: %s" % (end - start))
         except:
             Logger.error(traceback.format_exc())
         finally:
