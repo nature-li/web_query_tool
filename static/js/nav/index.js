@@ -7,6 +7,8 @@ function init_main_page() {
     // 清空侧边栏
     $("#main-nav").html("");
 
+    var login_user_right = $("#login_user_right").val();
+
     // 添加侧边栏
     var html = `
     <li><a href="#systemViewer" class="nav-header collapse" data-toggle="collapse"><i
@@ -15,11 +17,14 @@ function init_main_page() {
             <li id="li_day_count"><a id="a_day_count" href="#">日统计<i id="i_day_count" class="glyphicon glyphicon-eye-open"></i></a></li>
             <li id="li_hour_count"><a id="a_hour_count" href="#">时统计<i id="i_hour_count" class="glyphicon glyphicon-eye-open"></i></a></li>
             <li id="li_position"><a id="a_position" href="#">自查询<i id="i_position" class="glyphicon glyphicon-eye-open"></i></a></li>
-            <li id="li_chart"><a id="a_chart" href="#">可视化<i id="i_chart" class="glyphicon glyphicon-eye-open"></i></a></li>
-        </ul>
-    </li>`;
+            <li id="li_chart"><a id="a_chart" href="#">可视化<i id="i_chart" class="glyphicon glyphicon-eye-open"></i></a></li>`;
 
-    var login_user_right = $("#login_user_right").val();
+    if (login_user_right & 0B1000) {
+        html += `<li id="li_experiment"><a id="a_experiment" href="#">实验平台<i id="i_experiment" class="glyphicon glyphicon-eye-open"></i></a></li>`;
+    }
+
+    html += `</ul></li>`;
+
     if (login_user_right & 0B01) {
         html +=
             `<li><a href="#systemControl" class="nav-header collapse" data-toggle="collapse"><i

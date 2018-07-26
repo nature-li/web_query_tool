@@ -135,6 +135,21 @@ class ChartDataQueryHandler(BaseHandler):
         self.write(json.dumps(json_dict, ensure_ascii=False))
 
 
+class ExperimentHandler(BaseHandler):
+    def get(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & 0B1000:
+            self.redirect("/reload")
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        self.render('hive/experiment.html')
+
+
 class NetworkListHandler(BaseHandler):
     def get(self):
         user_name, show_name = self.get_login_user()
@@ -539,6 +554,7 @@ def __main__():
             (r'/position_count', HourAdIdeaPositionCount),
             (r'/chart', ChartHandler),
             (r'/query_chart_data', ChartDataQueryHandler),
+            (r'/experiment', ExperimentHandler),
         ],
         cookie_secret=config.server_cookie_secret,
         template_path=os.path.join(os.path.dirname(__file__), "templates"),

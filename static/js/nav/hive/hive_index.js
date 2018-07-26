@@ -62,6 +62,18 @@ $(document).on("click", "#a_chart", function () {
     frame_auto_size();
 });
 
+// a_experiment 点击事件
+$(document).on("click", "#a_experiment", function () {
+    $("#right_frame").attr("src", "experiment");
+
+    // 菜单 active 状态改变
+    $("#menu_data_statistic").addClass("active");
+    $("#menu_system_control").removeClass("active");
+
+    // 自适应框架大小
+    frame_auto_size();
+});
+
 // a_user_control 点击事件
 $(document).on("click", "#a_user_control", function () {
     $("#right_frame").attr("src", "user_list");
