@@ -9,3 +9,11 @@
 .no-display {
     display: none;
 }
+
+.toggle.radius, .toggle-on.radius, .toggle-off.radius {
+    border-radius: 20px;
+}
+
+.toggle.radius .toggle-handle {
+    border-radius: 20px;
+}
