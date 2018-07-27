@@ -183,7 +183,7 @@ function develop_html() {
     return `
         <li>
             <a href="#developViewer" class="nav-header collapse" data-toggle="collapse">
-            <i class="glyphicon glyphicon-th-list"></i>开发者
+            <i class="glyphicon glyphicon-th-list"></i>其它工具
                 <span class="pull-right glyphicon glyphicon-chevron-down"></span>
             </a>
            <ul id="developViewer" class="nav nav-list collapse secondmenu in">

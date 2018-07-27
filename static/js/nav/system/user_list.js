@@ -201,9 +201,9 @@ function show_edit_dialog(user_id, user_account, develop_control, system_control
             var develop_bit = 0B0;
             if (develop_control === '是') {
                 develop_bit = 0B1;
-                content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="is_admin" value="'+ develop_bit + '" checked/>开发者</label>';
+                content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="is_admin" value="'+ develop_bit + '" checked/>其它工具</label>';
             } else {
-                content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="is_admin" value="'+ develop_bit + '"/>开发者</label>';
+                content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="is_admin" value="'+ develop_bit + '"/>其它工具</label>';
             }
 
             var system_bit = 0B0;
@@ -370,7 +370,7 @@ $("#add_user_button").click(function () {
             // 权限
             content += '<div class="checkbox">';
             content += '<span style="margin-right: 30px;">权限:</span>';
-            content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="user_right[]" value="1" />开发者</label>';
+            content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="user_right[]" value="1" />其它工具</label>';
             content += '<label style="margin: 0 10px;"><input id="system_control_in_dialog" type="checkbox" name="user_right[]" value="1" />系统管理</label>';
             content += '<label style="margin: 0 10px;"><input id="statistic_control_in_dialog" type="checkbox" name="user_right[]" value="2" />数据统计</label>';
             content += '<label style="margin: 0 10px;"><input id="experiment_control_in_dialog" type="checkbox" name="user_right[]" value="3" />实验平台</label>';
