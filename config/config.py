@@ -1,5 +1,6 @@
 #!/usr/bin/env python2.7
 # coding: utf-8
+import time
 from py_log.logger import LogEnv
 
 # 日志配置
@@ -39,7 +40,7 @@ server_mysql_pwd = 'world'
 server_mysql_db = 'db_name'
 
 # 升级
-server_static_version = '20180727'
+server_static_version = int(time.time())
 
 # API_SERVER
 api_server = 'http://xxx:8888/position_count'
