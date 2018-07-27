@@ -1,3 +1,9 @@
+USER_RIGHT = {};
+USER_RIGHT.DEVELOP = 0B1;
+USER_RIGHT.SYSTEM = 0B10;
+USER_RIGHT.STATISTIC = 0B100;
+USER_RIGHT.EXPERIMENT = 0B1000;
+
 // frame改变大小
 function frame_auto_size() {
     var newHeight = $("#right_frame").contents().find('body').height();

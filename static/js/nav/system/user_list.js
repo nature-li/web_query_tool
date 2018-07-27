@@ -198,33 +198,33 @@ function show_edit_dialog(user_id, user_account, develop_control, system_control
             content += '<div class="checkbox">';
             content += '<span style="margin-right: 30px;">权限:</span>';
 
-            var statistic_bit = 0B0;
+            var statistic_bit = 0;
             if (statistic_control !=='') {
-                statistic_bit = 0B100;
+                statistic_bit = USER_RIGHT.STATISTIC;
                 content += '<label style="margin: 0 10px;"><input id="statistic_control_in_dialog" type="checkbox" name="is_admin" value="' + statistic_bit + '" checked/>数据统计</label>';
             } else {
                 content += '<label style="margin: 0 10px;"><input id="statistic_control_in_dialog" type="checkbox" name="is_admin" value="' + statistic_bit + '"/>数据统计</label>';
             }
 
-            var experiment_bit = 0B0;
+            var experiment_bit = 0;
             if (experiment_control !=='') {
-                experiment_bit = 0B1000;
+                experiment_bit = USER_RIGHT.EXPERIMENT;
                 content += '<label style="margin: 0 10px;"><input id="experiment_control_in_dialog" type="checkbox" name="is_admin" value="' + experiment_bit + '" checked/>实验平台</label>';
             } else {
                 content += '<label style="margin: 0 10px;"><input id="experiment_control_in_dialog" type="checkbox" name="is_admin" value="' + experiment_bit + '"/>实验平台</label>';
             }
 
-            var develop_bit = 0B0;
+            var develop_bit = 0;
             if (develop_control !== '') {
-                develop_bit = 0B1;
+                develop_bit = USER_RIGHT.DEVELOP;
                 content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="is_admin" value="'+ develop_bit + '" checked/>渠道</label>';
             } else {
                 content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="is_admin" value="'+ develop_bit + '"/>渠道</label>';
             }
 
-            var system_bit = 0B0;
+            var system_bit = 0;
             if (system_control !== '') {
-                system_bit = 0B10;
+                system_bit = USER_RIGHT.SYSTEM;
                 content += '<label style="margin: 0 10px;"><input id="system_control_in_dialog" type="checkbox" name="is_admin" value="'+ system_bit + '" checked/>系统</label>';
             } else {
                 content += '<label style="margin: 0 10px;"><input id="system_control_in_dialog" type="checkbox" name="is_admin" value="'+ system_bit + '"/>系统</label>';
@@ -248,24 +248,24 @@ function show_edit_dialog(user_id, user_account, develop_control, system_control
                 // 获取用户添加数据
                 var user_id = $("#edit_user_id").val();
 
-                var develop_bit = 0B0;
+                var develop_bit = 0;
                 if ($("#develop_control_in_dialog").prop('checked')) {
-                    develop_bit = 0B1;
+                    develop_bit = USER_RIGHT.DEVELOP;
                 }
 
-                var system_bit = 0B0;
+                var system_bit = 0;
                 if ($("#system_control_in_dialog").prop('checked')) {
-                    system_bit = 0B10;
+                    system_bit = USER_RIGHT.SYSTEM;
                 }
 
-                var statistic_bit = 0B0;
+                var statistic_bit = 0;
                 if ($("#statistic_control_in_dialog").prop('checked')) {
-                    statistic_bit = 0B100;
+                    statistic_bit = USER_RIGHT.STATISTIC;
                 }
 
-                var experiment_bit = 0B0;
+                var experiment_bit = 0;
                 if ($("#experiment_control_in_dialog").prop('checked')) {
-                    experiment_bit = 0B1000;
+                    experiment_bit = USER_RIGHT.EXPERIMENT;
                 }
 
                 var user_right = develop_bit | system_bit | statistic_bit | experiment_bit;
@@ -327,22 +327,22 @@ function edit_user_page_view(response) {
         if (bind_user_id === user_id) {
 
             var develop_control = '<img src="/static/images/ok.png" alt="是">';
-            if ((user_right & 0B1) === 0) {
+            if ((user_right & USER_RIGHT.DEVELOP) === 0) {
                 develop_control = '';
             }
 
             var system_control = '<img src="/static/images/ok.png" alt="是">';
-            if ((user_right & 0B10) === 0) {
+            if ((user_right & USER_RIGHT.SYSTEM) === 0) {
                 system_control = '';
             }
 
             var statistic_control = '<img src="/static/images/ok.png" alt="是">';
-            if ((user_right & 0B100) === 0) {
+            if ((user_right & USER_RIGHT.STATISTIC) === 0) {
                 statistic_control = '';
             }
 
             var experiment_control = '<img src="/static/images/ok.png" alt="是">';
-            if ((user_right & 0B1000) === 0) {
+            if ((user_right & USER_RIGHT.EXPERIMENT) === 0) {
                 experiment_control = '';
             }
 
@@ -390,24 +390,24 @@ $("#add_user_button").click(function () {
                 // 获取用户添加数据
                 var user_account = $("#add_user_account").val();
 
-                var develop_control = 0B0;
+                var develop_control = 0;
                 if ($("#develop_control_in_dialog").prop('checked')) {
-                    develop_control = 0B1;
+                    develop_control = USER_RIGHT.DEVELOP;
                 }
 
-                var system_control = 0B0;
+                var system_control = 0;
                 if ($("#system_control_in_dialog").prop('checked')) {
-                    system_control = 0B10;
+                    system_control = USER_RIGHT.SYSTEM;
                 }
 
-                var statistic_bit = 0B0;
+                var statistic_bit = 0;
                 if ($("#statistic_control_in_dialog").prop('checked')) {
-                    statistic_bit = 0B100;
+                    statistic_bit = USER_RIGHT.STATISTIC;
                 }
 
-                var experiment_bit = 0B0;
+                var experiment_bit = 0;
                 if ($("#statistic_control_in_dialog").prop('checked')) {
-                    experiment_bit = 0B1000;
+                    experiment_bit = USER_RIGHT.EXPERIMENT;
                 }
 
                 var user_right = develop_control | system_control | statistic_bit | experiment_bit;
@@ -466,22 +466,22 @@ function append_user_list_to_view(data) {
 // 在表格中增加用户
 function add_row(user_id, user_account, user_right, update_time) {
     var develop_control = '<img src="/static/images/ok.png" alt="是">';
-    if ((user_right & 0B1) === 0) {
+    if ((user_right & USER_RIGHT.DEVELOP) === 0) {
         develop_control = '';
     }
 
     var system_control = '<img src="/static/images/ok.png" alt="是">';
-    if ((user_right & 0B10) === 0) {
+    if ((user_right & USER_RIGHT.SYSTEM) === 0) {
         system_control = '';
     }
 
     var statistic_control = '<img src="/static/images/ok.png" alt="是">';
-    if ((user_right & 0B100) === 0) {
+    if ((user_right & USER_RIGHT.STATISTIC) === 0) {
         statistic_control = '';
     }
 
     var experiment_control = '<img src="/static/images/ok.png" alt="是">';
-    if ((user_right & 0B1000) === 0) {
+    if ((user_right & USER_RIGHT.EXPERIMENT) === 0) {
         experiment_control = '';
     }
 

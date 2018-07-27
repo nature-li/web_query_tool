@@ -29,26 +29,26 @@
             <a class="navbar-brand" href="/">内部工具仅供参考</a>
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            {% if login_user_right & 0B100 != 0 %}
+            {% if login_user_right & user_right.STATISTIC != 0 %}
             <ul class="nav navbar-nav">
                 <li id="menu_statistic_control"><a href="#" id="nav_statistic_ref_a">数据统计</a></li>
             </ul>
             {% end %}
 
-            {% if login_user_right & 0B1000 != 0 %}
+            {% if login_user_right & user_right.EXPERIMENT != 0 %}
             <ul class="nav navbar-nav">
                 <li id="menu_experiment_control"><a href="#" id="nav_experiment_ref_a">实验平台</a></li>
             </ul>
             {% end %}
 
-            {% if login_user_right & 0B1 != 0 %}
+            {% if login_user_right & user_right.DEVELOP != 0 %}
             <ul class="nav navbar-nav">
                 <li id="menu_develop_control"><a href="#" id="nav_develop_ref_a">渠道</a></li>
             </ul>
             {% end %}
 
 
-            {% if login_user_right & 0B10 != 0 %}
+            {% if login_user_right & user_right.SYSTEM != 0 %}
             <ul class="nav navbar-nav">
                 <li id="menu_system_control"><a href="#" id="nav_system_ref_a">系统</a></li>
             </ul>

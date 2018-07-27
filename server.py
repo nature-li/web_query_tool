@@ -88,7 +88,7 @@ class MainHandler(BaseHandler):
         if not user:
             self.redirect('/logout')
         self.render('index.html', iframe_src='/day_count', user_name=show_name, login_user_right=user.user_right,
-                    static_version=config.server_static_version)
+                    static_version=config.server_static_version, user_right=UserRight)
 
 
 class DayCountHandler(BaseHandler):

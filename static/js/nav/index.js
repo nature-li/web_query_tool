@@ -6,13 +6,13 @@ function init_main_page() {
     var login_user_right = $("#login_user_right").val();
 
     // 添加侧边栏
-    if (login_user_right & 0B100) {
+    if (login_user_right & USER_RIGHT.STATISTIC) {
         set_statistic_nav();
-    } else if (login_user_right & 0B1000) {
+    } else if (login_user_right & USER_RIGHT.EXPERIMENT) {
         set_experiment_nav();
-    } else if (login_user_right & 0B10) {
+    } else if (login_user_right & USER_RIGHT.SYSTEM) {
         set_system_nav();
-    } else if (login_user_right & 0B1) {
+    } else if (login_user_right & USER_RIGHT.DEVELOP) {
         set_develop_nav();
     }
 }
