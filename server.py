@@ -80,7 +80,7 @@ class MainHandler(BaseHandler):
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        self.render('index.html', iframe_src='/day_count', user_name=show_name, login_user_right=user.user_right, js_version=config.server_js_version)
+        self.render('index.html', iframe_src='/day_count', user_name=show_name, login_user_right=user.user_right, static_version=config.server_static_version)
 
 
 class DayCountHandler(BaseHandler):
@@ -89,7 +89,7 @@ class DayCountHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('hive/day_count.html', js_version=config.server_js_version)
+        self.render('hive/day_count.html', static_version=config.server_static_version)
 
 
 class HourCountHandler(BaseHandler):
@@ -98,7 +98,7 @@ class HourCountHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('hive/hour_count.html', js_version=config.server_js_version)
+        self.render('hive/hour_count.html', static_version=config.server_static_version)
 
 
 class PositionHandler(BaseHandler):
@@ -107,7 +107,7 @@ class PositionHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('hive/position.html', js_version=config.server_js_version)
+        self.render('hive/position.html', static_version=config.server_static_version)
 
 
 class ChartHandler(BaseHandler):
@@ -116,7 +116,7 @@ class ChartHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('hive/chart.html', js_version=config.server_js_version)
+        self.render('hive/chart.html', static_version=config.server_static_version)
 
 
 class ChartDataQueryHandler(BaseHandler):
@@ -149,7 +149,7 @@ class ExperimentHandler(BaseHandler):
             self.redirect("/reload")
         req_type = self.get_argument('type', None)
         if not req_type:
-            self.render('hive/experiment.html', js_version=config.server_js_version)
+            self.render('hive/experiment.html', static_version=config.server_static_version)
             return
         if req_type == "QUERY_EXPERIMENT":
             product_name = self.get_argument('product_name', None)
@@ -263,7 +263,7 @@ class NetworkListHandler(BaseHandler):
         if not user.user_right & 0B01:
             self.redirect("/reload")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('hive/network_list.html', js_version=config.server_js_version)
+        self.render('hive/network_list.html', static_version=config.server_static_version)
 
 
 class UserListHandler(BaseHandler):
@@ -278,7 +278,7 @@ class UserListHandler(BaseHandler):
         if not user.user_right & 0B10:
             self.redirect("/reload")
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('system/user_list.html', js_version=config.server_js_version)
+        self.render('system/user_list.html', static_version=config.server_static_version)
 
 
 class DayQueryHandler(BaseHandler):
@@ -457,7 +457,7 @@ class LoginHandler(BaseHandler):
     def get(self):
         if config.server_local_fake:
             # 本机fake登录
-            self.render("login.html", js_version=config.server_js_version)
+            self.render("login.html", static_version=config.server_static_version)
         else:
             # 线上真实登录
             Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
@@ -508,7 +508,7 @@ class LoginHandler(BaseHandler):
             email = a_dict.get("email")
             db_user = DbOperator.get_user_info(email)
             if not db_user:
-                self.render('error.html', js_version=config.server_js_version)
+                self.render('error.html', static_version=config.server_static_version)
                 return
 
             # 保存session
@@ -526,13 +526,13 @@ class LogoutHandler(BaseHandler):
         self.clear_cookie("user_id")
         self.clear_cookie("show_name")
         self.set_status(302)
-        self.render('logout.html', js_version=config.server_js_version)
+        self.render('logout.html', static_version=config.server_static_version)
 
 
 class ReloadHandler(BaseHandler):
     def get(self):
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('reload.html', js_version=config.server_js_version)
+        self.render('reload.html', static_version=config.server_static_version)
 
 
 class LogFormatter(tornado.log.LogFormatter):
