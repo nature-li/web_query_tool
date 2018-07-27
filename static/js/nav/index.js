@@ -50,7 +50,7 @@ function set_statistic_nav() {
     $("#menu_statistic_control").addClass("active");
 
     // 加载数据
-    $("#right_frame").attr("src", "/day_count");
+    $("#right_frame").attr("src", "/position");
 
     // 自适应框架大小
     frame_auto_size();
@@ -121,16 +121,6 @@ function statistic_html() {
                 <span class="pull-right glyphicon glyphicon-chevron-down"></span>
             </a>
            <ul id="statisticViewer" class="nav nav-list collapse secondmenu in">
-                <li id="li_day_count">
-                    <a id="a_day_count" href="#">日统计
-                        <i id="i_day_count" class="glyphicon glyphicon-eye-open"></i>
-                    </a>
-                </li>
-                <li id="li_hour_count">
-                    <a id="a_hour_count" href="#">时统计
-                        <i id="i_hour_count" class="glyphicon glyphicon-eye-open"></i>
-                    </a>
-                </li>
                 <li id="li_position">
                     <a id="a_position" href="#">自查询
                         <i id="i_position" class="glyphicon glyphicon-eye-open"></i>
@@ -139,6 +129,16 @@ function statistic_html() {
                 <li id="li_chart">
                     <a id="a_chart" href="#">可视化
                         <i id="i_chart" class="glyphicon glyphicon-eye-open"></i>
+                    </a>
+                </li>
+                <li id="li_day_count">
+                    <a id="a_day_count" href="#">日统计
+                        <i id="i_day_count" class="glyphicon glyphicon-eye-open"></i>
+                    </a>
+                </li>
+                <li id="li_hour_count">
+                    <a id="a_hour_count" href="#">时统计
+                        <i id="i_hour_count" class="glyphicon glyphicon-eye-open"></i>
                     </a>
                 </li>
             </ul>
@@ -154,7 +154,7 @@ function experiment_html() {
             </a>
            <ul id="experimentViewer" class="nav nav-list collapse secondmenu in">
                 <li id="li_experiment_config">
-                    <a id="a_experiment_config" href="#">配置管理
+                    <a id="a_experiment_config" href="#">配置
                         <i id="i_experiment_config" class="glyphicon glyphicon-eye-open"></i>
                     </a>
                 </li>
@@ -166,7 +166,7 @@ function system_html() {
     return `
         <li>
             <a href="#systemViewer" class="nav-header collapse" data-toggle="collapse">
-            <i class="glyphicon glyphicon-th-list"></i>系统管理
+            <i class="glyphicon glyphicon-th-list"></i>系统
                 <span class="pull-right glyphicon glyphicon-chevron-down"></span>
             </a>
            <ul id="systemViewer" class="nav nav-list collapse secondmenu in">
@@ -183,7 +183,7 @@ function develop_html() {
     return `
         <li>
             <a href="#developViewer" class="nav-header collapse" data-toggle="collapse">
-            <i class="glyphicon glyphicon-th-list"></i>其它工具
+            <i class="glyphicon glyphicon-th-list"></i>渠道
                 <span class="pull-right glyphicon glyphicon-chevron-down"></span>
             </a>
            <ul id="developViewer" class="nav nav-list collapse secondmenu in">

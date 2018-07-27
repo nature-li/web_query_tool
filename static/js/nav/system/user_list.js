@@ -171,10 +171,10 @@ $(document).on("click", ".user-edit-button", function () {
     var $tr = $(this).parent().parent();
     var user_id = $tr.find("td:eq(1)").text();
     var user_account = $tr.find("td:eq(2)").text();
-    var develop_control = $tr.find("td:eq(3)").text();
-    var system_control = $tr.find("td:eq(4)").text();
-    var statistic_control = $tr.find("td:eq(5)").text();
-    var experiment_control = $tr.find("td:eq(6)").text();
+    var statistic_control = $tr.find("td:eq(3)").html();
+    var experiment_control = $tr.find("td:eq(4)").html();
+    var develop_control = $tr.find("td:eq(5)").html();
+    var system_control = $tr.find("td:eq(6)").html();
 
     show_edit_dialog(user_id, user_account, develop_control, system_control, statistic_control, experiment_control);
 });
@@ -194,28 +194,12 @@ function show_edit_dialog(user_id, user_account, develop_control, system_control
             // 账号
             content += '<div><input id="edit_user_account" type="text" class="form-control" value="' + user_account + '" disabled></div>';
 
-            // 系统管理
+            // 系统
             content += '<div class="checkbox">';
             content += '<span style="margin-right: 30px;">权限:</span>';
 
-            var develop_bit = 0B0;
-            if (develop_control === '是') {
-                develop_bit = 0B1;
-                content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="is_admin" value="'+ develop_bit + '" checked/>其它工具</label>';
-            } else {
-                content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="is_admin" value="'+ develop_bit + '"/>其它工具</label>';
-            }
-
-            var system_bit = 0B0;
-            if (system_control === '是') {
-                system_bit = 0B10;
-                content += '<label style="margin: 0 10px;"><input id="system_control_in_dialog" type="checkbox" name="is_admin" value="'+ system_bit + '" checked/>系统管理</label>';
-            } else {
-                content += '<label style="margin: 0 10px;"><input id="system_control_in_dialog" type="checkbox" name="is_admin" value="'+ system_bit + '"/>系统管理</label>';
-            }
-
             var statistic_bit = 0B0;
-            if (statistic_control ==='是') {
+            if (statistic_control !=='') {
                 statistic_bit = 0B100;
                 content += '<label style="margin: 0 10px;"><input id="statistic_control_in_dialog" type="checkbox" name="is_admin" value="' + statistic_bit + '" checked/>数据统计</label>';
             } else {
@@ -223,11 +207,27 @@ function show_edit_dialog(user_id, user_account, develop_control, system_control
             }
 
             var experiment_bit = 0B0;
-            if (experiment_control ==='是') {
+            if (experiment_control !=='') {
                 experiment_bit = 0B1000;
                 content += '<label style="margin: 0 10px;"><input id="experiment_control_in_dialog" type="checkbox" name="is_admin" value="' + experiment_bit + '" checked/>实验平台</label>';
             } else {
                 content += '<label style="margin: 0 10px;"><input id="experiment_control_in_dialog" type="checkbox" name="is_admin" value="' + experiment_bit + '"/>实验平台</label>';
+            }
+
+            var develop_bit = 0B0;
+            if (develop_control !== '') {
+                develop_bit = 0B1;
+                content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="is_admin" value="'+ develop_bit + '" checked/>渠道</label>';
+            } else {
+                content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="is_admin" value="'+ develop_bit + '"/>渠道</label>';
+            }
+
+            var system_bit = 0B0;
+            if (system_control !== '') {
+                system_bit = 0B10;
+                content += '<label style="margin: 0 10px;"><input id="system_control_in_dialog" type="checkbox" name="is_admin" value="'+ system_bit + '" checked/>系统</label>';
+            } else {
+                content += '<label style="margin: 0 10px;"><input id="system_control_in_dialog" type="checkbox" name="is_admin" value="'+ system_bit + '"/>系统</label>';
             }
 
 
@@ -326,32 +326,32 @@ function edit_user_page_view(response) {
 
         if (bind_user_id === user_id) {
 
-            var develop_control = '是';
+            var develop_control = '<img src="/static/images/ok.png" alt="是">';
             if ((user_right & 0B1) === 0) {
-                develop_control = '否';
+                develop_control = '';
             }
 
-            var system_control = '是';
+            var system_control = '<img src="/static/images/ok.png" alt="是">';
             if ((user_right & 0B10) === 0) {
-                system_control = '否';
+                system_control = '';
             }
 
-            var statistic_control = '是';
+            var statistic_control = '<img src="/static/images/ok.png" alt="是">';
             if ((user_right & 0B100) === 0) {
-                statistic_control = '否';
+                statistic_control = '';
             }
 
-            var experiment_control = '是';
+            var experiment_control = '<img src="/static/images/ok.png" alt="是">';
             if ((user_right & 0B1000) === 0) {
-                experiment_control = '否';
+                experiment_control = '';
             }
 
             $(this).find("td:eq(1)").html(user_id);
             $(this).find("td:eq(2)").html(user_account);
-            $(this).find("td:eq(3)").html(develop_control);
-            $(this).find("td:eq(4)").html(system_control);
-            $(this).find("td:eq(5)").html(statistic_control);
-            $(this).find("td:eq(6)").html(experiment_control);
+            $(this).find("td:eq(3)").html(statistic_control);
+            $(this).find("td:eq(4)").html(experiment_control);
+            $(this).find("td:eq(5)").html(develop_control);
+            $(this).find("td:eq(6)").html(system_control);
             $(this).find("td:eq(7)").html(update_time);
         }
     });
@@ -370,10 +370,10 @@ $("#add_user_button").click(function () {
             // 权限
             content += '<div class="checkbox">';
             content += '<span style="margin-right: 30px;">权限:</span>';
-            content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="user_right[]" value="1" />其它工具</label>';
-            content += '<label style="margin: 0 10px;"><input id="system_control_in_dialog" type="checkbox" name="user_right[]" value="1" />系统管理</label>';
             content += '<label style="margin: 0 10px;"><input id="statistic_control_in_dialog" type="checkbox" name="user_right[]" value="2" />数据统计</label>';
             content += '<label style="margin: 0 10px;"><input id="experiment_control_in_dialog" type="checkbox" name="user_right[]" value="3" />实验平台</label>';
+            content += '<label style="margin: 0 10px;"><input id="develop_control_in_dialog" type="checkbox" name="user_right[]" value="1" />渠道</label>';
+            content += '<label style="margin: 0 10px;"><input id="system_control_in_dialog" type="checkbox" name="user_right[]" value="1" />系统</label>';
             content += '</div>';
 
             // footer
@@ -465,24 +465,24 @@ function append_user_list_to_view(data) {
 
 // 在表格中增加用户
 function add_row(user_id, user_account, user_right, update_time) {
-    var develop_control = '是';
+    var develop_control = '<img src="/static/images/ok.png" alt="是">';
     if ((user_right & 0B1) === 0) {
-        develop_control = '否';
+        develop_control = '';
     }
 
-    var system_control = '是';
+    var system_control = '<img src="/static/images/ok.png" alt="是">';
     if ((user_right & 0B10) === 0) {
-        system_control = '否';
+        system_control = '';
     }
 
-    var statistic_control = '是';
+    var statistic_control = '<img src="/static/images/ok.png" alt="是">';
     if ((user_right & 0B100) === 0) {
-        statistic_control = '否';
+        statistic_control = '';
     }
 
-    var experiment_control = '是';
+    var experiment_control = '<img src="/static/images/ok.png" alt="是">';
     if ((user_right & 0B1000) === 0) {
-        experiment_control = '否';
+        experiment_control = '';
     }
 
     var table = $("#t_user_control");
@@ -490,10 +490,10 @@ function add_row(user_id, user_account, user_right, update_time) {
         '<td style="text-align:center;"><input name="user_list[]" type="checkbox" value="' + user_id + '"></td>' +
         '<td style="text-align:center;">' + user_id + '</td>' +
         '<td style="text-align:center;">' + user_account + '</td>' +
-        '<td style="text-align:center;">' + develop_control + '</td>' +
-        '<td style="text-align:center;">' + system_control + '</td>' +
         '<td style="text-align:center;">' + statistic_control + '</td>' +
         '<td style="text-align:center;">' + experiment_control + '</td>' +
+        '<td style="text-align:center;">' + develop_control + '</td>' +
+        '<td style="text-align:center;">' + system_control + '</td>' +
         '<td style="text-align:center;">' + update_time + '</td>' +
         '<td style="text-align:center;"><button type="button" class="btn btn-primary user-edit-button">编辑</button></td>');
     table.append(tr);

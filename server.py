@@ -26,8 +26,8 @@ from py_db.db_mysql import MysqlOperator
 
 
 class UserRight(object):
-    DEVELOP = 0B1  # 其它工具: 渠道管理
-    SYSTEM = 0B10  # 系统管理: 添加账号
+    DEVELOP = 0B1  # 渠道: 渠道管理
+    SYSTEM = 0B10  # 系统: 添加账号
     STATISTIC = 0B100  # 数据统计
     EXPERIMENT = 0B1000  # 实验平台
 

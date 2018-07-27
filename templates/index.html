@@ -41,15 +41,16 @@
             </ul>
             {% end %}
 
-            {% if login_user_right & 0B10 != 0 %}
+            {% if login_user_right & 0B1 != 0 %}
             <ul class="nav navbar-nav">
-                <li id="menu_system_control"><a href="#" id="nav_system_ref_a">系统管理</a></li>
+                <li id="menu_develop_control"><a href="#" id="nav_develop_ref_a">渠道</a></li>
             </ul>
             {% end %}
 
-            {% if login_user_right & 0B1 != 0 %}
+
+            {% if login_user_right & 0B10 != 0 %}
             <ul class="nav navbar-nav">
-                <li id="menu_develop_control"><a href="#" id="nav_develop_ref_a">其它工具</a></li>
+                <li id="menu_system_control"><a href="#" id="nav_system_ref_a">系统</a></li>
             </ul>
             {% end %}
 

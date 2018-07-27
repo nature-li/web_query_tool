@@ -75,7 +75,7 @@ $(document).on("click", "#a_chart", function () {
 });
 
 // a_experiment 点击事件
-$(document).on("click", "#a_experiment", function () {
+$(document).on("click", "#a_experiment_config", function () {
     $("#right_frame").attr("src", "experiment");
 
     // 菜单 active 状态改变
@@ -90,10 +90,10 @@ $(document).on("click", "#a_experiment", function () {
 });
 
 // a_user_control 点击事件
-$(document).on("click", "#a_user_control", function () {
+$(document).on("click", "#a_user_list", function () {
     $("#right_frame").attr("src", "user_list");
 
-    // 系统管理和用户管理态变 active
+    // 系统和用户管理态变 active
     $("#menu_statistic_control").removeClass("active");
     $("#menu_experiment_control").removeClass("active");
     $("#menu_system_control").removeClass("active");
@@ -105,7 +105,7 @@ $(document).on("click", "#a_user_control", function () {
 });
 
 // a_ad_network_id_control 点击事件
-$(document).on("click", "#a_network_control", function () {
+$(document).on("click", "#a_network_list", function () {
     $("#right_frame").attr("src", "network_list");
 
     // 菜单 active 状态改变
