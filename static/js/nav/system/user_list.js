@@ -307,7 +307,7 @@ function show_edit_dialog(user_id, user_account, develop_control, system_control
     });
 }
 
-// 根据response更新用户列表
+// 根据response更新用户权限
 function edit_user_page_view(response) {
     if (response.success == 'false') {
         $.showErr("更新失败");

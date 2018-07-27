@@ -56,7 +56,13 @@
 
             <ul class="nav navbar-nav navbar-right">
                 <li><a id="login_user" href="#">{{ user_name }}</a></li>
-                <li><a id="logout_user" href="/logout">退出</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false"><span class="glyphicon glyphicon-user"></span><span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a id="logout_user" href="/logout">退出</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>

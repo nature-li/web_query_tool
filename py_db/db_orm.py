@@ -32,7 +32,7 @@ class HourCount(Base):
     update_time = Column(BigInteger)
 
 
-# 用户列表
+# 用户权限
 class UserList(Base):
     __tablename__ = 'user_list'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -41,7 +41,7 @@ class UserList(Base):
     update_time = Column(BigInteger)
 
 
-# 渠道列表
+# 渠道信息
 class NetworkList(Base):
     __tablename__ = 'network_list'
     id = Column(Integer, primary_key=True, autoincrement=True)

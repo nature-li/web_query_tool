@@ -123,22 +123,22 @@ function statistic_html() {
            <ul id="statisticViewer" class="nav nav-list collapse secondmenu in">
                 <li id="li_position">
                     <a id="a_position" href="#">自查询
-                        <i id="i_position" class="glyphicon glyphicon-eye-open"></i>
+                        <i id="i_position" class="glyphicon glyphicon-search"></i>
                     </a>
                 </li>
                 <li id="li_chart">
                     <a id="a_chart" href="#">可视化
-                        <i id="i_chart" class="glyphicon glyphicon-eye-open"></i>
+                        <i id="i_chart" class="glyphicon glyphicon-search"></i>
                     </a>
                 </li>
                 <li id="li_day_count">
                     <a id="a_day_count" href="#">日统计
-                        <i id="i_day_count" class="glyphicon glyphicon-eye-open"></i>
+                        <i id="i_day_count" class="glyphicon glyphicon-search"></i>
                     </a>
                 </li>
                 <li id="li_hour_count">
                     <a id="a_hour_count" href="#">时统计
-                        <i id="i_hour_count" class="glyphicon glyphicon-eye-open"></i>
+                        <i id="i_hour_count" class="glyphicon glyphicon-search"></i>
                     </a>
                 </li>
             </ul>
@@ -155,7 +155,7 @@ function experiment_html() {
            <ul id="experimentViewer" class="nav nav-list collapse secondmenu in">
                 <li id="li_experiment_config">
                     <a id="a_experiment_config" href="#">配置
-                        <i id="i_experiment_config" class="glyphicon glyphicon-eye-open"></i>
+                        <i id="i_experiment_config" class="glyphicon glyphicon-pencil"></i>
                     </a>
                 </li>
             </ul>
@@ -171,8 +171,8 @@ function system_html() {
             </a>
            <ul id="systemViewer" class="nav nav-list collapse secondmenu in">
                 <li id="li_user_list">
-                    <a id="a_user_list" href="#">用户列表
-                        <i id="i_user_list" class="glyphicon glyphicon-eye-open"></i>
+                    <a id="a_user_list" href="#">用户权限
+                        <i id="i_user_list" class="glyphicon glyphicon-wrench"></i>
                     </a>
                 </li>
             </ul>
@@ -188,8 +188,8 @@ function develop_html() {
             </a>
            <ul id="developViewer" class="nav nav-list collapse secondmenu in">
                 <li id="li_network_list">
-                    <a id="a_network_list" href="#">渠道列表
-                        <i id="i_netwrok_list" class="glyphicon glyphicon-eye-open"></i>
+                    <a id="a_network_list" href="#">渠道信息
+                        <i id="i_netwrok_list" class="glyphicon glyphicon-send"></i>
                     </a>
                 </li>
             </ul>
