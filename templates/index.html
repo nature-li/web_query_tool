@@ -29,22 +29,30 @@
             <a class="navbar-brand" href="/">内部工具仅供参考</a>
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            {% if login_user_right & 0B100 != 0 %}
             <ul class="nav navbar-nav">
-                <li id="menu_data_statistic" class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                       aria-expanded="false">数据统计<span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#" id="nav_hive_ref_a">hive统计</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li class="disabled"><a href="#">redis统计</a></li>
-                    </ul>
-                </li>
-            </ul>
-            {% if login_user_right & 0B10 != 0 %}
-            <ul class="nav navbar-nav">
-                <li id="menu_system_control" ><a href="#" id="nav_user_ref_a">系统管理</a></li>
+                <li id="menu_statistic_control"><a href="#" id="nav_statistic_ref_a">数据统计</a></li>
             </ul>
             {% end %}
+
+            {% if login_user_right & 0B1000 != 0 %}
+            <ul class="nav navbar-nav">
+                <li id="menu_experiment_control"><a href="#" id="nav_experiment_ref_a">实验平台</a></li>
+            </ul>
+            {% end %}
+
+            {% if login_user_right & 0B10 != 0 %}
+            <ul class="nav navbar-nav">
+                <li id="menu_system_control"><a href="#" id="nav_system_ref_a">系统管理</a></li>
+            </ul>
+            {% end %}
+
+            {% if login_user_right & 0B1 != 0 %}
+            <ul class="nav navbar-nav">
+                <li id="menu_develop_control"><a href="#" id="nav_develop_ref_a">开发者</a></li>
+            </ul>
+            {% end %}
+
             <ul class="nav navbar-nav navbar-right">
                 <li><a id="login_user" href="#">{{ user_name }}</a></li>
                 <li><a id="logout_user" href="/logout">退出</a></li>
@@ -75,7 +83,7 @@
 </div>
 
 <script src="static/js/nav/public/public.js?v={{ static_version }}"></script>
-<script src="static/js/nav/hive/hive_index.js?v={{ static_version }}"></script>
+<script src="static/js/nav/toggle_active.js?v={{ static_version }}"></script>
 <script src="static/js/nav/index.js?v={{ static_version }}"></script>
 </body>
 </html>

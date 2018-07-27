@@ -25,6 +25,13 @@ from login.login import Login
 from py_db.db_mysql import MysqlOperator
 
 
+class UserRight(object):
+    DEVELOP = 0B1  # 开发者: 渠道管理
+    SYSTEM = 0B10  # 系统管理: 添加账号
+    STATISTIC = 0B100  # 数据统计
+    EXPERIMENT = 0B1000  # 实验平台
+
+
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         return self.get_secure_cookie("user_id")
@@ -80,7 +87,8 @@ class MainHandler(BaseHandler):
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        self.render('index.html', iframe_src='/day_count', user_name=show_name, login_user_right=user.user_right, static_version=config.server_static_version)
+        self.render('index.html', iframe_src='/day_count', user_name=show_name, login_user_right=user.user_right,
+                    static_version=config.server_static_version)
 
 
 class DayCountHandler(BaseHandler):
@@ -89,7 +97,15 @@ class DayCountHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('hive/day_count.html', static_version=config.server_static_version)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.STATISTIC:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        self.render('statistic/day_count.html', static_version=config.server_static_version)
 
 
 class HourCountHandler(BaseHandler):
@@ -98,7 +114,15 @@ class HourCountHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('hive/hour_count.html', static_version=config.server_static_version)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.STATISTIC:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        self.render('statistic/hour_count.html', static_version=config.server_static_version)
 
 
 class PositionHandler(BaseHandler):
@@ -107,7 +131,15 @@ class PositionHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('hive/position.html', static_version=config.server_static_version)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.STATISTIC:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        self.render('statistic/position.html', static_version=config.server_static_version)
 
 
 class ChartHandler(BaseHandler):
@@ -116,7 +148,15 @@ class ChartHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('hive/chart.html', static_version=config.server_static_version)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.STATISTIC:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        self.render('statistic/chart.html', static_version=config.server_static_version)
 
 
 class ChartDataQueryHandler(BaseHandler):
@@ -125,6 +165,14 @@ class ChartDataQueryHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.STATISTIC:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         start_dt = self.get_argument("start_dt")
         end_dt = self.get_argument("end_dt")
         ad_network_id_1 = self.get_argument("ad_network_id_1")
@@ -142,14 +190,17 @@ class ExperimentHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0B1000:
-            self.redirect("/reload")
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         req_type = self.get_argument('type', None)
         if not req_type:
-            self.render('hive/experiment.html', static_version=config.server_static_version)
+            self.render('experiment/experiment.html', static_version=config.server_static_version)
             return
         if req_type == "QUERY_EXPERIMENT":
             product_name = self.get_argument('product_name', None)
@@ -164,11 +215,13 @@ class ExperimentHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0B1000:
-            self.redirect("/reload")
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
 
         req_type = self.get_argument('type', None)
         if req_type == 'ADD_EXPERIMENT':
@@ -193,12 +246,13 @@ class ExperimentHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0B1000:
-            self.redirect("/reload")
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
 
         req_type = self.get_argument('type', None)
         if req_type == 'MODIFY_EXPERIMENT':
@@ -231,12 +285,13 @@ class ExperimentHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0B1000:
-            self.redirect("/reload")
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
 
         req_type = self.get_argument('type', None)
         if req_type == 'DEL_EXPERIMENT':
@@ -257,13 +312,15 @@ class NetworkListHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0B01:
-            self.redirect("/reload")
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-        self.render('hive/network_list.html', static_version=config.server_static_version)
+        if not user.user_right & UserRight.DEVELOP:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        self.render('develop/network_list.html', static_version=config.server_static_version)
 
 
 class UserListHandler(BaseHandler):
@@ -272,12 +329,14 @@ class UserListHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0B10:
-            self.redirect("/reload")
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        if not user.user_right & UserRight.SYSTEM:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         self.render('system/user_list.html', static_version=config.server_static_version)
 
 
@@ -287,6 +346,14 @@ class DayQueryHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.STATISTIC:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         ad_network_id = self.get_argument("ad_network_id")
         start_dt = self.get_argument('start_dt')
         end_dt = self.get_argument("end_dt")
@@ -302,6 +369,14 @@ class HourQueryHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.STATISTIC:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         dt = self.get_argument("dt")
         ad_network_id = self.get_argument("ad_network_id")
         start_hour = self.get_argument('start_hour')
@@ -318,6 +393,14 @@ class PositionQueryHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.STATISTIC:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         dt = self.get_argument("dt")
         ad_network_id = self.get_argument("ad_network_id")
         position_id = self.get_argument('position_id')
@@ -335,11 +418,14 @@ class AddUserHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0B10:
-            self.redirect("/reload")
+        if not user.user_right & UserRight.SYSTEM:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         user_account = self.get_argument("user_account")
         user_right = self.get_argument("user_right")
         text = DbOperator.add_user_account(user_account, user_right)
@@ -352,11 +438,14 @@ class QueryUserListHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0B10:
-            self.redirect("/reload")
+        if not user.user_right & UserRight.SYSTEM:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         user_account = self.get_argument("user_account")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
@@ -369,12 +458,15 @@ class DeleteUserListHandler(BaseHandler):
         user_name, show_name = self.get_login_user()
         if not user_name:
             return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0B10:
-            self.redirect("/reload")
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        if not user.user_right & UserRight.SYSTEM:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         user_id_list = self.get_argument("user_id_list")
         text = DbOperator.delete_user_list(user_id_list)
         self.write(text)
@@ -385,12 +477,15 @@ class EditUserListHandler(BaseHandler):
         user_name, show_name = self.get_login_user()
         if not user_name:
             return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0B10:
-            self.redirect("/reload")
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        if not user.user_right & UserRight.SYSTEM:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         user_id = self.get_argument("user_id")
         user_right = self.get_argument("user_right")
         text = DbOperator.edit_user(user_id, user_right)
@@ -402,12 +497,15 @@ class AddNetworkHandler(BaseHandler):
         user_name, show_name = self.get_login_user()
         if not user_name:
             return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0B01:
-            self.redirect("/reload")
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        if not user.user_right & UserRight.DEVELOP:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         network_name = self.get_argument("network_name")
         text = DbOperator.add_network(network_name)
         self.write(text)
@@ -419,6 +517,14 @@ class QueryNetworkListHandler(BaseHandler):
         if not user_name:
             return
         Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.STATISTIC and not user.user_right & UserRight.DEVELOP:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         network_name = self.get_argument("network_name")
         off_set = self.get_argument("off_set")
         limit = self.get_argument("limit")
@@ -432,12 +538,15 @@ class DeleteNetworkListHandler(BaseHandler):
         user_name, show_name = self.get_login_user()
         if not user_name:
             return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
         user = DbOperator.get_user_info(user_name)
         if not user:
             self.redirect('/logout')
-        if not user.user_right & 0B01:
-            self.redirect("/reload")
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+        if not user.user_right & UserRight.DEVELOP:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
         user_id_list = self.get_argument("network_id_list")
         text = DbOperator.delete_network_list(user_id_list)
         self.write(text)
@@ -507,7 +616,7 @@ class LoginHandler(BaseHandler):
             name = a_dict.get("name")
             email = a_dict.get("email")
             db_user = DbOperator.get_user_info(email)
-            if not db_user:
+            if not db_user or db_user.user_right == 0:
                 self.render('error.html', static_version=config.server_static_version)
                 return
 

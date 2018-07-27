@@ -3,26 +3,19 @@ $(document).ready(function () {
     $("#li_day_count", window.parent.document).removeClass("selected_menu");
     $("#li_hour_count", window.parent.document).removeClass("selected_menu");
     $("#li_position", window.parent.document).removeClass("selected_menu");
-    $("#li_network_control", window.parent.document).removeClass("selected_menu");
     $("#li_chart", window.parent.document).removeClass("selected_menu");
-    $("#li_experiment", window.parent.document).removeClass("selected_menu");
-    $("#li_day_count", window.parent.document).addClass("selected_menu");
+    $("#li_experiment_config", window.parent.document).removeClass("selected_menu");
+    $("#li_user_list", window.parent.document).removeClass("selected_menu");
+    $("#li_network_list", window.parent.document).removeClass("selected_menu");
+    $("#li_hour_count", window.parent.document).addClass("selected_menu");
 
-    // 开始日期
-    $('#start_date').datepicker({
+    // 默认日期
+    $('#select_date').datepicker({
         language: 'zh-CN',
         autoclose: true,
         todayHighlight: true
     });
-    $("#start_date").datepicker('setDate', new Date());
-
-    // 结束日期
-    $('#end_date').datepicker({
-        language: 'zh-CN',
-        autoclose: true,
-        todayHighlight: true
-    });
-    $("#end_date").datepicker('setDate', new Date());
+    $("#select_date").datepicker('setDate', new Date());
 
     // 初始化渠道下拉列表框
     init_ad_network_select();
@@ -39,7 +32,7 @@ $(document).ready(function () {
 // 初始化全局变量
 function reset_save_data() {
     window.save_data = {
-        'item_list': [],
+       'item_list': [],
         'db_total_item_count': 0,
         'db_return_item_count': 0,
         'db_max_page_idx': 0,
@@ -58,6 +51,7 @@ function update_page_view(page_idx) {
     for (var i = 0; i < window.save_data.item_list.length; i++) {
         var item = window.save_data.item_list[i];
         html += "<tr><td>" + item.dt + "</td>" +
+            "<td>" + item.hour + "</td>" +
             "<td>" + item.ad_network_id + "</td>" +
             "<td>" + item.pv + "</td>" +
             "<td>" + item.impression + "</td>" +
@@ -65,8 +59,8 @@ function update_page_view(page_idx) {
             "<td>" + item.ctr + "</td>" +
             "<td>" + item.update_time + "</td></tr>";
     }
-    $("#day_result").find("tr:gt(0)").remove();
-    $("#day_result").append(html);
+    $("#hour_result").find("tr:gt(0)").remove();
+    $("#hour_result").append(html);
 
     // 更新分页标签
     update_page_partition(page_idx);
@@ -77,37 +71,36 @@ function update_page_view(page_idx) {
 
 // 查询并更新页面
 function query_and_update_view() {
+    // 获取日期
+    var date = $("#select_date").datepicker('getDate');
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var dt = year + "-" + month + "-" + day;
+    var off_set = window.save_data.view_current_page_idx * window.save_data.view_item_count_per_page;
+    var limit = window.save_data.view_item_count_per_page;
+
     // 获取 ad_network_id
     var ad_network_id = $("#ad_network_id_selector option:selected").text();
     if (ad_network_id == 'all_ad_network_id') {
         ad_network_id = "all";
     }
 
-    // 获取开始日期
-    var start_date = $("#start_date").datepicker('getDate');
-    var start_year = start_date.getFullYear();
-    var start_month = start_date.getMonth() + 1;
-    var start_day = start_date.getDate();
-    var start_dt = start_year + "-" + start_month + "-" + start_day;
+    // 获取开始时间
+    var start_hour = $("#start_hour option:selected").text();
 
-    // 获取结束日期
-    var end_date = $("#end_date").datepicker('getDate');
-    var end_year = end_date.getFullYear();
-    var end_month = end_date.getMonth() + 1;
-    var end_day = end_date.getDate();
-    var end_dt = end_year + "-" + end_month + "-" + end_day;
-
-    var off_set = window.save_data.view_current_page_idx * window.save_data.view_item_count_per_page;
-    var limit = window.save_data.view_item_count_per_page;
+    // 获取结束时间
+    var end_hour = $("#end_hour option:selected").text();
 
     // 加载数据
     $.ajax({
-            url: '/query_day_page',
+            url: '/query_hour_page',
             type: "post",
             data: {
+                'dt': dt,
                 'ad_network_id': ad_network_id,
-                'start_dt': start_dt,
-                'end_dt': end_dt,
+                'start_hour': start_hour,
+                'end_hour': end_hour,
                 'off_set': off_set,
                 'limit': limit
             },
@@ -126,7 +119,7 @@ function query_and_update_view() {
     );
 }
 
-$("#query_day").click(function () {
+$("#query_hour").click(function () {
     reset_save_data();
     query_and_update_view();
 });
