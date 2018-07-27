@@ -31,6 +31,16 @@ server_oauth_token_url = ""
 server_oauth_user_url = ""
 server_oauth_auth_url = ''
 
+# MYSQL
+server_mysql_host = '192.xx.xx.xx'
+server_mysql_port = '3306'
+server_mysql_user = 'hello'
+server_mysql_pwd = 'world'
+server_mysql_db = 'db_name'
+
+# 升级
+server_static_version = '20180727'
+
 # API_SERVER
 api_server = 'http://xxx:8888/position_count'
 
