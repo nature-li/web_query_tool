@@ -17,3 +17,8 @@
 .toggle.radius .toggle-handle {
     border-radius: 20px;
 }
+
+.row_center {
+    display: flex;
+    justify-content: center;
+}

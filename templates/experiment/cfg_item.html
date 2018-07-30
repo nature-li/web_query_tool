@@ -26,7 +26,7 @@
 <!--面包屑导航-->
 <ol class="breadcrumb">
     <li><a href="/experiment">实验平台</a></li>
-    <li><a href="/experiment">配置</a></li>
+    <li><a href="/cfg_item">配置组</a></li>
 </ol>
 
 
@@ -38,12 +38,12 @@
                 <form class="form-inline">
                     <div class="form-group form-group-margin">
                         <label>名称:</label>
-                        <input id="query_product_text" class="form-control" placeholder="输入要查询的名称">
+                        <input id="query_cfg_item_text" class="form-control" placeholder="输入要查询的配置名称">
                     </div>
 
                     <div class="form-group form-group-margin">
                         <div>
-                            <button id="query_product_btn" type="button" class="btn btn-sm btn-primary">查询</button>
+                            <button id="query_cfg_item_btn" type="button" class="btn btn-sm btn-primary">查询</button>
                         </div>
                     </div>
                 </form>
@@ -56,19 +56,20 @@
 
         <div class="row">
             <div class="col-xs-12">
-                <table id="experiment_result" class="table table-striped table-bordered table-hover">
+                <table id="cfg_item_result" class="table table-striped table-bordered table-hover">
                     <thead>
                     <tr>
-                        <th style="text-align: center">id</th>
-                        <th style="text-align: center">名称</th>
-                        <th style="text-align: center">层次</th>
-                        <th style="text-align: center">位置id</th>
-                        <th style="text-align: center">最小值</th>
-                        <th style="text-align: center">最大值</th>
-                        <th style="text-align: center">实验名称</th>
+                        <th style="text-align: center">配置id</th>
+                        <th style="text-align: center">配置名称</th>
+                        <th style="text-align: center">位置</th>
+                        <th style="text-align: center">起始值</th>
+                        <th style="text-align: center">结束值</th>
+                        <th style="text-align: center">algo请求串</th>
+                        <th style="text-align: center">algo应答串</th>
+                        <th style="text-align: center">添加时间</th>
+                        <th style="text-align: center">描述</th>
                         <th style="text-align: center">状态</th>
                         <th style="text-align: center">操作</th>
-                        <th style="text-align: center">添加时间</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -79,7 +80,7 @@
 
         <div class="row">
             <div class="col-xs-12">
-                <button id="add_experiment" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span></button>
+                <button id="add_cfg_item" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span></button>
             </div>
         </div>
 
@@ -103,6 +104,6 @@
     <script src="static/js/nav/public/public.js?v={{ static_version }}"></script>
     <script src="static/js/nav/public/page_partition.js?v={{ static_version }}"></script>
     <script src="static/js/nav/toggle_active.js?v={{ static_version }}"></script>
-    <script src="static/js/nav/experiment/experiment.js?v={{ static_version }}"></script>
+    <script src="static/js/nav/experiment/cfg_item.js?v={{ static_version }}"></script>
 </body>
 </html>

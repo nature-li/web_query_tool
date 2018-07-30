@@ -1,13 +1,6 @@
 $(document).ready(function () {
     // 改变菜单背景色
-    $("#li_day_count", window.parent.document).removeClass("selected_menu");
-    $("#li_hour_count", window.parent.document).removeClass("selected_menu");
-    $("#li_position", window.parent.document).removeClass("selected_menu");
-    $("#li_chart", window.parent.document).removeClass("selected_menu");
-    $("#li_experiment_config", window.parent.document).removeClass("selected_menu");
-    $("#li_user_list", window.parent.document).removeClass("selected_menu");
-    $("#li_network_list", window.parent.document).removeClass("selected_menu");
-    $("#li_hour_count", window.parent.document).addClass("selected_menu");
+    set_page_active("#li_hour_count");
 
     // 默认日期
     $('#select_date').datepicker({

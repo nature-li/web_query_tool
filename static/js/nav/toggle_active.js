@@ -25,11 +25,7 @@ $(document).on("click", "#a_day_count", function () {
     $("#right_frame").attr("src", "day_count");
 
     // 菜单 active 状态改变
-    $("#menu_statistic_control").removeClass("active");
-    $("#menu_experiment_control").removeClass("active");
-    $("#menu_system_control").removeClass("active");
-    $("#menu_develop_control").removeClass("active");
-    $("#menu_statistic_control").addClass("active");
+    set_menu_active("#menu_statistic_control");
 
     // 自适应框架大小
     frame_auto_size();
@@ -40,11 +36,7 @@ $(document).on("click", "#a_hour_count", function () {
     $("#right_frame").attr("src", "hour_count");
 
     // 菜单 active 状态改变
-    $("#menu_statistic_control").removeClass("active");
-    $("#menu_experiment_control").removeClass("active");
-    $("#menu_system_control").removeClass("active");
-    $("#menu_develop_control").removeClass("active");
-    $("#menu_statistic_control").addClass("active");
+    set_menu_active("#menu_statistic_control");
 
     // 自适应框架大小
     frame_auto_size();
@@ -55,11 +47,7 @@ $(document).on("click", "#a_position", function () {
     $("#right_frame").attr("src", "position");
 
     // 菜单 active 状态改变
-    $("#menu_statistic_control").removeClass("active");
-    $("#menu_experiment_control").removeClass("active");
-    $("#menu_system_control").removeClass("active");
-    $("#menu_develop_control").removeClass("active");
-    $("#menu_statistic_control").addClass("active");
+    set_menu_active("#menu_statistic_control");
 
     // 自适应框架大小
     frame_auto_size();
@@ -70,26 +58,18 @@ $(document).on("click", "#a_chart", function () {
     $("#right_frame").attr("src", "chart");
 
     // 菜单 active 状态改变
-    $("#menu_statistic_control").removeClass("active");
-    $("#menu_experiment_control").removeClass("active");
-    $("#menu_system_control").removeClass("active");
-    $("#menu_develop_control").removeClass("active");
-    $("#menu_statistic_control").addClass("active");
+    set_menu_active("#menu_statistic_control");
 
     // 自适应框架大小
     frame_auto_size();
 });
 
-// a_experiment 点击事件
-$(document).on("click", "#a_experiment_config", function () {
-    $("#right_frame").attr("src", "experiment");
+// a_cfg_item 点击事件
+$(document).on("click", "#a_cfg_item", function () {
+    $("#right_frame").attr("src", "cfg_item");
 
     // 菜单 active 状态改变
-    $("#menu_statistic_control").removeClass("active");
-    $("#menu_experiment_control").removeClass("active");
-    $("#menu_system_control").removeClass("active");
-    $("#menu_develop_control").removeClass("active");
-    $("#menu_experiment_control").addClass("active");
+    set_menu_active("#menu_experiment_control");
 
     // 自适应框架大小
     frame_auto_size();
@@ -100,11 +80,7 @@ $(document).on("click", "#a_user_list", function () {
     $("#right_frame").attr("src", "user_list");
 
     // 系统和用户管理态变 active
-    $("#menu_statistic_control").removeClass("active");
-    $("#menu_experiment_control").removeClass("active");
-    $("#menu_system_control").removeClass("active");
-    $("#menu_develop_control").removeClass("active");
-    $("#menu_system_control").addClass("active");
+    set_menu_active("#menu_system_control");
 
     // 自适应框架大小
     frame_auto_size();
@@ -115,11 +91,31 @@ $(document).on("click", "#a_network_list", function () {
     $("#right_frame").attr("src", "network_list");
 
     // 菜单 active 状态改变
-    $("#menu_statistic_control").removeClass("active");
-    $("#menu_experiment_control").removeClass("active");
-    $("#menu_system_control").removeClass("active");
-    $("#menu_develop_control").removeClass("active");
-    $("#menu_develop_control").addClass("active");
+    set_menu_active("#menu_develop_control");
+
+    // 自适应框架大小
+    frame_auto_size();
+});
+
+function set_page_active(page_id) {
+    // 改变菜单背景色
+    $("#li_day_count", window.parent.document).removeClass("selected_menu");
+    $("#li_hour_count", window.parent.document).removeClass("selected_menu");
+    $("#li_position", window.parent.document).removeClass("selected_menu");
+    $("#li_chart", window.parent.document).removeClass("selected_menu");
+    $("#li_cfg_item", window.parent.document).removeClass("selected_menu");
+    $("#li_user_list", window.parent.document).removeClass("selected_menu");
+    $("#li_network_list", window.parent.document).removeClass("selected_menu");
+
+    $(page_id, window.parent.document).addClass("selected_menu");
+}
+
+// a_ad_network_id_control 点击事件
+$(document).on("click", "#a_layer_exp", function () {
+    $("#right_frame").attr("src", "layer_exp");
+
+    // 菜单 active 状态改变
+    set_menu_active("#menu_experiment_control");
 
     // 自适应框架大小
     frame_auto_size();

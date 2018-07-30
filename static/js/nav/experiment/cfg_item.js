@@ -1,13 +1,6 @@
 $(document).ready(function () {
     // 改变菜单背景色
-    $("#li_day_count", window.parent.document).removeClass("selected_menu");
-    $("#li_hour_count", window.parent.document).removeClass("selected_menu");
-    $("#li_position", window.parent.document).removeClass("selected_menu");
-    $("#li_chart", window.parent.document).removeClass("selected_menu");
-    $("#li_experiment_config", window.parent.document).removeClass("selected_menu");
-    $("#li_user_list", window.parent.document).removeClass("selected_menu");
-    $("#li_network_list", window.parent.document).removeClass("selected_menu");
-    $("#li_experiment_config", window.parent.document).addClass("selected_menu");
+    set_page_active("#li_cfg_item");
 
     // 定义全局变量
     if (!window.save_data) {
@@ -42,37 +35,37 @@ function update_page_view(page_idx) {
 
         var status_td = '<input type="checkbox" class="toggle-status" data-toggle="toggle" data-style="radius" data-on="启用" ' +
             'data-off="禁用" data-size="mini" data-onstyle="primary" />';
-        if (item.enable === 1) {
+        if (item.status === 1) {
             status_td = '<input type="checkbox" class="toggle-status" data-toggle="toggle" data-style="radius" data-on="启用" ' +
                 'data-off="禁用" data-size="mini" data-onstyle="primary" checked />';
         }
 
         var operate_dt =
             '<div class="text-center">' +
-            '<button type="button" class="btn btn-primary btn-xs modify-experiment" style="margin-right: 5px;">' +
+            '<button type="button" class="btn btn-primary btn-xs modify-cfg-item" style="margin-right: 5px;">' +
             '<span class="glyphicon glyphicon-wrench"></span>' +
             '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs delete-experiment">' +
+            '<button type="button" class="btn btn-primary btn-xs delete-cfg-item">' +
             '<span class="glyphicon glyphicon-minus"></span>' +
             '</button>' +
             '</div>';
-        console.log(operate_dt);
 
         html += "<tr>" +
             "<td class='text-center'>" + item.id + "</td>" +
-            "<td class='text-center'>" + item.product + "</td>" +
-            "<td class='text-center'>" + item.layer + "</td>" +
+            "<td class='text-center'>" + item.name + "</td>" +
             "<td class='text-center'>" + item.position + "</td>" +
-            "<td class='text-center'>" + item.min_value + "</td>" +
-            "<td class='text-center'>" + item.max_value + "</td>" +
-            "<td class='text-center'>" + item.algo_id + "</td>" +
+            "<td class='text-center'>" + item.start_value + "</td>" +
+            "<td class='text-center'>" + item.stop_value + "</td>" +
+            "<td class='text-center'>" + item.algo_request + "</td>" +
+            "<td class='text-center'>" + item.algo_response + "</td>" +
+            "<td class='text-center'>" + item.create_time + "</td>" +
+            "<td class='text-center'>" + item.desc + "</td>" +
             "<td class='text-center'>" + status_td + "</td>" +
             '<td style="text-center">' + operate_dt + '</td>' +
-            "<td class='text-center'>" + item.create_time + "</td>" +
             "</tr>";
     }
-    $("#experiment_result tbody").find("tr").remove();
-    $("#experiment_result tbody").append(html);
+    $("#cfg_item_result tbody").find("tr").remove();
+    $("#cfg_item_result tbody").append(html);
 
     // 初始化 bootstrap-toggle
     $('.toggle-status').bootstrapToggle();
@@ -87,18 +80,18 @@ function update_page_view(page_idx) {
 // 查询并更新页面
 function query_and_update_view() {
     // 获取 product_name
-    var query_product_name = $("#query_product_text").val().trim();
+    var query_cfg_item_name = $("#query_cfg_item_text").val().trim();
 
     var off_set = window.save_data.view_current_page_idx * window.save_data.view_item_count_per_page;
     var limit = window.save_data.view_item_count_per_page;
 
     // 加载数据
     $.ajax({
-            url: '/experiment',
+            url: '/cfg_item',
             type: "get",
             data: {
-                'type': 'QUERY_EXPERIMENT',
-                'product_name': query_product_name,
+                'type': 'QUERY_ITEM',
+                'item_name': query_cfg_item_name,
                 'off_set': off_set,
                 'limit': limit
             },
@@ -117,7 +110,7 @@ function query_and_update_view() {
     );
 }
 
-$("#query_product_btn").click(function () {
+$("#query_cfg_item_btn").click(function () {
     reload_page();
 });
 
@@ -128,7 +121,7 @@ function reload_page() {
 }
 
 // 增加实验项
-$(document).on('click', "#add_experiment", function () {
+$(document).on('click', "#add_cfg_item", function () {
     BootstrapDialog.show({
         message: function (dialog) {
             // header
@@ -136,31 +129,39 @@ $(document).on('click', "#add_experiment", function () {
 
             content += '<div class="form-group">' +
                 '<label style="margin: 0 5px;">启用</label>' +
-                '<input id="is_enable" type="checkbox" name="is_enable"/>' +
+                '<input id="status" type="checkbox" name="status"/>' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>名称：</label></div>' +
-                '<input id="product_name" class="form-control clear_tips">' +
+                '<div><label>配置id：</label></div>' +
+                '<input id="item_id" class="form-control clear_tips">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>层次：</label></div>' +
-                '<input id="layer" class="form-control clear_tips">' +
+                '<div><label>配置名称：</label></div>' +
+                '<input id="item_name" class="form-control clear_tips">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<div><label>位置：</label></div>' +
                 '<input id="position" class="form-control clear_tips">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>最小值：</label></div>' +
-                '<input id="min_value" type="number" class="form-control clear_tips">' +
+                '<div><label>起始值：</label></div>' +
+                '<input id="start_value" type="number" class="form-control clear_tips">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>最大值：</label></div>' +
-                '<input id="max_value" type="number" class="form-control clear_tips">' +
+                '<div><label>结束值：</label></div>' +
+                '<input id="stop_value" type="number" class="form-control clear_tips">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>实验名称：</label></div>' +
-                '<input id="experiment_name" class="form-control clear_tips">' +
+                '<div><label>algo请求串：</label></div>' +
+                '<input id="algo_request" class="form-control clear_tips">' +
+                '</div>';
+            content += '<div class="form-group">' +
+                '<div><label>algo应答串：</label></div>' +
+                '<input id="algo_response" class="form-control clear_tips">' +
+                '</div>';
+            content += '<div class="form-group">' +
+                '<div><label>描述信息：</label></div>' +
+                '<input id="item_desc" class="form-control clear_tips">' +
                 '</div>';
             content += '<div id="tip_div" class="form-group no-display">' +
                 '<div><label id="tip_msg" style="color: red">abc</label></div>' +
@@ -170,45 +171,49 @@ $(document).on('click', "#add_experiment", function () {
 
             return content;
         },
-        title: "增加实验项",
+        title: "增加配置项",
         closable: false,
         draggable: true,
         buttons: [{
             label: '确定',
             action: function (dialogItself) {
                 // 获取用户添加数据
-                var enable = 0;
-                if ($("#is_enable").prop('checked')) {
-                    enable = 1;
+                var status = 0;
+                if ($("#status").prop('checked')) {
+                    status = 1;
                 }
-                var product_name = $("#product_name").val();
-                var layer = $("#layer").val();
-                var position = $("#position").val();
-                var min_value = $("#min_value").val();
-                var max_value = $("#max_value").val();
-                var experiment_name = $("#experiment_name").val();
+                var item_id = $("#item_id").val().trim();
+                var item_name = $("#item_name").val().trim();
+                var position = $("#position").val().trim();
+                var start_value = $("#start_value").val().trim();
+                var stop_value = $("#stop_value").val().trim();
+                var algo_request = $("#algo_request").val().trim();
+                var algo_response = $("#algo_response").val().trim();
+                var item_desc = $("#item_desc").val().trim();
 
-                if (!check_inputs(product_name, layer, position, min_value, max_value, experiment_name)) {
+                if (!check_inputs(item_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
                     return;
                 }
 
                 // 发送请求
                 $.ajax({
-                        url: '/experiment',
+                        url: '/cfg_item',
                         type: "post",
                         data: {
-                            type: "ADD_EXPERIMENT",
-                            product_name: product_name,
-                            layer: layer,
+                            type: "ADD_ITEM",
+                            item_id: item_id,
+                            item_name: item_name,
                             position: position,
-                            min_value: min_value,
-                            max_value: max_value,
-                            experiment_name: experiment_name,
-                            enable: enable
+                            start_value: start_value,
+                            stop_value: stop_value,
+                            algo_request: algo_request,
+                            algo_response: algo_response,
+                            status: status,
+                            desc: item_desc
                         },
                         dataType: 'json',
                         success: function (response) {
-                            handle_add_experiment_response(response);
+                            handle_add_cfg_item_response(response);
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             if (jqXHR.status == 302) {
@@ -234,60 +239,69 @@ $(document).on('click', "#add_experiment", function () {
 });
 
 // 修改实验项
-$(document).on('click', '.modify-experiment', function () {
+$(document).on('click', '.modify-cfg-item', function () {
     var tr = $(this).closest('tr');
-    var db_id = $(tr).find('td:eq(0)').text().trim();
-    var product_name = $(tr).find('td:eq(1)').text().trim();
-    var layer = $(tr).find('td:eq(2)').text().trim();
-    var position = $(tr).find('td:eq(3)').text().trim();
-    var min_value = $(tr).find('td:eq(4)').text().trim();
-    var max_value = $(tr).find('td:eq(5)').text().trim();
-    var experiment_name = $(tr).find('td:eq(6)').text().trim();
-    var enable = $(tr).find('td:eq(7)').find('input').prop('checked');
+    var item_id = $(tr).find('td:eq(0)').text().trim();
+    var item_name = $(tr).find('td:eq(1)').text().trim();
+    var position = $(tr).find('td:eq(2)').text().trim();
+    var start_value = $(tr).find('td:eq(3)').text().trim();
+    var stop_value = $(tr).find('td:eq(4)').text().trim();
+    var algo_request = $(tr).find('td:eq(5)').text().trim();
+    var algo_response = $(tr).find('td:eq(6)').text().trim();
+    var item_desc = $(tr).find('td:eq(8)').text().trim();
+    var status = $(tr).find('td:eq(9)').find('input').prop('checked');
 
     BootstrapDialog.show({
         message: function (dialog) {
             // header
             var content = '<div class="form">';
 
-            if (!enable) {
+            if (!status) {
                 content += '<div class="form-group">' +
                     '<label style="margin: 0 5px;">启用</label>' +
-                    '<input id="is_enable" type="checkbox" name="is_enable"/>' +
+                    '<input id="status" type="checkbox" name="status"/>' +
                     '</div>';
             } else {
                 content += '<div class="form-group">' +
                     '<label style="margin: 0 5px;">启用</label>' +
-                    '<input id="is_enable" type="checkbox" name="is_enable" checked/>' +
+                    '<input id="status" type="checkbox" name="status" checked/>' +
                     '</div>';
             }
             content += '<div><hr /></div>';
             content += '<div class="form-group">' +
-                '<label>名称：</label>' +
-                '<input id="product_name" class="form-control clear_tips" value="' + product_name + '">' +
+                '<label>配置id：</label>' +
+                '<input id="item_id" class="form-control clear_tips" value="' + item_id + '" readonly>' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<label>层次：</label>' +
-                '<input id="layer" class="form-control clear_tips" value="' + layer + '">' +
+                '<label>配置名称：</label>' +
+                '<input id="item_name" class="form-control clear_tips" value="' + item_name + '">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<label>位置：</label>' +
                 '<input id="position" class="form-control clear_tips" value="' + position + '">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<label>最小值：</label>' +
-                '<input type="number" id="min_value" class="form-control clear_tips" value="' + min_value + '">' +
+                '<label>起始值：</label>' +
+                '<input type="number" id="start_value" class="form-control clear_tips" value="' + start_value + '">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<label>最大值：</label>' +
-                '<input type="number" id="max_value" class="form-control clear_tips" value="' + max_value + '">' +
+                '<label>结束值：</label>' +
+                '<input type="number" id="stop_value" class="form-control clear_tips" value="' + stop_value + '">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<label>实验名称：</label>' +
-                '<input id="experiment_name" class="form-control clear_tips" value="' + experiment_name + '">' +
+                '<label>algo请求串：</label>' +
+                '<input id="algo_request" class="form-control clear_tips" value="' + algo_request + '">' +
+                '</div>';
+            content += '<div class="form-group">' +
+                '<label>algo应答串：</label>' +
+                '<input id="algo_response" class="form-control clear_tips" value="' + algo_response + '">' +
+                '</div>';
+            content += '<div class="form-group">' +
+                '<label>配置描述：</label>' +
+                '<input id="item_desc" class="form-control clear_tips" value="' + item_desc + '">' +
                 '</div>';
             content += '<div id="tip_div" class="form-group no-display">' +
-                '<div><label id="tip_msg" style="color: red">abc</label></div>' +
+                '<div><label id="tip_msg" style="color: red"></label></div>' +
                 '</div>';
 
             // footer
@@ -295,46 +309,49 @@ $(document).on('click', '.modify-experiment', function () {
 
             return content;
         },
-        title: "修改实验项（" + db_id + "）",
+        title: "修改配置项（" + item_id + "）",
         closable: false,
         draggable: true,
         buttons: [{
             label: '确定',
             action: function (dialogItself) {
                 // 获取用户添加数据
-                var enable = 0;
-                if ($("#is_enable").prop('checked')) {
-                    enable = 1;
+                var status = 0;
+                if ($("#status").prop('checked')) {
+                    status = 1;
                 }
-                var product_name = $("#product_name").val();
-                var layer = $("#layer").val();
-                var position = $("#position").val();
-                var min_value = $("#min_value").val();
-                var max_value = $("#max_value").val();
-                var experiment_name = $("#experiment_name").val();
+                var item_id = $("#item_id").val().trim();
+                var item_name = $("#item_name").val().trim();
+                var position = $("#position").val().trim();
+                var start_value = $("#start_value").val().trim();
+                var stop_value = $("#stop_value").val().trim();
+                var algo_request = $("#algo_request").val().trim();
+                var algo_response = $("#algo_response").val().trim();
+                var item_desc = $("#item_desc").val().trim();
 
-                if (!check_inputs(product_name, layer, position, min_value, max_value, experiment_name)) {
+                if (!check_inputs(item_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
                     return;
                 }
 
                 // 发送请求
                 $.ajax({
-                        url: '/experiment',
+                        url: '/cfg_item',
                         type: "put",
                         data: {
-                            db_id: db_id,
-                            type: "MODIFY_EXPERIMENT",
-                            product_name: product_name,
-                            layer: layer,
+                            type: "MODIFY_ITEM",
+                            item_id: item_id,
+                            item_name: item_name,
                             position: position,
-                            min_value: min_value,
-                            max_value: max_value,
-                            experiment_name: experiment_name,
-                            enable: enable
+                            start_value: start_value,
+                            stop_value: stop_value,
+                            algo_request: algo_request,
+                            algo_response: algo_response,
+                            status: status,
+                            desc: item_desc
                         },
                         dataType: 'json',
                         success: function (response) {
-                            handle_modify_experiment_response(response);
+                            handle_modify_cfg_item_response(response);
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             if (jqXHR.status == 302) {
@@ -360,25 +377,25 @@ $(document).on('click', '.modify-experiment', function () {
 });
 
 // 删除实验项
-$(document).on('click', '.delete-experiment', function () {
-    var db_id = $(this).closest('tr').find('td:eq(0)').text().trim();
-    $.showConfirm("确定要删除吗?", delete_one_experiment(db_id));
+$(document).on('click', '.delete-cfg-item', function () {
+    var item_id = $(this).closest('tr').find('td:eq(0)').text().trim();
+    $.showConfirm("确定要删除吗?", delete_one_cfg_item(item_id));
 });
 
 // 删除实验项
-function delete_one_experiment(db_id) {
+function delete_one_cfg_item(item_id) {
     function work_func() {
         // 发送请求
         $.ajax({
-                url: '/experiment',
+                url: '/cfg_item',
                 type: "delete",
                 data: {
-                    type: 'DEL_EXPERIMENT',
-                    db_id: db_id
+                    type: 'DEL_ITEM',
+                    item_id: item_id
                 },
                 dataType: 'json',
                 success: function (response) {
-                    handle_delete_experiment_response(response);
+                    handle_delete_cfg_item_response(response);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     if (jqXHR.status == 302) {
@@ -396,25 +413,25 @@ function delete_one_experiment(db_id) {
 
 // 切换状态
 $(document).on('change', '.toggle-status', function () {
-    var db_id = $(this).closest('tr').find('td:eq(0)').text().trim();
+    var item_id = $(this).closest('tr').find('td:eq(0)').text().trim();
 
-    var enable = 0;
+    var status = 0;
     if ($(this).prop('checked')) {
-        enable = 1;
+        status = 1;
     }
 
     // 发送请求
     $.ajax({
-            url: '/experiment',
+            url: '/cfg_item',
             type: "put",
             data: {
                 type: 'MODIFY_STATUS',
-                db_id: db_id,
-                enable: enable
+                item_id: item_id,
+                status: status
             },
             dataType: 'json',
             success: function (response) {
-                handle_modify_experiment_response(response);
+                handle_modify_cfg_item_response(response);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -442,14 +459,14 @@ function show_tip_msg(msg) {
     }
 }
 
-function check_inputs(product_name, layer, position, min_value, max_value, experiment_name) {
-    if (product_name === "") {
-        show_tip_msg("名称不能为空");
+function check_inputs(item_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc) {
+    if (item_id === "") {
+        show_tip_msg("配置id不能为空");
         return false;
     }
 
-    if (layer === "") {
-        show_tip_msg("层次不能为空");
+    if (item_name === "") {
+        show_tip_msg("配置名称不能为空");
         return false;
     }
 
@@ -458,32 +475,37 @@ function check_inputs(product_name, layer, position, min_value, max_value, exper
         return false;
     }
 
-    if (min_value === "") {
-        show_tip_msg("最小值不能为空");
+    if (start_value === "") {
+        show_tip_msg("起始值不能为空");
         return false;
     }
-    min_value = parseInt(min_value);
+    start_value = parseInt(start_value);
 
-    if (max_value === "") {
-        show_tip_msg("最大值不能为空");
+    if (stop_value === "") {
+        show_tip_msg("结束值不能为空");
         return false;
     }
-    max_value = parseInt(max_value);
+    stop_value = parseInt(stop_value);
 
-    if (min_value > max_value) {
-        show_tip_msg("最小值不能大于最大值");
+    if (start_value > stop_value) {
+        show_tip_msg("起始值不能大于结束值");
         return false;
     }
 
-    if (experiment_name === "") {
-        show_tip_msg("实验名称不能为空");
+    if (algo_request === "") {
+        show_tip_msg("algo请求串不能为空");
+        return false;
+    }
+
+    if (algo_response === "") {
+        show_tip_msg("algo应答串不能为空");
         return false;
     }
 
     return true;
 }
 
-function handle_add_experiment_response(response) {
+function handle_add_cfg_item_response(response) {
     if (response.success !== true) {
         $.showErr('添加失败');
         reload_page();
@@ -493,7 +515,7 @@ function handle_add_experiment_response(response) {
     reload_page();
 }
 
-function handle_modify_experiment_response(response) {
+function handle_modify_cfg_item_response(response) {
     if (response.success !== true) {
         $.showErr("更新失败");
         reload_page();
@@ -502,33 +524,35 @@ function handle_modify_experiment_response(response) {
 
     for (var i = 0; i < response.content.length; i++) {
         var item = response.content[i];
-        $("#experiment_result tbody").find("tr").each(function () {
-            var db_id = $(this).find("td:eq(0)").text().trim();
-            if (db_id !== item.id.toString()) {
+        $("#cfg_item_result tbody").find("tr").each(function () {
+            var item_id = $(this).find("td:eq(0)").text().trim();
+            if (item_id !== item.id.toString()) {
                 return;
             }
 
-            $(this).find("td:eq(1)").html(item.product);
-            $(this).find("td:eq(2)").html(item.layer);
-            $(this).find("td:eq(3)").html(item.position);
-            $(this).find("td:eq(4)").html(item.min_value);
-            $(this).find("td:eq(5)").html(item.max_value);
-            $(this).find("td:eq(6)").html(item.algo_id);
+            $(this).find("td:eq(1)").html(item.name);
+            $(this).find("td:eq(2)").html(item.position);
+            $(this).find("td:eq(3)").html(item.start_value);
+            $(this).find("td:eq(4)").html(item.stop_value);
+            $(this).find("td:eq(5)").html(item.algo_request);
+            $(this).find("td:eq(6)").html(item.algo_response);
+            $(this).find("td:eq(7)").html(item.create_time);
+            $(this).find("td:eq(8)").html(item.desc);
 
             var status_td = '<input type="checkbox" class="toggle-status" data-toggle="toggle" data-style="radius" data-on="启用" ' +
                 'data-off="禁用" data-size="mini" data-onstyle="primary" />';
-            if (item.enable === 1) {
+            if (item.status === 1) {
                 status_td = '<input type="checkbox" class="toggle-status" data-toggle="toggle" data-style="radius" data-on="启用" ' +
                     'data-off="禁用" data-size="mini" data-onstyle="primary" checked />';
             }
-            $(this).find("td:eq(7)").html(status_td);
+            $(this).find("td:eq(9)").html(status_td);
 
-            $(this).find("td:eq(7)").find("input").bootstrapToggle();
+            $(this).find("td:eq(9)").find("input").bootstrapToggle();
         });
     }
 }
 
-function handle_delete_experiment_response(response) {
+function handle_delete_cfg_item_response(response) {
     if (response.success !== true) {
         $.showErr("删除失败");
     }

@@ -37,17 +37,22 @@ $("#nav_develop_ref_a").click(function () {
     set_develop_nav();
 });
 
+function set_menu_active(menu_id) {
+    $("#menu_statistic_control").removeClass("active");
+    $("#menu_experiment_control").removeClass("active");
+    $("#menu_system_control").removeClass("active");
+    $("#menu_develop_control").removeClass("active");
+
+    $(menu_id).addClass("active");
+}
+
 function set_statistic_nav() {
     // 清空侧边栏
     $("#main-nav").html("");
     $("#main-nav").append(statistic_html());
 
     // 数据统计和日统计状态变 active
-    $("#menu_statistic_control").removeClass("active");
-    $("#menu_experiment_control").removeClass("active");
-    $("#menu_system_control").removeClass("active");
-    $("#menu_develop_control").removeClass("active");
-    $("#menu_statistic_control").addClass("active");
+    set_menu_active("#menu_statistic_control");
 
     // 加载数据
     $("#right_frame").attr("src", "/position");
@@ -62,14 +67,10 @@ function set_experiment_nav() {
     $("#main-nav").append(experiment_html());
 
     // 数据统计和日统计状态变 active
-    $("#menu_statistic_control").removeClass("active");
-    $("#menu_experiment_control").removeClass("active");
-    $("#menu_system_control").removeClass("active");
-    $("#menu_develop_control").removeClass("active");
-    $("#menu_experiment_control").addClass("active");
+    set_menu_active("#menu_experiment_control");
 
     // 加载数据
-    $("#right_frame").attr("src", "/experiment");
+    $("#right_frame").attr("src", "/cfg_item");
 
     // 自适应框架大小
     frame_auto_size();
@@ -81,11 +82,7 @@ function set_system_nav() {
     $("#main-nav").append(system_html());
 
     // 数据统计和日统计状态变 active
-    $("#menu_statistic_control").removeClass("active");
-    $("#menu_experiment_control").removeClass("active");
-    $("#menu_system_control").removeClass("active");
-    $("#menu_develop_control").removeClass("active");
-    $("#menu_system_control").addClass("active");
+    set_menu_active("#menu_system_control");
 
     // 加载数据
     $("#right_frame").attr("src", "/user_list");
@@ -100,11 +97,7 @@ function set_develop_nav() {
     $("#main-nav").append(develop_html());
 
     // 数据统计和日统计状态变 active
-    $("#menu_statistic_control").removeClass("active");
-    $("#menu_experiment_control").removeClass("active");
-    $("#menu_system_control").removeClass("active");
-    $("#menu_develop_control").removeClass("active");
-    $("#menu_develop_control").addClass("active");
+    set_menu_active("#menu_develop_control");
 
     // 加载数据
     $("#right_frame").attr("src", "/network_list");
@@ -153,9 +146,9 @@ function experiment_html() {
                 <span class="pull-right glyphicon glyphicon-chevron-down"></span>
             </a>
            <ul id="experimentViewer" class="nav nav-list collapse secondmenu in">
-                <li id="li_experiment_config">
-                    <a id="a_experiment_config" href="#">配置
-                        <i id="i_experiment_config" class="glyphicon glyphicon-pencil"></i>
+                <li id="li_cfg_item">
+                    <a id="a_cfg_item" href="#">配置组
+                        <i id="i_cfg_item" class="glyphicon glyphicon-pencil"></i>
                     </a>
                 </li>
             </ul>
