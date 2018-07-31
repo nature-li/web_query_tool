@@ -19,15 +19,12 @@ Base = declarative_base()
 # 实验平台
 class Layer(Base):
     __tablename__ = 'layer'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    product = Column(String(128))
-    layer = Column(String(128))
-    position = Column(String(128))
-    min_value = Column(Integer)
-    max_value = Column(Integer)
-    algo_id = Column(String(256))
-    enable = Column(Integer, default=1)
+    id = Column(String(64), primary_key=True)
+    name = Column(String(128))
+    business = Column(String(64))
+    desc = Column(String(256))
     create_time = Column(TIMESTAMP, default=func.now())
+    UniqueConstraint('name', 'business')
 
 
 class CfgItem(Base):
@@ -303,3 +300,52 @@ class MysqlOperator(object):
             a_dict['success'] = False
             a_dict['msg'] = 'update db failed'
             return json.dumps(a_dict)
+
+    @classmethod
+    def query_layer(cls):
+        try:
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                # 查询数据
+                count_query = session.query(CfgItem.id)
+                value_query = session.query(CfgItem.id,
+                                            CfgItem.name,
+                                            CfgItem.position,
+                                            CfgItem.start_value,
+                                            CfgItem.stop_value,
+                                            CfgItem.algo_request,
+                                            CfgItem.algo_response,
+                                            CfgItem.status,
+                                            CfgItem.desc,
+                                            CfgItem.create_time)
+                if item_name != '':
+                    like_condition = '%' + item_name + '%'
+                    count_query = count_query.filter(CfgItem.name.like(like_condition))
+                    value_query = value_query.filter(CfgItem.name.like(like_condition))
+                count = count_query.count()
+                values = value_query[off_set: limit_count]
+
+                # 返回结果
+                a_item_list = list()
+                for value in values:
+                    a_item = dict()
+                    a_item_list.append(a_item)
+                    a_item['id'] = value.id
+                    a_item['name'] = value.name
+                    a_item['position'] = value.position
+                    a_item['start_value'] = value.start_value
+                    a_item['stop_value'] = value.stop_value
+                    a_item['algo_request'] = value.algo_request
+                    a_item['algo_response'] = value.algo_response
+                    a_item['status'] = value.status
+                    a_item['desc'] = value.desc
+                    a_item['create_time'] = value.create_time.strftime('%Y-%m-%d %H:%M:%S')
+
+                # 返回成功
+                a_dict = dict()
+                a_dict['success'] = 'true'
+                a_dict['content'] = a_item_list
+                a_dict['item_count'] = count
+                return json.dumps(a_dict)
+        except:
+            pass

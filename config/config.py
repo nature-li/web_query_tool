@@ -24,6 +24,11 @@ redis_host = 'xxxxx.com'
 redis_port = 1234
 redis_password = 'password'
 
+# req_res_win redis配置
+win_redis_host = 'xxxxx.com'
+win_redis_port = 1234
+win_redis_password = 'password'
+
 # OAUTH登录
 server_oauth_app_id = ''
 server_oauth_app_secret = ''

@@ -81,11 +81,11 @@ DROP TABLE IF EXISTS `layer`;
 CREATE TABLE IF NOT EXISTS `layer` (
   `id`          VARCHAR(64)  NOT NULL,
   `name`        VARCHAR(128) NOT NULL,
-  `business`    VARCHAR(128) NOT NULL,
+  `business`    VARCHAR(64) NOT NULL,
   `desc`        VARCHAR(256) NULL,
   `create_time` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX name (`name`)
+  UNIQUE INDEX name (`name`, `business`)
 )
   DEFAULT CHARSET = utf8;
 INSERT INTO layer (id, name, business) VALUES ('freq', '频次策略层', 'dsp');
@@ -96,8 +96,8 @@ INSERT INTO layer (id, name, business) VALUES ('ctre', 'ctr预估层', 'dsp');
 DROP TABLE IF EXISTS `experiment`;
 CREATE TABLE IF NOT EXISTS `experiment` (
   `id`          VARCHAR(64)  NOT NULL,
-  `name`        VARCHAR(128) NOT NULL,
   `layer_id`    VARCHAR(128) NOT NULL,
+  `name`        VARCHAR(128) NOT NULL,
   `status`      INT          NOT NULL DEFAULT 0,
   `online_time` INT          NOT NULL DEFAULT 0,
   `desc`        VARCHAR(256) NULL,
@@ -111,6 +111,7 @@ CREATE TABLE IF NOT EXISTS `experiment` (
 DROP TABLE IF EXISTS `cfg_item`;
 CREATE TABLE IF NOT EXISTS `cfg_item` (
   `id`            VARCHAR(64)   NOT NULL,
+  `layer_id`      VARCHAR(64)   NOT NULL,
   `name`          VARCHAR(128)  NOT NULL,
   `position`      VARCHAR(4096) NOT NULL,
   `start_value`   INT           NOT NULL,

@@ -184,6 +184,27 @@ class ChartDataQueryHandler(BaseHandler):
         self.write(json.dumps(json_dict, ensure_ascii=False))
 
 
+class LayerHandler(BaseHandler):
+    def get(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == "QUERY_LAYER":
+            json_text = MysqlOperator.query_layer()
+            self.write(json_text)
+            return
+
+
 class CfgItemHandler(BaseHandler):
     def get(self):
         user_name, show_name = self.get_login_user()
@@ -733,6 +754,7 @@ def __main__():
 
     # 初始化 redis
     RedisFetcher.init_redis(config.redis_host, config.redis_port, config.redis_password)
+    RedisFetcher.init_win_redis(config.win_redis_host, config.win_redis_port, config.win_redis_password)
 
     # 初始化 mysql
     MysqlOperator.init()
@@ -771,6 +793,7 @@ def __main__():
             (r'/chart', ChartHandler),
             (r'/query_chart_data', ChartDataQueryHandler),
             (r'/cfg_item', CfgItemHandler),
+            (r'/layer', LayerHandler),
         ],
         cookie_secret=config.server_cookie_secret,
         template_path=os.path.join(os.path.dirname(__file__), "templates"),

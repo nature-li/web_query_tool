@@ -14,13 +14,19 @@ from py_db.db_operate import DbOperator
 
 class RedisFetcher(object):
     redis_pool = None
+    win_redis_pool = None
 
     @classmethod
     def init_redis(cls, redis_host, redis_port, redis_password):
         cls.redis_pool = redis.ConnectionPool(host=redis_host, port=redis_port, password=redis_password)
 
+    @classmethod
+    def init_win_redis(cls, redis_host, redis_port, redis_password):
+        cls.win_redis_pool = redis.ConnectionPool(host=redis_host, port=redis_port, password=redis_password)
+
     def __init__(self):
         self.redis = redis.Redis(connection_pool=self.redis_pool)
+        self.win_redis = redis.Redis(connection_pool=self.win_redis_pool)
 
     def get_day_position_impression_click(self, ad_network_id, position_id, day):
         """
@@ -120,7 +126,7 @@ class RedisFetcher(object):
         req = None
         try:
             dt = day.strftime("%Y%m%d")
-            req = self.redis.get('%s|%s|%s|%s|req' % (ad_network_id, position_id, dt, hour))
+            req = self.win_redis.get('%s|%s|%s|%s|req' % (ad_network_id, position_id, dt, hour))
         except:
             Logger.error(traceback.format_exc())
         finally:
@@ -143,7 +149,7 @@ class RedisFetcher(object):
         res = None
         try:
             dt = day.strftime("%Y%m%d")
-            res = self.redis.get('%s|%s|%s|%s|res' % (ad_network_id, position_id, dt, hour))
+            res = self.win_redis.get('%s|%s|%s|%s|res' % (ad_network_id, position_id, dt, hour))
         except:
             Logger.error(traceback.format_exc())
         finally:
@@ -166,7 +172,7 @@ class RedisFetcher(object):
         win = None
         try:
             dt = day.strftime("%Y%m%d")
-            win = self.redis.get('%s|%s|%s|%s|win' % (ad_network_id, position_id, dt, hour))
+            win = self.win_redis.get('%s|%s|%s|%s|win' % (ad_network_id, position_id, dt, hour))
         except:
             Logger.error(traceback.format_exc())
         finally:
@@ -216,7 +222,7 @@ class RedisFetcher(object):
         req = None
         try:
             dt = day.strftime("%Y%m%d")
-            req = self.redis.get('%s|%s|%s|req' % (ad_network_id, dt, hour))
+            req = self.win_redis.get('%s|%s|%s|req' % (ad_network_id, dt, hour))
         except:
             Logger.error(traceback.format_exc())
         finally:
@@ -238,7 +244,7 @@ class RedisFetcher(object):
         res = None
         try:
             dt = day.strftime("%Y%m%d")
-            res = self.redis.get('%s|%s|%s|res' % (ad_network_id, dt, hour))
+            res = self.win_redis.get('%s|%s|%s|res' % (ad_network_id, dt, hour))
         except:
             Logger.error(traceback.format_exc())
         finally:
@@ -260,7 +266,7 @@ class RedisFetcher(object):
         win = None
         try:
             dt = day.strftime("%Y%m%d")
-            win = self.redis.get('%s|%s|%s|win' % (ad_network_id, dt, hour))
+            win = self.win_redis.get('%s|%s|%s|win' % (ad_network_id, dt, hour))
         except:
             Logger.error(traceback.format_exc())
         finally:
