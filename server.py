@@ -730,6 +730,7 @@ def __main__():
 
     # 初始化 redis
     RedisFetcher.init_redis(config.redis_host, config.redis_port, config.redis_password)
+    RedisFetcher.init_win_redis(config.win_redis_host, config.win_redis_port, config.win_redis_password)
 
     # 初始化 mysql
     MysqlOperator.init()
