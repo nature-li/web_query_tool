@@ -200,7 +200,10 @@ class LayerHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == "QUERY_LAYER":
-            json_text = MysqlOperator.query_layer()
+            layer_name = self.get_argument('layer_name', None)
+            off_set = self.get_argument('off_set', None)
+            limit = self.get_argument('limit', None)
+            json_text = MysqlOperator.query_layer(layer_name, off_set, limit)
             self.write(json_text)
             return
 
@@ -224,10 +227,11 @@ class CfgItemHandler(BaseHandler):
             self.render('experiment/cfg_item.html', static_version=config.server_static_version)
             return
         if req_type == "QUERY_ITEM":
+            layer_id = self.get_argument('layer_id', None)
             item_name = self.get_argument('item_name', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_cfg_item(item_name, off_set, limit)
+            json_text = MysqlOperator.query_cfg_item(layer_id, item_name, off_set, limit)
             self.write(json_text)
             return
 
@@ -247,6 +251,7 @@ class CfgItemHandler(BaseHandler):
         req_type = self.get_argument('type', None)
         if req_type == 'ADD_ITEM':
             item_id = self.get_argument('item_id', None)
+            layer_id = self.get_argument('layer_id', None)
             item_name = self.get_argument('item_name', None)
             position = self.get_argument('position', None)
             start_value = self.get_argument('start_value', None)
@@ -255,7 +260,7 @@ class CfgItemHandler(BaseHandler):
             algo_response = self.get_argument('algo_response')
             status = self.get_argument('status', None)
             desc = self.get_argument('desc', None)
-            json_text = MysqlOperator.add_cfg_item(item_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
+            json_text = MysqlOperator.add_cfg_item(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
             self.write(json_text)
             return
 
@@ -280,6 +285,7 @@ class CfgItemHandler(BaseHandler):
         req_type = self.get_argument('type', None)
         if req_type == 'MODIFY_ITEM':
             item_id = self.get_argument('item_id', None)
+            layer_id = self.get_argument('layer_id', None)
             item_name = self.get_argument('item_name', None)
             position = self.get_argument('position', None)
             start_value = self.get_argument('start_value', None)
@@ -288,7 +294,7 @@ class CfgItemHandler(BaseHandler):
             algo_response = self.get_argument('algo_response')
             status = self.get_argument('status', None)
             desc = self.get_argument('desc', None)
-            json_text = MysqlOperator.modify_cfg_item(item_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
+            json_text = MysqlOperator.modify_cfg_item(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
             self.write(json_text)
             return
 
@@ -732,6 +738,134 @@ class HourAdIdeaPositionCount(tornado.web.RequestHandler):
         self.handle()
 
 
+class TreeItemHandler(BaseHandler):
+    def get(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if not req_type:
+            self.render('experiment/tree_item.html', static_version=config.server_static_version)
+            return
+        if req_type == "QUERY_ITEM":
+            layer_id = self.get_argument('layer_id', None)
+            item_name = self.get_argument('item_name', None)
+            off_set = self.get_argument('off_set', None)
+            limit = self.get_argument('limit', None)
+            json_text = MysqlOperator.query_cfg_item(layer_id, item_name, off_set, limit)
+            self.write(json_text)
+            return
+
+    def post(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'ADD_ITEM':
+            item_id = self.get_argument('item_id', None)
+            layer_id = self.get_argument('layer_id', None)
+            item_name = self.get_argument('item_name', None)
+            position = self.get_argument('position', None)
+            start_value = self.get_argument('start_value', None)
+            stop_value = self.get_argument('stop_value', None)
+            algo_request = self.get_argument('algo_request')
+            algo_response = self.get_argument('algo_response')
+            status = self.get_argument('status', None)
+            desc = self.get_argument('desc', None)
+            json_text = MysqlOperator.add_cfg_item(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
+            self.write(json_text)
+            return
+
+        result_dict = dict()
+        result_dict['success'] = False
+        result_dict['msg'] = 'Invalid req_type: ' + req_type
+        self.write(json.dumps(result_dict, ensure_ascii=False))
+
+    def put(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'MODIFY_ITEM':
+            item_id = self.get_argument('item_id', None)
+            layer_id = self.get_argument('layer_id', None)
+            item_name = self.get_argument('item_name', None)
+            position = self.get_argument('position', None)
+            start_value = self.get_argument('start_value', None)
+            stop_value = self.get_argument('stop_value', None)
+            algo_request = self.get_argument('algo_request')
+            algo_response = self.get_argument('algo_response')
+            status = self.get_argument('status', None)
+            desc = self.get_argument('desc', None)
+            json_text = MysqlOperator.modify_cfg_item(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
+            self.write(json_text)
+            return
+
+        if req_type == 'MODIFY_STATUS':
+            item_id = self.get_argument('item_id', None)
+            status = self.get_argument('status', None)
+            json_text = MysqlOperator.modify_cfg_item_status(item_id, status)
+            self.write(json_text)
+            return
+
+        result_dict = dict()
+        result_dict['success'] = False
+        result_dict['msg'] = 'Invalid req_type: ' + req_type
+        self.write(json.dumps(result_dict, ensure_ascii=False))
+
+    def delete(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'DEL_ITEM':
+            item_id = self.get_argument('item_id', None)
+            json_text = MysqlOperator.delete_cfg_item(item_id)
+            self.write(json_text)
+            return
+
+        result_dict = dict()
+        result_dict['success'] = False
+        result_dict['msg'] = 'Invalid req_type: ' + req_type
+        self.write(json.dumps(result_dict, ensure_ascii=False))
+
+
 def __main__():
     # 设置编码
     reload(sys)
@@ -794,6 +928,7 @@ def __main__():
             (r'/query_chart_data', ChartDataQueryHandler),
             (r'/cfg_item', CfgItemHandler),
             (r'/layer', LayerHandler),
+            (r'/tree_item', TreeItemHandler),
         ],
         cookie_secret=config.server_cookie_secret,
         template_path=os.path.join(os.path.dirname(__file__), "templates"),

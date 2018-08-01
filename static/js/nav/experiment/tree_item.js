@@ -1,6 +1,6 @@
 $(document).ready(function () {
     // 改变菜单背景色
-    set_page_active("#li_cfg_item");
+    set_page_active("#li_tree_item");
 
     // 定义全局变量
     if (!window.save_data) {
@@ -8,7 +8,7 @@ $(document).ready(function () {
     }
 
     // 初始化下拉列表框
-    init_layer_selector(query_and_update_view);
+    init_layer_node();
 });
 
 // 初始化全局变量
@@ -26,7 +26,7 @@ function reset_save_data() {
     };
 }
 
-function init_layer_selector() {
+function init_layer_node() {
     $.ajax({
             url: '/layer',
             type: "get",
@@ -42,14 +42,7 @@ function init_layer_selector() {
                     return;
                 }
 
-                for (var i = 0; i < data.content.length; i++) {
-                    var item = data.content[i];
-                    var option = '<option value="' + item.id + '">' + item.name + '</option>';
-                    $("#layer_selector").append(option);
-                }
-                $("#layer_selector").selectpicker('refresh');
-
-                reload_page();
+                init_item_node(data.content);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -62,22 +55,23 @@ function init_layer_selector() {
     );
 }
 
-// 更新表格和分页
-function update_page_view(page_idx) {
-    // 更新表格
-    var html = "";
-    for (var i = 0; i < window.save_data.item_list.length; i++) {
-        var item = window.save_data.item_list[i];
-
-        var status_td = '<input type="checkbox" class="toggle-status" data-toggle="toggle" data-style="radius" data-on="启用" ' +
+function create_status_button(value, row, index) {
+    if (value === 0) {
+        return '<input type="checkbox" class="toggle-status" data-toggle="toggle" data-style="radius" data-on="启用" ' +
             'data-off="禁用" data-size="mini" data-onstyle="primary" />';
-        if (item.status === 1) {
-            status_td = '<input type="checkbox" class="toggle-status" data-toggle="toggle" data-style="radius" data-on="启用" ' +
-                'data-off="禁用" data-size="mini" data-onstyle="primary" checked />';
-        }
+    }
 
-        var operate_dt =
-            '<div class="text-center">' +
+    if (value === 1) {
+        return '<input type="checkbox" class="toggle-status" data-toggle="toggle" data-style="radius" data-on="启用" ' +
+            'data-off="禁用" data-size="mini" data-onstyle="primary" checked />';
+    }
+
+    return null;
+}
+
+function create_operate_button(value, row, index) {
+    if (value === "cfg") {
+        return '<div class="text-center">' +
             '<button type="button" class="btn btn-primary btn-xs modify-cfg-item" style="margin-right: 5px;">' +
             '<span class="glyphicon glyphicon-wrench"></span>' +
             '</button>' +
@@ -85,57 +79,201 @@ function update_page_view(page_idx) {
             '<span class="glyphicon glyphicon-minus"></span>' +
             '</button>' +
             '</div>';
-
-        html += "<tr>" +
-            "<td class='text-center'>" + item.id + "</td>" +
-            "<td class='text-center'>" + item.name + "</td>" +
-            "<td class='text-center'>" + item.position + "</td>" +
-            "<td class='text-center'>" + item.start_value + "</td>" +
-            "<td class='text-center'>" + item.stop_value + "</td>" +
-            "<td class='text-center'>" + item.algo_request + "</td>" +
-            "<td class='text-center'>" + item.algo_response + "</td>" +
-            "<td class='text-center'>" + item.create_time + "</td>" +
-            "<td class='text-center'>" + item.desc + "</td>" +
-            "<td class='text-center'>" + status_td + "</td>" +
-            '<td style="text-center">' + operate_dt + '</td>' +
-            "</tr>";
     }
-    $("#cfg_item_result tbody").find("tr").remove();
-    $("#cfg_item_result tbody").append(html);
 
-    // 初始化 bootstrap-toggle
-    $('.toggle-status').bootstrapToggle();
-
-    // 更新分页标签
-    update_page_partition(page_idx);
-
-    // 改变窗口大小
-    change_frame_size();
+    return null;
 }
 
-// 查询并更新页面
-function query_and_update_view() {
-    // 获取 cfg_name
-    var query_layer_id = $("#layer_selector").val();
-    var query_cfg_item_name = $("#query_cfg_item_text").val().trim();
+function get_layer_node(item) {
+    return {
+        "unique_pid": 0,
+        'unique_id': 'layer_' + item.id,
+        "type": "layer",
+        // 'name': '&nbsp;&nbsp;<button type="button" class="btn btn-primary btn-xs add_cfg_item"><span class="glyphicon glyphicon-plus"></span></button>',
+        'name': '&nbsp;&nbsp;<button type="button" class="btn btn-primary btn-xs add_cfg_item">实验层</button>',
+        'create_time': item.create_time,
+        'desc': item.desc,
+        'layer_id': item.id,
+        'layer_name': item.name,
+        'layer_business': item.business,
+        // "cfg_id": "",
+        // "cfg_name": "",
+        // "cfg_layer_id": "",
+        // "cfg_position": "",
+        // "cfg_start_value": "",
+        // "cfg_stop_value": '',
+        // "cfg_algo_request": '',
+        // "cfg_algo_response": '',
+        // "cfg_status": '',
+        // "cfg_create_time": ''
+    };
+}
 
-    var off_set = window.save_data.view_current_page_idx * window.save_data.view_item_count_per_page;
-    var limit = window.save_data.view_item_count_per_page;
+function get_cfg_node(item) {
+    return {
+        "unique_pid": "layer_" + item.layer_id,
+        "unique_id": "cfg_" + item.id,
+        "type": "cfg",
+        "name": '<span class="glyphicon glyphicon-leaf"></span>',
+        "create_time": item.create_time,
+        "desc": item.desc,
+        // 'layer_id': '',
+        // 'layer_name': '',
+        // 'layer_business': '',
+        "cfg_id": item.id,
+        "cfg_name": item.name,
+        "cfg_layer_id": item.layer_id,
+        "cfg_position": item.position,
+        "cfg_start_value": item.start_value,
+        "cfg_stop_value": item.stop_value,
+        "cfg_algo_request": item.algo_request,
+        "cfg_algo_response": item.algo_response,
+        "cfg_status": item.status
+    };
+}
 
-    // 加载数据
+function draw_layer_node(layer_items, cfg_items) {
+    var node_list = [];
+
+    for (var i = 0; i < layer_items.length; i++) {
+        var layer_node = get_layer_node(layer_items[i]);
+        node_list.push(layer_node);
+    }
+
+    for (var i = 0; i < cfg_items.length; i++) {
+        var cfg_node = get_cfg_node(cfg_items[i]);
+        node_list.push(cfg_node);
+    }
+
+    var columns = [
+        {
+            align: 'center',
+            field: 'name',
+            title: '名称'
+        },
+        {
+            align: 'center',
+            field: 'layer_id',
+            title: '层id'
+        },
+        {
+            align: 'center',
+            field: 'layer_name',
+            title: '层名称',
+        },
+        {
+            align: 'center',
+            field: 'layer_business',
+            title: '层业务'
+        },
+        {
+            align: 'center',
+            field: 'cfg_id',
+            title: '配置id'
+        },
+        {
+            align: 'center',
+            field: 'cfg_name',
+            title: '配置名称'
+        },
+        {
+            align: 'center',
+            field: 'cfg_layer_id',
+            title: '配置所属层id'
+        },
+        {
+            align: 'center',
+            field: 'cfg_position',
+            title: '配置位置'
+        },
+        {
+            align: 'center',
+            field: 'cfg_start_value',
+            title: '配置起始值'
+        },
+        {
+            align: 'center',
+            field: 'cfg_stop_value',
+            title: '配置结束值'
+        },
+        {
+            align: 'center',
+            field: 'cfg_algo_request',
+            title: '配置请求串'
+        },
+        {
+            align: 'center',
+            field: 'cfg_algo_response',
+            title: '配置应答串'
+        },
+        {
+            align: 'center',
+            field: 'cfg_status',
+            title: '配置状态',
+            formatter: 'create_status_button'
+        },
+        {
+            align: 'center',
+            field: 'type',
+            title: '操作',
+            formatter: 'create_operate_button'
+        },
+        {
+            align: 'center',
+            field: 'create_time',
+            title: '创建时间'
+        },
+        {
+            align: 'center',
+            field: 'desc',
+            title: '描述'
+        }
+    ];
+
+    var $layer_tree = $("#layer_item");
+    $layer_tree.bootstrapTable({
+        striped: true,
+        idField: "unique_id",
+        parentIdField: "unique_pid",
+        uniqueId: "unique_id",
+        treeShowField: "name",
+        data: node_list,
+        columns: columns
+    });
+
+    $('.toggle-status').bootstrapToggle();
+
+    $layer_tree.treegrid({
+        initialState: 'collapsed',
+        treeColumn: 0,
+        saveState: true,
+        expanderExpandedClass: 'glyphicon glyphicon-minus',
+        expanderCollapsedClass: 'glyphicon glyphicon-plus',
+        onChange: function () {
+            $layer_tree.bootstrapTable('resetWidth');
+        }
+    });
+}
+
+// Reload page
+function init_item_node(layer_items) {
     $.ajax({
             url: '/cfg_item',
             type: "get",
             data: {
                 'type': 'QUERY_ITEM',
-                'layer_id': query_layer_id,
-                'item_name': query_cfg_item_name,
-                'off_set': off_set,
-                'limit': limit
+                'layer_id': '',
+                'item_name': '',
+                'off_set': 0,
+                'limit': -1
             },
             dataType: 'json',
             success: function (data) {
-                save_data_and_update_page_view(data);
+                if (data.success !== 'true') {
+                    return;
+                }
+
+                draw_layer_node(layer_items, data.content)
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -148,18 +286,11 @@ function query_and_update_view() {
     );
 }
 
-$("#query_cfg_item_btn").click(function () {
-    reload_page();
-});
-
-// Reload page
-function reload_page() {
-    reset_save_data();
-    query_and_update_view();
-}
-
 // 增加实验项
-$(document).on('click', "#add_cfg_item", function () {
+$(document).on('click', ".add_cfg_item", function () {
+    var $this_tr = $(this).closest('tr');
+    var layer_id = $this_tr.find('td:eq(1)').text().trim();
+
     BootstrapDialog.show({
         message: function (dialog) {
             // header
@@ -221,7 +352,6 @@ $(document).on('click', "#add_cfg_item", function () {
                     status = 1;
                 }
                 var item_id = $("#item_id").val().trim();
-                var layer_id = $("#layer_selector").val();
                 var item_name = $("#item_name").val().trim();
                 var position = $("#position").val().trim();
                 var start_value = $("#start_value").val().trim();
@@ -281,15 +411,16 @@ $(document).on('click', "#add_cfg_item", function () {
 // 修改实验项
 $(document).on('click', '.modify-cfg-item', function () {
     var tr = $(this).closest('tr');
-    var item_id = $(tr).find('td:eq(0)').text().trim();
-    var item_name = $(tr).find('td:eq(1)').text().trim();
-    var position = $(tr).find('td:eq(2)').text().trim();
-    var start_value = $(tr).find('td:eq(3)').text().trim();
-    var stop_value = $(tr).find('td:eq(4)').text().trim();
-    var algo_request = $(tr).find('td:eq(5)').text().trim();
-    var algo_response = $(tr).find('td:eq(6)').text().trim();
-    var item_desc = $(tr).find('td:eq(8)').text().trim();
-    var status = $(tr).find('td:eq(9)').find('input').prop('checked');
+    var item_id = $(tr).find('td:eq(4)').text().trim();
+    var item_name = $(tr).find('td:eq(5)').text().trim();
+    var layer_id = $(tr).find('td:eq(6)').text().trim();
+    var position = $(tr).find('td:eq(7)').text().trim();
+    var start_value = $(tr).find('td:eq(8)').text().trim();
+    var stop_value = $(tr).find('td:eq(9)').text().trim();
+    var algo_request = $(tr).find('td:eq(10)').text().trim();
+    var algo_response = $(tr).find('td:eq(11)').text().trim();
+    var status = $(tr).find('td:eq(12)').find('input').prop('checked');
+    var item_desc = $(tr).find('td:eq(15)').text().trim();
 
     BootstrapDialog.show({
         message: function (dialog) {
@@ -361,7 +492,6 @@ $(document).on('click', '.modify-cfg-item', function () {
                     status = 1;
                 }
                 var item_id = $("#item_id").val().trim();
-                var layer_id = $("#layer_selector").val();
                 var item_name = $("#item_name").val().trim();
                 var position = $("#position").val().trim();
                 var start_value = $("#start_value").val().trim();
@@ -420,7 +550,7 @@ $(document).on('click', '.modify-cfg-item', function () {
 
 // 删除实验项
 $(document).on('click', '.delete-cfg-item', function () {
-    var item_id = $(this).closest('tr').find('td:eq(0)').text().trim();
+    var item_id = $(this).closest('tr').find('td:eq(4)').text().trim();
     $.showConfirm("确定要删除吗?", delete_one_cfg_item(item_id));
 });
 
@@ -437,7 +567,7 @@ function delete_one_cfg_item(item_id) {
                 },
                 dataType: 'json',
                 success: function (response) {
-                    handle_delete_cfg_item_response(response);
+                    handle_delete_cfg_item_response(response, item_id);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     if (jqXHR.status == 302) {
@@ -455,7 +585,7 @@ function delete_one_cfg_item(item_id) {
 
 // 切换状态
 $(document).on('change', '.toggle-status', function () {
-    var item_id = $(this).closest('tr').find('td:eq(0)').text().trim();
+    var item_id = $(this).closest('tr').find('td:eq(4)').text().trim();
 
     var status = 0;
     if ($(this).prop('checked')) {
@@ -555,56 +685,98 @@ function check_inputs(item_id, layer_id, item_name, position, start_value, stop_
 function handle_add_cfg_item_response(response) {
     if (response.success !== true) {
         $.showErr('添加失败');
-        reload_page();
         return;
     }
 
-    reload_page();
+    var $layer_tree = $("#layer_item");
+    for (var i = 0; i < response.content.length; i++) {
+        var item = response.content[i];
+        var cfg_node = get_cfg_node(item);
+
+        $layer_tree.bootstrapTable('insertRow', {
+            index: 0,
+            row: cfg_node
+        });
+
+        $('.toggle-status').bootstrapToggle();
+
+        $layer_tree.treegrid({
+            initialState: 'collapsed',
+            treeColumn: 0,
+            saveState: true,
+            expanderExpandedClass: 'glyphicon glyphicon-minus',
+            expanderCollapsedClass: 'glyphicon glyphicon-plus',
+            onChange: function () {
+                $layer_tree.bootstrapTable('resetWidth');
+            }
+        });
+    }
 }
 
 function handle_modify_cfg_item_response(response) {
     if (response.success !== true) {
         $.showErr("更新失败");
-        reload_page();
+        init_layer_node();
         return;
     }
 
+    var $layer_tree = $("#layer_item");
     for (var i = 0; i < response.content.length; i++) {
         var item = response.content[i];
-        $("#cfg_item_result tbody").find("tr").each(function () {
-            var item_id = $(this).find("td:eq(0)").text().trim();
+        $("#layer_item tbody").find("tr").each(function () {
+            var item_id = $(this).find("td:eq(4)").text().trim();
             if (item_id !== item.id.toString()) {
                 return;
             }
 
-            $(this).find("td:eq(1)").html(item.name);
-            $(this).find("td:eq(2)").html(item.position);
-            $(this).find("td:eq(3)").html(item.start_value);
-            $(this).find("td:eq(4)").html(item.stop_value);
-            $(this).find("td:eq(5)").html(item.algo_request);
-            $(this).find("td:eq(6)").html(item.algo_response);
-            $(this).find("td:eq(7)").html(item.create_time);
-            $(this).find("td:eq(8)").html(item.desc);
+            var cfg_node = get_cfg_node(item);
+            var row = $layer_tree.bootstrapTable('getRowByUniqueId', "cfg_" + item.id);
+            var data = $layer_tree.bootstrapTable('getData');
+            var row_idx = data.indexOf(row);
 
-            var status_td = '<input type="checkbox" class="toggle-status" data-toggle="toggle" data-style="radius" data-on="启用" ' +
-                'data-off="禁用" data-size="mini" data-onstyle="primary" />';
-            if (item.status === 1) {
-                status_td = '<input type="checkbox" class="toggle-status" data-toggle="toggle" data-style="radius" data-on="启用" ' +
-                    'data-off="禁用" data-size="mini" data-onstyle="primary" checked />';
-            }
-            $(this).find("td:eq(9)").html(status_td);
+            $layer_tree.bootstrapTable('updateRow', {
+                index: row_idx,
+                row: cfg_node
+            });
 
-            $(this).find("td:eq(9)").find("input").bootstrapToggle();
+            $('.toggle-status').bootstrapToggle();
+
+            $layer_tree.treegrid({
+                initialState: 'collapsed',
+                treeColumn: 0,
+                saveState: true,
+                expanderExpandedClass: 'glyphicon glyphicon-minus',
+                expanderCollapsedClass: 'glyphicon glyphicon-plus',
+                onChange: function () {
+                    $layer_tree.bootstrapTable('resetWidth');
+                }
+            });
+
+            $layer_tree.treegrid('render');
         });
     }
 }
 
-function handle_delete_cfg_item_response(response) {
+function handle_delete_cfg_item_response(response, item_id) {
     if (response.success !== true) {
         $.showErr("删除失败");
+        return;
     }
 
-    reload_page();
+    var unique_id = 'cfg_' + item_id;
+    var $layer_tree = $("#layer_item");
+    $layer_tree.bootstrapTable('removeByUniqueId', unique_id);
+
+    $layer_tree.treegrid({
+        initialState: 'collapsed',
+        treeColumn: 0,
+        saveState: true,
+        expanderExpandedClass: 'glyphicon glyphicon-minus',
+        expanderCollapsedClass: 'glyphicon glyphicon-plus',
+        onChange: function () {
+            $layer_tree.bootstrapTable('resetWidth');
+        }
+    });
 }
 
 $(document).on('change', '#layer_selector', function () {
@@ -613,5 +785,5 @@ $(document).on('change', '#layer_selector', function () {
         return;
     }
 
-    query_and_update_view();
+    reload_page();
 });

@@ -151,6 +151,11 @@ function experiment_html() {
                         <i id="i_cfg_item" class="glyphicon glyphicon-pencil"></i>
                     </a>
                 </li>
+                <li id="li_tree_item">
+                    <a id="a_tree_item" href="#">配置树
+                        <i id="i_tree_item" class="glyphicon glyphicon-pencil"></i>
+                    </a>
+                </li>
             </ul>
         </li>`;
 }

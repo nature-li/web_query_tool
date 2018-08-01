@@ -96,7 +96,7 @@ INSERT INTO layer (id, name, business) VALUES ('ctre', 'ctr预估层', 'dsp');
 DROP TABLE IF EXISTS `experiment`;
 CREATE TABLE IF NOT EXISTS `experiment` (
   `id`          VARCHAR(64)  NOT NULL,
-  `layer_id`    VARCHAR(128) NOT NULL,
+  `layer_id`    VARCHAR(64) NOT NULL,
   `name`        VARCHAR(128) NOT NULL,
   `status`      INT          NOT NULL DEFAULT 0,
   `online_time` INT          NOT NULL DEFAULT 0,
