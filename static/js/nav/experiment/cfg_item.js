@@ -32,7 +32,7 @@ function init_layer_selector() {
             type: "get",
             data: {
                 'type': 'QUERY_LAYER',
-                'layer_name': '',
+                'layer_id': '',
                 'off_set': 0,
                 'limit': -1
             },
@@ -49,7 +49,7 @@ function init_layer_selector() {
                 }
                 $("#layer_selector").selectpicker('refresh');
 
-                reload_page();
+                query_and_update_view();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {

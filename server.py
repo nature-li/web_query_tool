@@ -200,10 +200,10 @@ class LayerHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == "QUERY_LAYER":
-            layer_name = self.get_argument('layer_name', None)
+            layer_id = self.get_argument('layer_id', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_layer(layer_name, off_set, limit)
+            json_text = MysqlOperator.query_layer(layer_id, off_set, limit)
             self.write(json_text)
             return
 
@@ -866,6 +866,30 @@ class TreeItemHandler(BaseHandler):
         self.write(json.dumps(result_dict, ensure_ascii=False))
 
 
+class ExperimentHandler(BaseHandler):
+    def get(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == "QUERY_EXP":
+            layer_id = self.get_argument('layer_id', None)
+            item_id = self.get_argument('item_id', None)
+            off_set = self.get_argument('off_set', None)
+            limit = self.get_argument('limit', None)
+            json_text = MysqlOperator.query_experiment(layer_id, item_id, off_set, limit)
+            self.write(json_text)
+            return
+
 def __main__():
     # 设置编码
     reload(sys)
@@ -929,6 +953,7 @@ def __main__():
             (r'/cfg_item', CfgItemHandler),
             (r'/layer', LayerHandler),
             (r'/tree_item', TreeItemHandler),
+            (r'/experiment', ExperimentHandler),
         ],
         cookie_secret=config.server_cookie_secret,
         template_path=os.path.join(os.path.dirname(__file__), "templates"),

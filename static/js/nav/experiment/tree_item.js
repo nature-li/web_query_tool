@@ -8,7 +8,10 @@ $(document).ready(function () {
     }
 
     // 初始化下拉列表框
-    init_layer_node();
+    init_layer_selector();
+
+    // 加载所有实验
+    load_all_experiment();
 });
 
 // 初始化全局变量
@@ -22,17 +25,57 @@ function reset_save_data() {
         'view_item_count_per_page': 10,
         'view_start_page_idx': 0,
         'view_current_page_idx': 0,
-        'view_current_page_count': 0
+        'view_current_page_count': 0,
+        'all_experiment': []
     };
 }
 
-function init_layer_node() {
+function init_layer_selector() {
     $.ajax({
             url: '/layer',
             type: "get",
             data: {
                 'type': 'QUERY_LAYER',
-                'layer_name': '',
+                'layer_id': '',
+                'off_set': 0,
+                'limit': -1
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.success !== "true") {
+                    return;
+                }
+
+                var option = '<option value="">选择层</option>';
+                $("#layer_selector").append(option);
+                for (var i = 0; i < data.content.length; i++) {
+                    var item = data.content[i];
+                    var option = '<option value="' + item.id + '">' + item.name + '</option>';
+                    $("#layer_selector").append(option);
+                }
+                $("#layer_selector").selectpicker('refresh');
+
+                init_layer_node();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status == 302) {
+                    window.parent.location.replace("/");
+                } else {
+                    $.showErr("查询失败");
+                }
+            }
+        }
+    );
+}
+
+function init_layer_node() {
+    var layer_id = $("#layer_selector").val();
+    $.ajax({
+            url: '/layer',
+            type: "get",
+            data: {
+                'type': 'QUERY_LAYER',
+                'layer_id': layer_id,
                 'off_set': 0,
                 'limit': -1
             },
@@ -70,13 +113,30 @@ function create_status_button(value, row, index) {
 }
 
 function create_operate_button(value, row, index) {
-    if (value === "cfg") {
+    if (value === "layer") {
         return '<div class="text-center">' +
-            '<button type="button" class="btn btn-primary btn-xs modify-cfg-item" style="margin-right: 5px;">' +
+            '<button type="button" class="btn btn-primary btn-xs add-cfg-item" style="margin-right: 5px;">' +
+            '<span class="glyphicon glyphicon-plus"></span>' +
+            '</button>' +
+            '<button type="button" class="btn btn-primary btn-xs delete-layer-item" style="margin-right: 5px;" disabled>' +
+            '<span class="glyphicon glyphicon-minus"></span>' +
+            '</button>' +
+            '<button type="button" class="btn btn-primary btn-xs modify-layer-item" disabled>' +
             '<span class="glyphicon glyphicon-wrench"></span>' +
             '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs delete-cfg-item">' +
+            '</div>';
+    }
+
+    if (value === "cfg") {
+        return '<div class="text-center">' +
+            '<button type="button" class="btn btn-primary btn-xs add-experiment-item" style="margin-right: 5px;">' +
+            '<span class="glyphicon glyphicon-plus"></span>' +
+            '</button>' +
+            '<button type="button" class="btn btn-primary btn-xs delete-cfg-item" style="margin-right: 5px;">' +
             '<span class="glyphicon glyphicon-minus"></span>' +
+            '</button>' +
+            '<button type="button" class="btn btn-primary btn-xs modify-cfg-item">' +
+            '<span class="glyphicon glyphicon-wrench"></span>' +
             '</button>' +
             '</div>';
     }
@@ -89,8 +149,7 @@ function get_layer_node(item) {
         "unique_pid": 0,
         'unique_id': 'layer_' + item.id,
         "type": "layer",
-        // 'name': '&nbsp;&nbsp;<button type="button" class="btn btn-primary btn-xs add_cfg_item"><span class="glyphicon glyphicon-plus"></span></button>',
-        'name': '&nbsp;&nbsp;<button type="button" class="btn btn-primary btn-xs add_cfg_item">实验层</button>',
+        'name': item.name,
         'create_time': item.create_time,
         'desc': item.desc,
         'layer_id': item.id,
@@ -114,7 +173,7 @@ function get_cfg_node(item) {
         "unique_pid": "layer_" + item.layer_id,
         "unique_id": "cfg_" + item.id,
         "type": "cfg",
-        "name": '<span class="glyphicon glyphicon-leaf"></span>',
+        "name": item.name,
         "create_time": item.create_time,
         "desc": item.desc,
         // 'layer_id': '',
@@ -147,122 +206,115 @@ function draw_layer_node(layer_items, cfg_items) {
 
     var columns = [
         {
-            align: 'center',
             field: 'name',
-            title: '名称'
-        },
-        {
-            align: 'center',
-            field: 'layer_id',
-            title: '层id'
-        },
-        {
-            align: 'center',
-            field: 'layer_name',
-            title: '层名称',
-        },
-        {
-            align: 'center',
-            field: 'layer_business',
-            title: '层业务'
-        },
-        {
-            align: 'center',
-            field: 'cfg_id',
-            title: '配置id'
-        },
-        {
-            align: 'center',
-            field: 'cfg_name',
-            title: '配置名称'
-        },
-        {
-            align: 'center',
-            field: 'cfg_layer_id',
-            title: '配置所属层id'
-        },
-        {
-            align: 'center',
-            field: 'cfg_position',
-            title: '配置位置'
-        },
-        {
-            align: 'center',
-            field: 'cfg_start_value',
-            title: '配置起始值'
-        },
-        {
-            align: 'center',
-            field: 'cfg_stop_value',
-            title: '配置结束值'
-        },
-        {
-            align: 'center',
-            field: 'cfg_algo_request',
-            title: '配置请求串'
-        },
-        {
-            align: 'center',
-            field: 'cfg_algo_response',
-            title: '配置应答串'
-        },
-        {
-            align: 'center',
-            field: 'cfg_status',
-            title: '配置状态',
-            formatter: 'create_status_button'
+            title: '名称(0)'
         },
         {
             align: 'center',
             field: 'type',
-            title: '操作',
+            title: '增/删/改(1)',
             formatter: 'create_operate_button'
         },
         {
             align: 'center',
+            field: 'layer_id',
+            title: '层id(2)'
+        },
+        {
+            align: 'center',
+            field: 'layer_business',
+            title: '层业务(3)'
+        },
+        {
+            align: 'center',
+            field: 'cfg_id',
+            title: '配置id(4)'
+        },
+        {
+            align: 'center',
+            field: 'cfg_position',
+            title: '广告位(5)'
+        },
+        {
+            align: 'center',
+            field: 'cfg_start_value',
+            title: '起始值(6)'
+        },
+        {
+            align: 'center',
+            field: 'cfg_stop_value',
+            title: '结束值(7)'
+        },
+        {
+            align: 'center',
+            field: 'cfg_algo_request',
+            title: '请求串(8)'
+        },
+        {
+            align: 'center',
+            field: 'cfg_algo_response',
+            title: '应答串(9)'
+        },
+        {
+            align: 'center',
+            field: 'cfg_status',
+            title: '状态(10)',
+            formatter: 'create_status_button'
+        },
+        {
+            align: 'center',
             field: 'create_time',
-            title: '创建时间'
+            title: '创建时间(11)'
         },
         {
             align: 'center',
             field: 'desc',
-            title: '描述'
+            title: '描述(12)'
         }
     ];
 
     var $layer_tree = $("#layer_item");
+
     $layer_tree.bootstrapTable({
         striped: true,
         idField: "unique_id",
         parentIdField: "unique_pid",
         uniqueId: "unique_id",
         treeShowField: "name",
-        data: node_list,
-        columns: columns
+        columns: columns,
     });
 
-    $('.toggle-status').bootstrapToggle();
+    $layer_tree.bootstrapTable('removeAll');
 
-    $layer_tree.treegrid({
-        initialState: 'collapsed',
-        treeColumn: 0,
-        saveState: true,
-        expanderExpandedClass: 'glyphicon glyphicon-minus',
-        expanderCollapsedClass: 'glyphicon glyphicon-plus',
-        onChange: function () {
-            $layer_tree.bootstrapTable('resetWidth');
-        }
-    });
+    for (var i = 0; i < layer_items.length; i++) {
+        var item = layer_items[i];
+        var node = get_layer_node(item);
+        $layer_tree.bootstrapTable('insertRow', {
+            index: 0,
+            row: node
+        });
+    }
+    for (var i = 0; i < cfg_items.length; i++) {
+        var item = cfg_items[i];
+        var node = get_cfg_node(item);
+        $layer_tree.bootstrapTable('insertRow', {
+            index: 0,
+            row: node
+        });
+    }
+
+    render_tree();
 }
 
 // Reload page
 function init_item_node(layer_items) {
+    var layer_id = $("#layer_selector").val();
     $.ajax({
             url: '/tree_item',
             type: "get",
             data: {
                 'type': 'QUERY_ITEM',
-                'layer_id': '',
+                'layer_id': layer_id,
                 'item_name': '',
                 'off_set': 0,
                 'limit': -1
@@ -287,9 +339,9 @@ function init_item_node(layer_items) {
 }
 
 // 增加实验项
-$(document).on('click', ".add_cfg_item", function () {
+$(document).on('click', ".add-cfg-item", function () {
     var $this_tr = $(this).closest('tr');
-    var layer_id = $this_tr.find('td:eq(1)').text().trim();
+    var layer_id = $this_tr.find('td:eq(2)').text().trim();
 
     BootstrapDialog.show({
         message: function (dialog) {
@@ -302,35 +354,35 @@ $(document).on('click', ".add_cfg_item", function () {
                 '</div>';
             content += '<div class="form-group">' +
                 '<div><label>配置id：</label></div>' +
-                '<input id="item_id" class="form-control clear_tips">' +
+                '<input id="item_id" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<div><label>配置名称：</label></div>' +
-                '<input id="item_name" class="form-control clear_tips">' +
+                '<input id="item_name" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<div><label>位置：</label></div>' +
-                '<input id="position" class="form-control clear_tips">' +
+                '<input id="position" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<div><label>起始值：</label></div>' +
-                '<input id="start_value" type="number" class="form-control clear_tips">' +
+                '<input id="start_value" type="number" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<div><label>结束值：</label></div>' +
-                '<input id="stop_value" type="number" class="form-control clear_tips">' +
+                '<input id="stop_value" type="number" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<div><label>algo请求串：</label></div>' +
-                '<input id="algo_request" class="form-control clear_tips">' +
+                '<input id="algo_request" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<div><label>algo应答串：</label></div>' +
-                '<input id="algo_response" class="form-control clear_tips">' +
+                '<input id="algo_response" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<div><label>描述信息：</label></div>' +
-                '<input id="item_desc" class="form-control clear_tips">' +
+                '<input id="item_desc" class="form-control clear-tips">' +
                 '</div>';
             content += '<div id="tip_div" class="form-group no-display">' +
                 '<div><label id="tip_msg" style="color: red">abc</label></div>' +
@@ -411,16 +463,18 @@ $(document).on('click', ".add_cfg_item", function () {
 // 修改实验项
 $(document).on('click', '.modify-cfg-item', function () {
     var tr = $(this).closest('tr');
+    var $parent_tr = $(tr).treegrid('getParentNode');
+    var layer_id = $parent_tr.find('td:eq(2)').text().trim();
+
+    var item_name = $(tr).find('td:eq(0)').text().trim();
     var item_id = $(tr).find('td:eq(4)').text().trim();
-    var item_name = $(tr).find('td:eq(5)').text().trim();
-    var layer_id = $(tr).find('td:eq(6)').text().trim();
-    var position = $(tr).find('td:eq(7)').text().trim();
-    var start_value = $(tr).find('td:eq(8)').text().trim();
-    var stop_value = $(tr).find('td:eq(9)').text().trim();
-    var algo_request = $(tr).find('td:eq(10)').text().trim();
-    var algo_response = $(tr).find('td:eq(11)').text().trim();
-    var status = $(tr).find('td:eq(12)').find('input').prop('checked');
-    var item_desc = $(tr).find('td:eq(15)').text().trim();
+    var position = $(tr).find('td:eq(5)').text().trim();
+    var start_value = $(tr).find('td:eq(6)').text().trim();
+    var stop_value = $(tr).find('td:eq(7)').text().trim();
+    var algo_request = $(tr).find('td:eq(8)').text().trim();
+    var algo_response = $(tr).find('td:eq(9)').text().trim();
+    var status = $(tr).find('td:eq(10)').find('input').prop('checked');
+    var item_desc = $(tr).find('td:eq(12)').text().trim();
 
     BootstrapDialog.show({
         message: function (dialog) {
@@ -441,35 +495,35 @@ $(document).on('click', '.modify-cfg-item', function () {
             content += '<div><hr /></div>';
             content += '<div class="form-group">' +
                 '<label>配置id：</label>' +
-                '<input id="item_id" class="form-control clear_tips" value="' + item_id + '" readonly>' +
+                '<input id="item_id" class="form-control clear-tips" value="' + item_id + '" readonly>' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<label>配置名称：</label>' +
-                '<input id="item_name" class="form-control clear_tips" value="' + item_name + '">' +
+                '<input id="item_name" class="form-control clear-tips" value="' + item_name + '">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<label>位置：</label>' +
-                '<input id="position" class="form-control clear_tips" value="' + position + '">' +
+                '<input id="position" class="form-control clear-tips" value="' + position + '">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<label>起始值：</label>' +
-                '<input type="number" id="start_value" class="form-control clear_tips" value="' + start_value + '">' +
+                '<input type="number" id="start_value" class="form-control clear-tips" value="' + start_value + '">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<label>结束值：</label>' +
-                '<input type="number" id="stop_value" class="form-control clear_tips" value="' + stop_value + '">' +
+                '<input type="number" id="stop_value" class="form-control clear-tips" value="' + stop_value + '">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<label>algo请求串：</label>' +
-                '<input id="algo_request" class="form-control clear_tips" value="' + algo_request + '">' +
+                '<input id="algo_request" class="form-control clear-tips" value="' + algo_request + '">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<label>algo应答串：</label>' +
-                '<input id="algo_response" class="form-control clear_tips" value="' + algo_response + '">' +
+                '<input id="algo_response" class="form-control clear-tips" value="' + algo_response + '">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<label>配置描述：</label>' +
-                '<input id="item_desc" class="form-control clear_tips" value="' + item_desc + '">' +
+                '<input id="item_desc" class="form-control clear-tips" value="' + item_desc + '">' +
                 '</div>';
             content += '<div id="tip_div" class="form-group no-display">' +
                 '<div><label id="tip_msg" style="color: red"></label></div>' +
@@ -617,7 +671,7 @@ $(document).on('change', '.toggle-status', function () {
 });
 
 // 清除错误提示
-$(document).on('input', '.clear_tips', function () {
+$(document).on('input', '.clear-tips', function () {
     if (!$("#tip_div").hasClass("no-display")) {
         $("#tip_div").addClass("no-display");
     }
@@ -698,18 +752,7 @@ function handle_add_cfg_item_response(response) {
             row: cfg_node
         });
 
-        $('.toggle-status').bootstrapToggle();
-
-        $layer_tree.treegrid({
-            initialState: 'collapsed',
-            treeColumn: 0,
-            saveState: true,
-            expanderExpandedClass: 'glyphicon glyphicon-minus',
-            expanderCollapsedClass: 'glyphicon glyphicon-plus',
-            onChange: function () {
-                $layer_tree.bootstrapTable('resetWidth');
-            }
-        });
+        render_tree();
     }
 }
 
@@ -739,20 +782,7 @@ function handle_modify_cfg_item_response(response) {
                 row: cfg_node
             });
 
-            $('.toggle-status').bootstrapToggle();
-
-            $layer_tree.treegrid({
-                initialState: 'collapsed',
-                treeColumn: 0,
-                saveState: true,
-                expanderExpandedClass: 'glyphicon glyphicon-minus',
-                expanderCollapsedClass: 'glyphicon glyphicon-plus',
-                onChange: function () {
-                    $layer_tree.bootstrapTable('resetWidth');
-                }
-            });
-
-            $layer_tree.treegrid('render');
+            render_tree();
         });
     }
 }
@@ -767,12 +797,20 @@ function handle_delete_cfg_item_response(response, item_id) {
     var $layer_tree = $("#layer_item");
     $layer_tree.bootstrapTable('removeByUniqueId', unique_id);
 
+    render_tree();
+}
+
+function render_tree() {
+    var $layer_tree = $("#layer_item");
+
+    $('.toggle-status').bootstrapToggle();
+
     $layer_tree.treegrid({
         initialState: 'collapsed',
         treeColumn: 0,
         saveState: true,
-        expanderExpandedClass: 'glyphicon glyphicon-minus',
-        expanderCollapsedClass: 'glyphicon glyphicon-plus',
+        expanderExpandedClass: 'glyphicon glyphicon-folder-open',
+        expanderCollapsedClass: 'glyphicon glyphicon-folder-close',
         onChange: function () {
             $layer_tree.bootstrapTable('resetWidth');
         }
@@ -780,10 +818,37 @@ function handle_delete_cfg_item_response(response, item_id) {
 }
 
 $(document).on('change', '#layer_selector', function () {
-    var layer_id = $("#layer_selector").val();
-    if (!layer_id) {
-        return;
-    }
-
-    reload_page();
+    init_layer_node();
 });
+
+function load_all_experiment() {
+    $.ajax({
+            url: '/experiment',
+            type: "get",
+            data: {
+                'type': 'QUERY_EXP',
+                'layer_id': '',
+                'item_id': '',
+                'off_set': 0,
+                'limit': -1
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.success !== "true") {
+                    return;
+                }
+
+                for (var i = 0; i < data.content.length; i++) {
+                    window.save_data.all_experiment.push(data.content[i]);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status == 302) {
+                    window.parent.location.replace("/");
+                } else {
+                    console.log('occur error');
+                }
+            }
+        }
+    );
+}
