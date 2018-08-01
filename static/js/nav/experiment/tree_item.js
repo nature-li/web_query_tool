@@ -258,7 +258,7 @@ function draw_layer_node(layer_items, cfg_items) {
 // Reload page
 function init_item_node(layer_items) {
     $.ajax({
-            url: '/cfg_item',
+            url: '/tree_item',
             type: "get",
             data: {
                 'type': 'QUERY_ITEM',
@@ -366,7 +366,7 @@ $(document).on('click', ".add_cfg_item", function () {
 
                 // 发送请求
                 $.ajax({
-                        url: '/cfg_item',
+                        url: '/tree_item',
                         type: "post",
                         data: {
                             type: "ADD_ITEM",
@@ -506,7 +506,7 @@ $(document).on('click', '.modify-cfg-item', function () {
 
                 // 发送请求
                 $.ajax({
-                        url: '/cfg_item',
+                        url: '/tree_item',
                         type: "put",
                         data: {
                             type: "MODIFY_ITEM",
@@ -559,7 +559,7 @@ function delete_one_cfg_item(item_id) {
     function work_func() {
         // 发送请求
         $.ajax({
-                url: '/cfg_item',
+                url: '/tree_item',
                 type: "delete",
                 data: {
                     type: 'DEL_ITEM',
@@ -594,7 +594,7 @@ $(document).on('change', '.toggle-status', function () {
 
     // 发送请求
     $.ajax({
-            url: '/cfg_item',
+            url: '/tree_item',
             type: "put",
             data: {
                 type: 'MODIFY_STATUS',
