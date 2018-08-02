@@ -137,21 +137,7 @@ function create_expand_name(value, row, index) {
             '<span class="glyphicon glyphicon-option-vertical"></span>' +
             '</button>' +
             '<ul class="dropdown-menu dropdown-menu-right">' +
-            '<li><a href="#" class="add-cfg-item">增加配置</a></li>' +
-            '</ul>' +
-            '</div>';
-    } else if (type === "cfg") {
-        html = '<img src="/static/images/config.png"/>' + html;
-        html +=
-            '<div class="btn-group" style="float: right;">' +
-            '<button style="background-color: transparent" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
-            '<span class="glyphicon glyphicon-option-vertical"></span>' +
-            '</button>' +
-            '<ul class="dropdown-menu dropdown-menu-right">' +
-            '<li><a href="#" class="modify-cfg-item">修改配置</a></li>' +
-            '<li><a href="#" class="delete-cfg-item">删除配置</a></li>' +
-            '<li role="separator" class="divider"></li>' +
-            '<li><a href="#" class="add-exp-item">关联实验</a></li>' +
+            '<li><a href="#" class="add-exp-item">增加实验</a></li>' +
             '</ul>' +
             '</div>';
     } else if (type === "exp") {
@@ -162,57 +148,25 @@ function create_expand_name(value, row, index) {
             '<span class="glyphicon glyphicon-option-vertical"></span>' +
             '</button>' +
             '<ul class="dropdown-menu dropdown-menu-right">' +
-            '<li><a href="#" class="del-exp-item">移除实验</a></li>' +
+            '<li><a href="#" class="modify-exp-item">修改实验</a></li>' +
+            '<li><a href="#" class="delete-cxp-item">删除实验</a></li>' +
+            '<li role="separator" class="divider"></li>' +
+            '<li><a href="#" class="add-cfg-item">关联配置</a></li>' +
+            '</ul>' +
+            '</div>';
+    } else if (type === "cfg") {
+        html = '<img src="/static/images/config.png"/>' + html;
+        html +=
+            '<div class="btn-group" style="float: right;">' +
+            '<button style="background-color: transparent" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+            '<span class="glyphicon glyphicon-option-vertical"></span>' +
+            '</button>' +
+            '<ul class="dropdown-menu dropdown-menu-right">' +
+            '<li><a href="#" class="del-cfg-item">移除配置</a></li>' +
             '</ul>' +
             '</div>';
     }
     return html;
-}
-
-function create_operate_button(value, row, index) {
-    if (value === "layer") {
-        return '<div class="text-center">' +
-            '<button type="button" class="btn btn-primary btn-xs add-cfg-item" style="margin-right: 5px;">' +
-            '<span class="glyphicon glyphicon-plus"></span>' +
-            '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs" style="margin-right: 5px;" disabled>' +
-            '<span class="glyphicon glyphicon-minus"></span>' +
-            '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs" disabled>' +
-            '<span class="glyphicon glyphicon-wrench"></span>' +
-            '</button>' +
-            '</div>';
-    }
-
-    if (value === "cfg") {
-        return '<div class="text-center">' +
-            '<button type="button" class="btn btn-primary btn-xs add-exp-item" style="margin-right: 5px;">' +
-            '<span class="glyphicon glyphicon-plus"></span>' +
-            '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs delete-cfg-item" style="margin-right: 5px;">' +
-            '<span class="glyphicon glyphicon-minus"></span>' +
-            '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs modify-cfg-item">' +
-            '<span class="glyphicon glyphicon-wrench"></span>' +
-            '</button>' +
-            '</div>';
-    }
-
-    if (value === 'exp') {
-        return '<div class="text-center">' +
-            '<button type="button" class="btn btn-primary btn-xs" style="margin-right: 5px;" disabled>' +
-            '<span class="glyphicon glyphicon-plus"></span>' +
-            '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs delete-exp-item" style="margin-right: 5px;">' +
-            '<span class="glyphicon glyphicon-minus"></span>' +
-            '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs" disabled>' +
-            '<span class="glyphicon glyphicon-wrench"></span>' +
-            '</button>' +
-            '</div>';
-    }
-
-    return null;
 }
 
 function get_layer_node(item) {
@@ -237,7 +191,7 @@ function get_exp_node(item) {
         "name": item.name,
         "create_time": item.create_time,
         'desc': item.desc,
-        "exp_id": item.exp_id,
+        "exp_id": item.id,
         "exp_name": item.name,
         "exp_status": item.status,
         "exp_online_time": item.online_time
@@ -254,7 +208,6 @@ function get_cfg_node(item) {
         "desc": item.desc,
         "cfg_id": item.cfg_id,
         "cfg_name": item.cfg_name,
-        "layer_id": item.layer_id,
         "cfg_position": item.position,
         "cfg_start_value": item.start_value,
         "cfg_stop_value": item.stop_value,
@@ -289,7 +242,8 @@ function draw_layer_node(layer_items, exp_items, cfg_items) {
         {
             align: 'center',
             field: 'exp_status',
-            title: '实验状态(4)'
+            title: '实验状态(4)',
+            formatter: 'create_status_button'
         },
         {
             align: 'center',
@@ -299,52 +253,52 @@ function draw_layer_node(layer_items, exp_items, cfg_items) {
         {
             align: 'center',
             field: 'cfg_id',
-            title: '配置id()'
+            title: '配置id(6)'
         },
         {
             align: 'center',
             field: 'cfg_name',
-            title: '配置名称()'
+            title: '配置名称(7)'
         },
         {
             align: 'center',
             field: 'cfg_position',
-            title: '位置()'
+            title: '位置(8)'
         },
         {
             align: 'center',
             field: 'cfg_start_value',
-            title: '起始值()'
+            title: '起始值(9)'
         },
         {
             align: 'center',
             field: 'cfg_stop_value',
-            title: '结束值()'
+            title: '结束值(10)'
         },
         {
             align: 'center',
             field: 'cfg_algo_request',
-            title: 'algo请求串()'
+            title: 'algo请求串(11)'
         },
         {
             align: 'center',
             field: 'cfg_algo_response',
-            title: 'algo应答串()'
+            title: 'algo应答串(12)'
         },
         {
             align: 'center',
             field: 'cfg_status',
-            title: '配置状态'
+            title: '配置状态(13)'
         },
         {
             align: 'center',
             field: 'create_time',
-            title: '创建时间(6)'
+            title: '创建时间(14)'
         },
         {
             align: 'center',
             field: 'desc',
-            title: '描述(7)'
+            title: '描述(15)'
         }
     ];
 

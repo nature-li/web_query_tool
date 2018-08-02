@@ -167,52 +167,6 @@ function create_expand_name(value, row, index) {
     return html;
 }
 
-function create_operate_button(value, row, index) {
-    if (value === "layer") {
-        return '<div class="text-center">' +
-            '<button type="button" class="btn btn-primary btn-xs add-cfg-item" style="margin-right: 5px;">' +
-            '<span class="glyphicon glyphicon-plus"></span>' +
-            '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs" style="margin-right: 5px;" disabled>' +
-            '<span class="glyphicon glyphicon-minus"></span>' +
-            '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs" disabled>' +
-            '<span class="glyphicon glyphicon-wrench"></span>' +
-            '</button>' +
-            '</div>';
-    }
-
-    if (value === "cfg") {
-        return '<div class="text-center">' +
-            '<button type="button" class="btn btn-primary btn-xs add-exp-item" style="margin-right: 5px;">' +
-            '<span class="glyphicon glyphicon-plus"></span>' +
-            '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs delete-cfg-item" style="margin-right: 5px;">' +
-            '<span class="glyphicon glyphicon-minus"></span>' +
-            '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs modify-cfg-item">' +
-            '<span class="glyphicon glyphicon-wrench"></span>' +
-            '</button>' +
-            '</div>';
-    }
-
-    if (value === 'exp') {
-        return '<div class="text-center">' +
-            '<button type="button" class="btn btn-primary btn-xs" style="margin-right: 5px;" disabled>' +
-            '<span class="glyphicon glyphicon-plus"></span>' +
-            '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs delete-exp-item" style="margin-right: 5px;">' +
-            '<span class="glyphicon glyphicon-minus"></span>' +
-            '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs" disabled>' +
-            '<span class="glyphicon glyphicon-wrench"></span>' +
-            '</button>' +
-            '</div>';
-    }
-
-    return null;
-}
-
 function get_layer_node(item) {
     return {
         "unique_pid": 0,
