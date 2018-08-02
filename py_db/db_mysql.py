@@ -156,7 +156,7 @@ class MysqlOperator(object):
 
     # query cfg
     @classmethod
-    def query_cfg_item(cls, layer_id, item_id, item_name, off_set, limit):
+    def query_cfg_item(cls, layer_id, cfg_id, item_name, off_set, limit):
         try:
             # 转换类型
             off_set = int(off_set)
@@ -183,9 +183,9 @@ class MysqlOperator(object):
                                             CfgItem.desc,
                                             CfgItem.create_time)
 
-                if item_id:
-                    count_query = count_query.filter(CfgItem.id == item_id)
-                    value_query = value_query.filter(CfgItem.id == item_id)
+                if cfg_id:
+                    count_query = count_query.filter(CfgItem.id == cfg_id)
+                    value_query = value_query.filter(CfgItem.id == cfg_id)
 
                 if layer_id:
                     count_query = count_query.filter(CfgItem.layer_id == layer_id)
@@ -423,7 +423,7 @@ class MysqlOperator(object):
 
     # query experiment
     @classmethod
-    def query_experiment(cls, layer_id, item_id, off_set, limit):
+    def query_experiment(cls, layer_id, exp_id, off_set, limit):
         try:
             # 转换类型
             off_set = int(off_set)
@@ -446,14 +446,13 @@ class MysqlOperator(object):
                                             Experiment.desc,
                                             Experiment.create_time)
 
-                if item_id:
-                    in_condition = item_id.split(',')
-                    count_query = count_query.join(Exp2Item, Exp2Item.experiment_id.in_(in_condition))
-                    value_query = value_query.join(Exp2Item, Exp2Item.experiment_id.in_(in_condition))
-
                 if layer_id:
                     count_query = count_query.filter(Experiment.layer_id == layer_id)
                     value_query = value_query.filter(Experiment.layer_id == layer_id)
+
+                if exp_id:
+                    count_query = count_query.filter(Experiment.id == exp_id)
+                    value_query = value_query.filter(Experiment.id == exp_id)
 
                 count = count_query.count()
                 values = value_query[off_set: limit_count]
@@ -535,7 +534,7 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def query_relation(cls, layer_id, cfg_id, exp_id, off_set, limit):
+    def query_cfg_relation(cls, layer_id, cfg_id, exp_id, off_set, limit):
         try:
             # 转换类型
             off_set = int(off_set)
@@ -555,6 +554,7 @@ class MysqlOperator(object):
                                             Exp2Item.cfg_id,
                                             Exp2Item.exp_id,
                                             Experiment.name.label('exp_name'),
+                                            Experiment.desc,
                                             Exp2Item.create_time).join(Experiment, Experiment.id == Exp2Item.exp_id)
 
                 if layer_id:
@@ -582,6 +582,7 @@ class MysqlOperator(object):
                     a_item['item_id'] = value.cfg_id
                     a_item['exp_id'] = value.exp_id
                     a_item['exp_name'] = value.exp_name
+                    a_item['desc'] = value.desc
                     a_item['create_time'] = value.create_time.strftime('%Y-%m-%d %H:%M:%S')
 
                 # 返回成功
@@ -618,4 +619,82 @@ class MysqlOperator(object):
             a_dict = dict()
             a_dict['success'] = False
             a_dict['msg'] = 'delete db failed'
+            return json.dumps(a_dict)
+
+    @classmethod
+    def query_exp_relation(cls, layer_id, exp_id, cfg_id, off_set, limit):
+        try:
+            # 转换类型
+            off_set = int(off_set)
+            limit = int(limit)
+            if limit == -1:
+                limit_count = None
+            else:
+                limit_count = off_set + limit
+
+            # 创建session
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                # 查询数据
+                count_query = session.query(Exp2Item.id)
+                value_query = session.query(Exp2Item.id,
+                                            Exp2Item.layer_id,
+                                            Exp2Item.cfg_id,
+                                            Exp2Item.exp_id,
+                                            CfgItem.name,
+                                            CfgItem.position,
+                                            CfgItem.start_value,
+                                            CfgItem.stop_value,
+                                            CfgItem.algo_request,
+                                            CfgItem.algo_response,
+                                            CfgItem.status,
+                                            CfgItem.desc,
+                                            Exp2Item.create_time).join(CfgItem, CfgItem.id == Exp2Item.cfg_id)
+
+                if layer_id:
+                    count_query = count_query.filter(Exp2Item.layer_id == layer_id)
+                    value_query = value_query.filter(Exp2Item.layer_id == layer_id)
+
+                if cfg_id:
+                    count_query = count_query.filter(Exp2Item.cfg_id == cfg_id)
+                    value_query = value_query.filter(Exp2Item.cfg_id == cfg_id)
+
+                if exp_id:
+                    count_query = count_query.filter(Exp2Item.exp_id == exp_id)
+                    value_query = value_query.filter(Exp2Item.exp_id == exp_id)
+
+                count = count_query.count()
+                values = value_query[off_set: limit_count]
+
+                # 返回结果
+                a_cfg_list = list()
+                for value in values:
+                    a_item = dict()
+                    a_cfg_list.append(a_item)
+                    a_item['id'] = value.id
+                    a_item['layer_id'] = value.layer_id
+                    a_item['cfg_id'] = value.cfg_id
+                    a_item['exp_id'] = value.exp_id
+                    a_item['cfg_name'] = value.name
+                    a_item['position'] = value.position
+                    a_item['start_value'] = value.start_value
+                    a_item['stop_value'] = value.stop_value
+                    a_item['algo_request'] = value.algo_request
+                    a_item['algo_response'] = value.algo_response
+                    a_item['status'] = value.status
+                    a_item['desc'] = value.desc
+                    a_item['create_time'] = value.create_time.strftime('%Y-%m-%d %H:%M:%S')
+
+                # 返回成功
+                a_dict = dict()
+                a_dict['success'] = 'true'
+                a_dict['content'] = a_cfg_list
+                a_dict['item_count'] = count
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = 'false'
+            a_dict['content'] = list()
+            a_dict['item_count'] = 0
             return json.dumps(a_dict)

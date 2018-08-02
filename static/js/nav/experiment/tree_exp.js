@@ -1,6 +1,6 @@
 $(document).ready(function () {
     // 改变菜单背景色
-    set_page_active("#li_tree_item");
+    set_page_active("#li_tree_exp");
 
     // 定义全局变量
     if (!window.save_data) {
@@ -24,8 +24,8 @@ function reset_save_data() {
         'view_current_page_idx': 0,
         'view_current_page_count': 0,
         'all_layer': [],
-        'all_cfg': [],
         'all_exp': [],
+        'all_cfg': [],
         'all_relation': []
     };
 }
@@ -50,6 +50,8 @@ function init_layer_selector() {
                 $("#layer_selector").append(option);
                 for (var i = 0; i < data.content.length; i++) {
                     var item = data.content[i];
+
+                    var option = '<option value="' + item.id + '">' + item.name + '</option>';
                     if (i === 0) {
                         option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
                     }
@@ -57,7 +59,7 @@ function init_layer_selector() {
                 }
                 $("#layer_selector").selectpicker('refresh');
 
-                reload_layer_node(init_cfg_selector);
+                reload_layer_node(init_exp_selector);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -91,10 +93,10 @@ function reload_layer_node(func_on_success) {
 
                 // 加载配置节点、实验节点
                 window.save_data.all_layer = data.content;
-                load_cfg_node(window.save_data.all_layer, func_on_success);
+                load_exp_node(window.save_data.all_layer, func_on_success);
 
-                // 加载所有实验
-                load_all_exp();
+                // 加载所有配置项
+                load_all_cfg();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -223,34 +225,36 @@ function get_layer_node(item) {
         'desc': item.desc,
         'layer_id': item.id,
         'layer_name': item.name,
-        'layer_business': item.business,
-        // "cfg_id": "",
-        // "cfg_name": "",
-        // "cfg_layer_id": "",
-        // "cfg_position": "",
-        // "cfg_start_value": "",
-        // "cfg_stop_value": '',
-        // "cfg_algo_request": '',
-        // "cfg_algo_response": '',
-        // "cfg_status": '',
-        // "cfg_create_time": ''
+        'layer_business': item.business
     };
+}
+
+function get_exp_node(item) {
+    return {
+        "unique_pid": "layer_" + item.layer_id,
+        "unique_id": "exp_" + item.id,
+        "type": "exp",
+        "name": item.name,
+        "create_time": item.create_time,
+        'desc': item.desc,
+        "exp_id": item.exp_id,
+        "exp_name": item.name,
+        "exp_status": item.status,
+        "exp_online_time": item.online_time
+    }
 }
 
 function get_cfg_node(item) {
     return {
-        "unique_pid": "layer_" + item.layer_id,
+        "unique_pid": "exp_" + item.exp_id,
         "unique_id": "cfg_" + item.id,
         "type": "cfg",
-        "name": item.name,
+        "name": item.cfg_name,
         "create_time": item.create_time,
         "desc": item.desc,
-        // 'layer_id': '',
-        // 'layer_name': '',
-        // 'layer_business': '',
-        "cfg_id": item.id,
-        "cfg_name": item.name,
-        "cfg_layer_id": item.layer_id,
+        "cfg_id": item.cfg_id,
+        "cfg_name": item.cfg_name,
+        "layer_id": item.layer_id,
         "cfg_position": item.position,
         "cfg_start_value": item.start_value,
         "cfg_stop_value": item.stop_value,
@@ -260,21 +264,7 @@ function get_cfg_node(item) {
     };
 }
 
-function get_exp_node(item) {
-    return {
-        "unique_pid": "cfg_" + item.item_id,
-        "unique_id": "exp_" + item.exp_id,
-        "type": "exp",
-        "name": item.exp_name,
-        "desc": item.desc,
-        "create_time": item.create_time,
-        "exp_id": item.exp_id,
-        "exp_name": item.exp_name,
-        "exp_cfg_id": item.item_id
-    }
-}
-
-function draw_layer_node(layer_items, cfg_items, exp_items) {
+function draw_layer_node(layer_items, exp_items, cfg_items) {
     var columns = [
         {
             field: 'name',
@@ -293,54 +283,68 @@ function draw_layer_node(layer_items, cfg_items, exp_items) {
         },
         {
             align: 'center',
+            field: 'exp_id',
+            title: '实验id(3)'
+        },
+        {
+            align: 'center',
+            field: 'exp_status',
+            title: '实验状态(4)'
+        },
+        {
+            align: 'center',
+            field: 'exp_online_time',
+            title: '上线时间(5)'
+        },
+        {
+            align: 'center',
             field: 'cfg_id',
-            title: '配置id(3)'
+            title: '配置id()'
+        },
+        {
+            align: 'center',
+            field: 'cfg_name',
+            title: '配置名称()'
         },
         {
             align: 'center',
             field: 'cfg_position',
-            title: '广告位(4)'
+            title: '位置()'
         },
         {
             align: 'center',
             field: 'cfg_start_value',
-            title: '起始值(5)'
+            title: '起始值()'
         },
         {
             align: 'center',
             field: 'cfg_stop_value',
-            title: '结束值(6)'
+            title: '结束值()'
         },
         {
             align: 'center',
             field: 'cfg_algo_request',
-            title: '请求串(7)'
+            title: 'algo请求串()'
         },
         {
             align: 'center',
             field: 'cfg_algo_response',
-            title: '应答串(8)'
+            title: 'algo应答串()'
         },
         {
             align: 'center',
             field: 'cfg_status',
-            title: '状态(9)',
-            formatter: 'create_status_button'
-        },
-        {
-            align: 'center',
-            field: 'exp_id',
-            title: '实验id(10)'
+            title: '配置状态'
         },
         {
             align: 'center',
             field: 'create_time',
-            title: '创建时间(10)'
+            title: '创建时间(6)'
         },
         {
             align: 'center',
             field: 'desc',
-            title: '描述(12)'
+            title: '描述(7)'
         }
     ];
 
@@ -365,17 +369,17 @@ function draw_layer_node(layer_items, cfg_items, exp_items) {
             row: node
         });
     }
-    for (var i = 0; i < cfg_items.length; i++) {
-        var item = cfg_items[i];
-        var node = get_cfg_node(item);
+    for (var i = 0; i < exp_items.length; i++) {
+        var item = exp_items[i];
+        var node = get_exp_node(item);
         $layer_tree.bootstrapTable('insertRow', {
             index: 0,
             row: node
         });
     }
-    for (var i = 0; i < exp_items.length; i++) {
-        var item = exp_items[i];
-        var node = get_exp_node(item);
+    for (var i = 0; i < cfg_items.length; i++) {
+        var item = cfg_items[i];
+        var node = get_cfg_node(item);
         $layer_tree.bootstrapTable('insertRow', {
             index: 0,
             row: node
@@ -386,16 +390,16 @@ function draw_layer_node(layer_items, cfg_items, exp_items) {
 }
 
 // Reload page
-function load_cfg_node(layer_items, func_on_success) {
+function load_cfg_node(layer_items, exp_items, func_on_success) {
     var layer_id = $("#layer_selector").val();
-    var cfg_id = $("#cfg_selector").val();
+    var exp_id = $("#exp_selector").val();
     $.ajax({
-            url: '/tree_item',
+            url: '/exp_relation',
             type: "get",
             data: {
-                'type': 'QUERY_ITEM',
+                'type': 'GET_RELATION',
                 'layer_id': layer_id,
-                'item_id': cfg_id,
+                'exp_id': exp_id,
                 'item_name': '',
                 'off_set': 0,
                 'limit': -1
@@ -407,8 +411,11 @@ function load_cfg_node(layer_items, func_on_success) {
                 }
 
                 // 加载实验节点
-                window.save_data.all_cfg = data.content;
-                load_exp_node(layer_items, window.save_data.all_cfg, func_on_success);
+                window.save_data.all_relation = data.content;
+                draw_layer_node(layer_items, exp_items, window.save_data.all_relation);
+                if (func_on_success) {
+                    func_on_success();
+                }
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -901,52 +908,52 @@ function render_tree() {
 }
 
 $(document).on('change', '#layer_selector', function () {
-    clear_cfg_selector();
-    reload_layer_node(init_cfg_selector);
+    clear_exp_selector();
+    reload_layer_node(init_exp_selector);
 });
 
-function clear_cfg_selector() {
-    $("#cfg_selector").html('');
-    var option = '<option value="">选择配置</option>';
-    $("#cfg_selector").append(option);
-    $("#cfg_selector").selectpicker('refresh');
+function clear_exp_selector() {
+    $("#exp_selector").html('');
+    var option = '<option value="">选择实验</option>';
+    $("#exp_selector").append(option);
+    $("#exp_selector").selectpicker('refresh');
 }
 
-function init_cfg_selector() {
+function init_exp_selector() {
     var layer_id = $("#layer_selector").val();
 
-    $("#cfg_selector").html('');
-    var option = '<option value="">选择配置</option>';
-    $("#cfg_selector").append(option);
+    $("#exp_selector").html('');
+    var option = '<option value="">选择实验</option>';
+    $("#exp_selector").append(option);
 
     if (layer_id === '') {
-        $("#cfg_selector").selectpicker('refresh');
+        $("#exp_selector").selectpicker('refresh');
         return;
     }
 
-    for (var i = 0; i < window.save_data.all_cfg.length; i++) {
-        var item = window.save_data.all_cfg[i];
+    for (var i = 0; i < window.save_data.all_exp.length; i++) {
+        var item = window.save_data.all_exp[i];
         if (item.layer_id !== layer_id) {
             continue;
         }
 
         option = '<option value="' + item.id + '">' + item.name + '</option>';
-        $("#cfg_selector").append(option);
+        $("#exp_selector").append(option);
     }
-    $("#cfg_selector").selectpicker('refresh');
+    $("#exp_selector").selectpicker('refresh');
 }
 
-$(document).on('change', '#cfg_selector', function () {
+$(document).on('change', '#exp_selector', function () {
     reload_layer_node();
 });
 
-function load_all_exp() {
+function load_all_cfg() {
     var layer_id = $("#layer_selector").val();
     $.ajax({
-            url: '/experiment',
+            url: '/tree_item',
             type: "get",
             data: {
-                'type': 'QUERY_EXP',
+                'type': 'QUERY_ITEM',
                 'layer_id': layer_id,
                 'off_set': 0,
                 'limit': -1
@@ -957,7 +964,7 @@ function load_all_exp() {
                     return;
                 }
 
-                window.save_data.all_exp = data.content;
+                window.save_data.all_cfg = data.content;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -1067,16 +1074,16 @@ function handle_add_exp_relation_response(response) {
     reload_layer_node();
 }
 
-function load_exp_node(layer_items, cfg_items, func_on_success) {
+function load_exp_node(layer_items, func_on_success) {
     var layer_id = $("#layer_selector").val();
-    var cfg_id = $("#cfg_selector").val();
+    var exp_id = $("#exp_selector").val();
     $.ajax({
-            url: '/cfg_relation',
+            url: '/experiment',
             type: "get",
             data: {
-                'type': 'GET_RELATION',
+                'type': 'QUERY_EXP',
                 'layer_id': layer_id,
-                'item_id': cfg_id,
+                'exp_id': exp_id,
                 'off_set': 0,
                 'limit': -1
             },
@@ -1086,12 +1093,8 @@ function load_exp_node(layer_items, cfg_items, func_on_success) {
                     return;
                 }
 
-                window.save_data.all_relation = data.content;
-                draw_layer_node(layer_items, cfg_items, window.save_data.all_relation);
-
-                if (func_on_success) {
-                    func_on_success();
-                }
+                window.save_data.all_exp = data.content;
+                load_cfg_node(layer_items, window.save_data.all_exp, func_on_success);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {

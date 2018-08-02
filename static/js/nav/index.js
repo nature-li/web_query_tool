@@ -70,7 +70,7 @@ function set_experiment_nav() {
     set_menu_active("#menu_experiment_control");
 
     // 加载数据
-    $("#right_frame").attr("src", "/cfg_item");
+    $("#right_frame").attr("src", "/tree_item");
 
     // 自适应框架大小
     frame_auto_size();
@@ -146,14 +146,19 @@ function experiment_html() {
                 <span class="pull-right glyphicon glyphicon-chevron-down"></span>
             </a>
            <ul id="experimentViewer" class="nav nav-list collapse secondmenu in">
-                <li id="li_cfg_item">
-                    <a id="a_cfg_item" href="#">配置组
-                        <i id="i_cfg_item" class="glyphicon glyphicon-pencil"></i>
+                <!--<li id="li_cfg_item">-->
+                    <!--<a id="a_cfg_item" href="#">配置组-->
+                        <!--<i id="i_cfg_item" class="glyphicon glyphicon-pencil"></i>-->
+                    <!--</a>-->
+                <!--</li>-->
+                <li id="li_tree_item">
+                    <a id="a_tree_item" href="#">配置视图
+                        <i id="i_tree_item" class="glyphicon glyphicon-pencil"></i>
                     </a>
                 </li>
-                <li id="li_tree_item">
-                    <a id="a_tree_item" href="#">配置树图
-                        <i id="i_tree_item" class="glyphicon glyphicon-pencil"></i>
+                <li id="li_tree_exp">
+                    <a id="a_tree_exp" href="#">实验视图
+                        <i id="i_tree_exp" class="glyphicon glyphicon-pencil"></i>
                     </a>
                 </li>
             </ul>
