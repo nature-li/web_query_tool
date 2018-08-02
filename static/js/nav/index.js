@@ -152,7 +152,7 @@ function experiment_html() {
                     </a>
                 </li>
                 <li id="li_tree_item">
-                    <a id="a_tree_item" href="#">配置树
+                    <a id="a_tree_item" href="#">配置树图
                         <i id="i_tree_item" class="glyphicon glyphicon-pencil"></i>
                     </a>
                 </li>

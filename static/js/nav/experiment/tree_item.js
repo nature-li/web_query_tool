@@ -7,11 +7,8 @@ $(document).ready(function () {
         reset_save_data();
     }
 
-    // 初始化下拉列表框
+    // 初始化下拉列表框、层节点、配置节点、加载所有实验
     init_layer_selector();
-
-    // 加载所有实验
-    load_all_experiment();
 });
 
 // 初始化全局变量
@@ -26,7 +23,10 @@ function reset_save_data() {
         'view_start_page_idx': 0,
         'view_current_page_idx': 0,
         'view_current_page_count': 0,
-        'all_experiment': []
+        'all_layer': [],
+        'all_cfg': [],
+        'all_exp': [],
+        'all_relation': []
     };
 }
 
@@ -55,7 +55,7 @@ function init_layer_selector() {
                 }
                 $("#layer_selector").selectpicker('refresh');
 
-                init_layer_node();
+                reload_layer_node(init_cfg_selector);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -68,7 +68,9 @@ function init_layer_selector() {
     );
 }
 
-function init_layer_node() {
+function reload_layer_node(func_on_success) {
+    reset_save_data();
+
     var layer_id = $("#layer_selector").val();
     $.ajax({
             url: '/layer',
@@ -85,7 +87,12 @@ function init_layer_node() {
                     return;
                 }
 
-                init_item_node(data.content);
+                // 加载配置节点、实验节点
+                window.save_data.all_layer = data.content;
+                load_cfg_node(window.save_data.all_layer, func_on_success);
+
+                // 加载所有实验
+                load_all_exp();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -112,16 +119,62 @@ function create_status_button(value, row, index) {
     return null;
 }
 
+function create_expand_name(value, row, index) {
+    var html = '<span class="node-value">' +
+        value +
+        '</span>';
+
+    var type = row['type'];
+    if (type === "layer") {
+        html = '<img src="/static/images/layer.png"/>' + html;
+        html +=
+            '<div class="btn-group" style="float: right;">' +
+            '<button style="background-color: transparent" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+            '<span class="glyphicon glyphicon-option-vertical"></span>' +
+            '</button>' +
+            '<ul class="dropdown-menu dropdown-menu-right">' +
+            '<li><a href="#" class="add-cfg-item">增加配置</a></li>' +
+            '</ul>' +
+            '</div>';
+    } else if (type === "cfg") {
+        html = '<img src="/static/images/config.png"/>' + html;
+        html +=
+            '<div class="btn-group" style="float: right;">' +
+            '<button style="background-color: transparent" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+            '<span class="glyphicon glyphicon-option-vertical"></span>' +
+            '</button>' +
+            '<ul class="dropdown-menu dropdown-menu-right">' +
+            '<li><a href="#" class="modify-cfg-item">修改配置</a></li>' +
+            '<li><a href="#" class="delete-cfg-item">删除配置</a></li>' +
+            '<li role="separator" class="divider"></li>' +
+            '<li><a href="#" class="add-exp-item">关联实验</a></li>' +
+            '</ul>' +
+            '</div>';
+    } else if (type === "exp") {
+        html = '<img src="/static/images/exp.png"/>' + html;
+        html +=
+            '<div class="btn-group" style="float: right;">' +
+            '<button style="background-color: transparent" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+            '<span class="glyphicon glyphicon-option-vertical"></span>' +
+            '</button>' +
+            '<ul class="dropdown-menu dropdown-menu-right">' +
+            '<li><a href="#" class="del-exp-item">移除实验</a></li>' +
+            '</ul>' +
+            '</div>';
+    }
+    return html;
+}
+
 function create_operate_button(value, row, index) {
     if (value === "layer") {
         return '<div class="text-center">' +
             '<button type="button" class="btn btn-primary btn-xs add-cfg-item" style="margin-right: 5px;">' +
             '<span class="glyphicon glyphicon-plus"></span>' +
             '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs delete-layer-item" style="margin-right: 5px;" disabled>' +
+            '<button type="button" class="btn btn-primary btn-xs" style="margin-right: 5px;" disabled>' +
             '<span class="glyphicon glyphicon-minus"></span>' +
             '</button>' +
-            '<button type="button" class="btn btn-primary btn-xs modify-layer-item" disabled>' +
+            '<button type="button" class="btn btn-primary btn-xs" disabled>' +
             '<span class="glyphicon glyphicon-wrench"></span>' +
             '</button>' +
             '</div>';
@@ -129,13 +182,27 @@ function create_operate_button(value, row, index) {
 
     if (value === "cfg") {
         return '<div class="text-center">' +
-            '<button type="button" class="btn btn-primary btn-xs add-experiment-item" style="margin-right: 5px;">' +
+            '<button type="button" class="btn btn-primary btn-xs add-exp-item" style="margin-right: 5px;">' +
             '<span class="glyphicon glyphicon-plus"></span>' +
             '</button>' +
             '<button type="button" class="btn btn-primary btn-xs delete-cfg-item" style="margin-right: 5px;">' +
             '<span class="glyphicon glyphicon-minus"></span>' +
             '</button>' +
             '<button type="button" class="btn btn-primary btn-xs modify-cfg-item">' +
+            '<span class="glyphicon glyphicon-wrench"></span>' +
+            '</button>' +
+            '</div>';
+    }
+
+    if (value === 'exp') {
+        return '<div class="text-center">' +
+            '<button type="button" class="btn btn-primary btn-xs" style="margin-right: 5px;" disabled>' +
+            '<span class="glyphicon glyphicon-plus"></span>' +
+            '</button>' +
+            '<button type="button" class="btn btn-primary btn-xs delete-exp-item" style="margin-right: 5px;">' +
+            '<span class="glyphicon glyphicon-minus"></span>' +
+            '</button>' +
+            '<button type="button" class="btn btn-primary btn-xs" disabled>' +
             '<span class="glyphicon glyphicon-wrench"></span>' +
             '</button>' +
             '</div>';
@@ -191,80 +258,81 @@ function get_cfg_node(item) {
     };
 }
 
-function draw_layer_node(layer_items, cfg_items) {
-    var node_list = [];
-
-    for (var i = 0; i < layer_items.length; i++) {
-        var layer_node = get_layer_node(layer_items[i]);
-        node_list.push(layer_node);
+function get_exp_node(item) {
+    return {
+        "unique_pid": "cfg_" + item.item_id,
+        "unique_id": "exp_" + item.exp_id,
+        "type": "exp",
+        "name": item.exp_name,
+        "create_time": item.create_time,
+        "exp_id": item.exp_id,
+        "exp_name": item.exp_name,
+        "exp_cfg_id": item.item_id
     }
+}
 
-    for (var i = 0; i < cfg_items.length; i++) {
-        var cfg_node = get_cfg_node(cfg_items[i]);
-        node_list.push(cfg_node);
-    }
-
+function draw_layer_node(layer_items, cfg_items, exp_items) {
     var columns = [
         {
             field: 'name',
-            title: '名称(0)'
-        },
-        {
-            align: 'center',
-            field: 'type',
-            title: '增/删/改(1)',
-            formatter: 'create_operate_button'
+            title: '名称(0)',
+            formatter: 'create_expand_name'
         },
         {
             align: 'center',
             field: 'layer_id',
-            title: '层id(2)'
+            title: '层id(1)'
         },
         {
             align: 'center',
             field: 'layer_business',
-            title: '层业务(3)'
+            title: '层业务(2)'
         },
         {
             align: 'center',
             field: 'cfg_id',
-            title: '配置id(4)'
+            title: '配置id(3)'
         },
         {
             align: 'center',
             field: 'cfg_position',
-            title: '广告位(5)'
+            title: '广告位(4)'
         },
         {
             align: 'center',
             field: 'cfg_start_value',
-            title: '起始值(6)'
+            title: '起始值(5)'
         },
         {
             align: 'center',
             field: 'cfg_stop_value',
-            title: '结束值(7)'
+            title: '结束值(6)'
         },
         {
             align: 'center',
             field: 'cfg_algo_request',
-            title: '请求串(8)'
+            title: '请求串(7)'
         },
         {
             align: 'center',
             field: 'cfg_algo_response',
-            title: '应答串(9)'
+            title: '应答串(8)'
         },
         {
             align: 'center',
             field: 'cfg_status',
-            title: '状态(10)',
+            title: '状态(9)',
             formatter: 'create_status_button'
         },
         {
             align: 'center',
+            field: 'exp_id',
+            title: '实验id(10)'
+        },
+        {
+            align: 'center',
             field: 'create_time',
-            title: '创建时间(11)'
+            title: '创建时间(10)'
         },
         {
             align: 'center',
@@ -302,19 +370,29 @@ function draw_layer_node(layer_items, cfg_items) {
             row: node
         });
     }
+    for (var i = 0; i < exp_items.length; i++) {
+        var item = exp_items[i];
+        var node = get_exp_node(item);
+        $layer_tree.bootstrapTable('insertRow', {
+            index: 0,
+            row: node
+        });
+    }
 
     render_tree();
 }
 
 // Reload page
-function init_item_node(layer_items) {
+function load_cfg_node(layer_items, func_on_success) {
     var layer_id = $("#layer_selector").val();
+    var cfg_id = $("#cfg_selector").val();
     $.ajax({
             url: '/tree_item',
             type: "get",
             data: {
                 'type': 'QUERY_ITEM',
                 'layer_id': layer_id,
+                'item_id': cfg_id,
                 'item_name': '',
                 'off_set': 0,
                 'limit': -1
@@ -325,7 +403,9 @@ function init_item_node(layer_items) {
                     return;
                 }
 
-                draw_layer_node(layer_items, data.content)
+                // 加载实验节点
+                window.save_data.all_cfg = data.content;
+                load_exp_node(layer_items, window.save_data.all_cfg, func_on_success);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -338,10 +418,10 @@ function init_item_node(layer_items) {
     );
 }
 
-// 增加实验项
+// 增加配置项
 $(document).on('click', ".add-cfg-item", function () {
     var $this_tr = $(this).closest('tr');
-    var layer_id = $this_tr.find('td:eq(2)').text().trim();
+    var layer_id = $this_tr.find('td:eq(1)').text().trim();
 
     BootstrapDialog.show({
         message: function (dialog) {
@@ -463,17 +543,15 @@ $(document).on('click', ".add-cfg-item", function () {
 // 修改实验项
 $(document).on('click', '.modify-cfg-item', function () {
     var tr = $(this).closest('tr');
-    var $parent_tr = $(tr).treegrid('getParentNode');
-    var layer_id = $parent_tr.find('td:eq(2)').text().trim();
-
-    var item_name = $(tr).find('td:eq(0)').text().trim();
-    var item_id = $(tr).find('td:eq(4)').text().trim();
-    var position = $(tr).find('td:eq(5)').text().trim();
-    var start_value = $(tr).find('td:eq(6)').text().trim();
-    var stop_value = $(tr).find('td:eq(7)').text().trim();
-    var algo_request = $(tr).find('td:eq(8)').text().trim();
-    var algo_response = $(tr).find('td:eq(9)').text().trim();
-    var status = $(tr).find('td:eq(10)').find('input').prop('checked');
+    var layer_id = $(tr).treegrid('getParentNode').find('td:eq(1)').text().trim();
+    var item_name = $(tr).find('td:eq(0)').find('span.node-value').html();
+    var item_id = $(tr).find('td:eq(3)').text().trim();
+    var position = $(tr).find('td:eq(4)').text().trim();
+    var start_value = $(tr).find('td:eq(5)').text().trim();
+    var stop_value = $(tr).find('td:eq(6)').text().trim();
+    var algo_request = $(tr).find('td:eq(7)').text().trim();
+    var algo_response = $(tr).find('td:eq(8)').text().trim();
+    var status = $(tr).find('td:eq(9)').find('input').prop('checked');
     var item_desc = $(tr).find('td:eq(12)').text().trim();
 
     BootstrapDialog.show({
@@ -604,7 +682,7 @@ $(document).on('click', '.modify-cfg-item', function () {
 
 // 删除实验项
 $(document).on('click', '.delete-cfg-item', function () {
-    var item_id = $(this).closest('tr').find('td:eq(4)').text().trim();
+    var item_id = $(this).closest('tr').find('td:eq(3)').text().trim();
     $.showConfirm("确定要删除吗?", delete_one_cfg_item(item_id));
 });
 
@@ -639,7 +717,7 @@ function delete_one_cfg_item(item_id) {
 
 // 切换状态
 $(document).on('change', '.toggle-status', function () {
-    var item_id = $(this).closest('tr').find('td:eq(4)').text().trim();
+    var item_id = $(this).closest('tr').find('td:eq(3)').text().trim();
 
     var status = 0;
     if ($(this).prop('checked')) {
@@ -759,7 +837,7 @@ function handle_add_cfg_item_response(response) {
 function handle_modify_cfg_item_response(response) {
     if (response.success !== true) {
         $.showErr("更新失败");
-        init_layer_node();
+        reload_layer_node();
         return;
     }
 
@@ -767,7 +845,7 @@ function handle_modify_cfg_item_response(response) {
     for (var i = 0; i < response.content.length; i++) {
         var item = response.content[i];
         $("#layer_item tbody").find("tr").each(function () {
-            var item_id = $(this).find("td:eq(4)").text().trim();
+            var item_id = $(this).find("td:eq(3)").text().trim();
             if (item_id !== item.id.toString()) {
                 return;
             }
@@ -809,8 +887,10 @@ function render_tree() {
         initialState: 'collapsed',
         treeColumn: 0,
         saveState: true,
-        expanderExpandedClass: 'glyphicon glyphicon-folder-open',
-        expanderCollapsedClass: 'glyphicon glyphicon-folder-close',
+        // expanderExpandedClass: 'glyphicon glyphicon-folder-open',
+        // expanderCollapsedClass: 'glyphicon glyphicon-folder-close',
+        expanderExpandedClass: 'glyphicon glyphicon-minus',
+        expanderCollapsedClass: 'glyphicon glyphicon-plus',
         onChange: function () {
             $layer_tree.bootstrapTable('resetWidth');
         }
@@ -818,17 +898,55 @@ function render_tree() {
 }
 
 $(document).on('change', '#layer_selector', function () {
-    init_layer_node();
+    clear_cfg_selector();
+    reload_layer_node(init_cfg_selector);
 });
 
-function load_all_experiment() {
+function clear_cfg_selector() {
+    $("#cfg_selector").html('');
+    var option = '<option value="">选择配置</option>';
+    $("#cfg_selector").append(option);
+    $("#cfg_selector").selectpicker('refresh');
+}
+
+function init_cfg_selector() {
+    var layer_id = $("#layer_selector").val();
+
+    $("#cfg_selector").html('');
+    var option = '<option value="">选择配置</option>';
+    $("#cfg_selector").append(option);
+
+    if (layer_id === '') {
+        $("#cfg_selector").selectpicker('refresh');
+        return;
+    }
+
+    for (var i = 0; i < window.save_data.all_cfg.length; i++) {
+        var item = window.save_data.all_cfg[i];
+        if (item.layer_id !== layer_id) {
+            continue;
+        }
+
+        option = '<option value="' + item.id + '">' + item.name + '</option>';
+        $("#cfg_selector").append(option);
+    }
+    $("#cfg_selector").selectpicker('refresh');
+}
+
+$(document).on('change', '#cfg_selector', function () {
+    reload_layer_node();
+});
+
+function load_all_exp() {
+    var layer_id = $("#layer_selector").val();
+    var item_id = $("#cfg_selector").val();
     $.ajax({
             url: '/experiment',
             type: "get",
             data: {
                 'type': 'QUERY_EXP',
-                'layer_id': '',
-                'item_id': '',
+                'layer_id': layer_id,
+                'item_id': item_id,
                 'off_set': 0,
                 'limit': -1
             },
@@ -839,7 +957,7 @@ function load_all_experiment() {
                 }
 
                 for (var i = 0; i < data.content.length; i++) {
-                    window.save_data.all_experiment.push(data.content[i]);
+                    window.save_data.all_exp.push(data.content[i]);
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -852,3 +970,196 @@ function load_all_experiment() {
         }
     );
 }
+
+// 关联实验
+$(document).on('click', '.add-exp-item', function () {
+    var $this_tr = $(this).closest('tr');
+    var layer_id = $this_tr.treegrid('getParentNode').find('td:eq(1)').text().trim();
+    var item_id = $this_tr.find('td:eq(3)').text().trim();
+
+    BootstrapDialog.show({
+        message: function (dialog) {
+            // header
+            var content = '<div class="form">';
+
+            content += '<div class="form-group">' +
+                '<label style="margin: 0 5px;">选择实验</label>' +
+                '<div>' +
+                '<select id="exp_selector" class="selectpicker form-control" data-size="10" data-live-search="true" multiple>' +
+                '</select>' +
+                '</div>' +
+                '</div>';
+            content += '<div id="tip_div" class="form-group no-display">' +
+                '<div><label id="tip_msg" style="color: red">abc</label></div>' +
+                '</div>';
+            // footer
+            content += '</div>';
+            return content;
+        },
+        title: "关联实验",
+        closable: false,
+        draggable: true,
+        onshown: function (dialog) {
+            for (var i = 0; i < window.save_data.all_exp.length; i++) {
+                var item = window.save_data.all_exp[i];
+                if (item.layer_id !== layer_id) {
+                    continue;
+                }
+
+                var option = '<option value="' + item.id + '">' + item.name + '</option>';
+                if (has_relation(item.layer_id, item_id, item.id)) {
+                    option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
+                }
+
+                $("#exp_selector").append(option);
+            }
+            $("#exp_selector").selectpicker('refresh');
+            console.log($("#exp_selector").hasClass('selectpicker'));
+        },
+        buttons: [{
+            label: '确定',
+            action: function (dialogItself) {
+                var exp_value = $("#exp_selector").val();
+                console.log(exp_value);
+
+                // 发送请求
+                $.ajax({
+                        url: '/cfg_relation',
+                        type: "put",
+                        data: {
+                            type: "PUT_RELATION",
+                            item_id: item_id,
+                            layer_id: layer_id,
+                            exp_id: exp_value,
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            handle_add_exp_relation_response(response);
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            if (jqXHR.status == 302) {
+                                window.parent.location.replace("/");
+                            } else {
+                                $.showErr("添加失败");
+                            }
+                        }
+                    }
+                );
+
+                // 关闭窗口
+                dialogItself.close();
+            }
+        },
+            {
+                label: '取消',
+                action: function (dialogItself) {
+                    dialogItself.close();
+                }
+            }]
+    });
+});
+
+$(document).on('click', '.dropdown-toggle', function () {
+    $("#layer_item").bootstrapTable('scrollTo', 'bottom');
+});
+
+
+function handle_add_exp_relation_response(response) {
+    reload_layer_node();
+}
+
+function load_exp_node(layer_items, cfg_items, func_on_success) {
+    var layer_id = $("#layer_selector").val();
+    var cfg_id = $("#cfg_selector").val();
+    $.ajax({
+            url: '/cfg_relation',
+            type: "get",
+            data: {
+                'type': 'GET_RELATION',
+                'layer_id': layer_id,
+                'item_id': cfg_id,
+                'off_set': 0,
+                'limit': -1
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.success !== "true") {
+                    return;
+                }
+
+                window.save_data.all_relation = data.content;
+                draw_layer_node(layer_items, cfg_items, window.save_data.all_relation);
+
+                if (func_on_success) {
+                    func_on_success();
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status == 302) {
+                    window.parent.location.replace("/");
+                } else {
+                    console.log('occur error');
+                }
+            }
+        }
+    );
+}
+
+
+function has_relation(layer_id, cfg_id, exp_id) {
+    for (var i = 0; i < window.save_data.all_relation.length; i++) {
+        var item = window.save_data.all_relation[i];
+
+        if (item.layer_id !== layer_id) {
+            continue;
+        }
+
+        if (item.item_id !== cfg_id) {
+            continue;
+        }
+
+        if (item.exp_id !== exp_id) {
+            continue;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+$(document).on('click', '.del-exp-item', function () {
+    var $exp_tr = $(this).closest('tr');
+    var $cfg_tr = $exp_tr.treegrid('getParentNode');
+    var $layer_tr = $cfg_tr.treegrid('getParentNode');
+    var layer_id = $layer_tr.find('td:eq(1)').text().trim();
+    var cfg_id = $cfg_tr.find('td:eq(3)').text().trim();
+    var exp_id = $exp_tr.find('td:eq(10)').text().trim();
+
+    $.ajax({
+            url: '/cfg_relation',
+            type: "delete",
+            data: {
+                'type': 'DEL_RELATION',
+                'layer_id': layer_id,
+                'item_id': cfg_id,
+                'exp_id': exp_id,
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.success !== true) {
+                    return;
+                }
+
+                reload_layer_node();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status == 302) {
+                    window.parent.location.replace("/");
+                } else {
+                    console.log('occur error');
+                }
+            }
+        }
+    );
+});

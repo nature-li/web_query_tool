@@ -228,10 +228,11 @@ class CfgItemHandler(BaseHandler):
             return
         if req_type == "QUERY_ITEM":
             layer_id = self.get_argument('layer_id', None)
+            item_id = self.get_argument('item_id', None)
             item_name = self.get_argument('item_name', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_cfg_item(layer_id, item_name, off_set, limit)
+            json_text = MysqlOperator.query_cfg_item(layer_id, item_id, item_name, off_set, limit)
             self.write(json_text)
             return
 
@@ -758,10 +759,11 @@ class TreeItemHandler(BaseHandler):
             return
         if req_type == "QUERY_ITEM":
             layer_id = self.get_argument('layer_id', None)
+            item_id = self.get_argument('item_id', None)
             item_name = self.get_argument('item_name', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_cfg_item(layer_id, item_name, off_set, limit)
+            json_text = MysqlOperator.query_cfg_item(layer_id, item_id, item_name, off_set, limit)
             self.write(json_text)
             return
 
@@ -890,6 +892,77 @@ class ExperimentHandler(BaseHandler):
             self.write(json_text)
             return
 
+
+class CfgRelationHandler(BaseHandler):
+    def get(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'GET_RELATION':
+            layer_id = self.get_argument('layer_id', None)
+            cfg_id = self.get_argument('item_id', None)
+            exp_id = self.get_argument('exp_id', None)
+            off_set = self.get_argument('off_set', None)
+            limit = self.get_argument('limit', None)
+            json_text = MysqlOperator.query_relation(layer_id, cfg_id, exp_id, off_set, limit)
+            self.write(json_text)
+            return
+
+    def put(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'PUT_RELATION':
+            layer_id = self.get_argument('layer_id', None)
+            item_id = self.get_argument('item_id', None)
+            exp_id_list = self.request.arguments.get('exp_id[]', [])
+            json_text = MysqlOperator.put_cfg_relation(layer_id, item_id, exp_id_list)
+            self.write(json_text)
+            return
+
+    def delete(self, *args, **kwargs):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'DEL_RELATION':
+            layer_id = self.get_argument('layer_id', None)
+            item_id = self.get_argument('item_id', None)
+            exp_id = self.get_argument('exp_id', None)
+            json_text = MysqlOperator.delete_relation(layer_id, item_id, exp_id)
+            self.write(json_text)
+            return
+
+
 def __main__():
     # 设置编码
     reload(sys)
@@ -954,6 +1027,7 @@ def __main__():
             (r'/layer', LayerHandler),
             (r'/tree_item', TreeItemHandler),
             (r'/experiment', ExperimentHandler),
+            (r'/cfg_relation', CfgRelationHandler),
         ],
         cookie_secret=config.server_cookie_secret,
         template_path=os.path.join(os.path.dirname(__file__), "templates"),

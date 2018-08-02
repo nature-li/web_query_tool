@@ -135,9 +135,12 @@ CREATE TABLE IF NOT EXISTS `cfg_item` (
 
 DROP TABLE IF EXISTS `cfg_2_exp`;
 CREATE TABLE IF NOT EXISTS `cfg_2_exp` (
-  `id`            INT AUTO_INCREMENT NOT NULL,
-  `cfg_id`        VARCHAR(64)        NOT NULL,
-  `experiment_id` VARCHAR(64)        NOT NULL,
+  `id`          INT AUTO_INCREMENT NOT NULL,
+  `layer_id`    VARCHAR(64)        NOT NULL,
+  `cfg_id`      VARCHAR(64)        NOT NULL,
+  `exp_id`      VARCHAR(64)        NOT NULL,
+  `create_time` TIMESTAMP          NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX group_exp (`cfg_id`, `experiment_id`)
-)DEFAULT CHARSET = utf8;;
+  UNIQUE INDEX group_exp (`layer_id`, `cfg_id`, `exp_id`)
+)
+  DEFAULT CHARSET = utf8;
