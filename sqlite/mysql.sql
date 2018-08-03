@@ -99,19 +99,20 @@ CREATE TABLE IF NOT EXISTS `experiment` (
   `layer_id`    VARCHAR(64)  NOT NULL,
   `name`        VARCHAR(128) NOT NULL,
   `status`      INT          NOT NULL DEFAULT 0,
-  `online_time` INT          NOT NULL DEFAULT 0,
+  `online_time` TIMESTAMP    NOT NULL DEFAULT 0,
   `desc`        VARCHAR(256) NULL,
   `create_time` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE INDEX name (`name`)
 )
   DEFAULT CHARSET = utf8;
-INSERT INTO experiment (id, layer_id, name, status, online_time) VALUES ('exp_1', 'freq', '频次实验1', 0, 20180815);
-INSERT INTO experiment (id, layer_id, name, status, online_time) VALUES ('exp_2', 'freq', '频次实验2', 0, 20180815);
-INSERT INTO experiment (id, layer_id, name, status, online_time) VALUES ('exp_3', 'freq', '频次实验3', 0, 20180815);
-INSERT INTO experiment (id, layer_id, name, status, online_time) VALUES ('exp_4', 'bls', '杠杆实验4', 0, 20180815);
-INSERT INTO experiment (id, layer_id, name, status, online_time) VALUES ('exp_5', 'bls', '杠杆实验5', 0, 20180815);
-INSERT INTO experiment (id, layer_id, name, status, online_time) VALUES ('exp_6', 'bls', '杠杆实验6', 0, 20180815);
+INSERT INTO experiment (id, layer_id, name, status, online_time) VALUES ('exp_1', 'freq', '频次实验1', 0, '2018-08-15');
+INSERT INTO experiment (id, layer_id, name, status, online_time) VALUES ('exp_2', 'freq', '频次实验2', 0, '2018-08-15');
+INSERT INTO experiment (id, layer_id, name, status, online_time) VALUES ('exp_3', 'freq', '频次实验3', 0, '2018-08-15');
+INSERT INTO experiment (id, layer_id, name, status, online_time) VALUES ('exp_4', 'bls', '杠杆实验4', 0, '2018-08-15');
+INSERT INTO experiment (id, layer_id, name, status, online_time) VALUES ('exp_5', 'bls', '杠杆实验5', 0, '2018-08-15');
+INSERT INTO experiment (id, layer_id, name, status, online_time) VALUES ('exp_6', 'bls', '杠杆实验6', 0, '2018-08-15');
+INSERT INTO experiment (id, layer_id, name, status) VALUES ('exp_7', 'bls', '杠杆实验7', 0);
 
 
 DROP TABLE IF EXISTS `cfg_item`;

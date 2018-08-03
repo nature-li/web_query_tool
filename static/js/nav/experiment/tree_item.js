@@ -50,6 +50,8 @@ function init_layer_selector() {
                 $("#layer_selector").append(option);
                 for (var i = 0; i < data.content.length; i++) {
                     var item = data.content[i];
+
+                    option = '<option value="' + item.id + '">' + item.name + '</option>';
                     if (i === 0) {
                         option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
                     }
@@ -134,7 +136,7 @@ function create_expand_name(value, row, index) {
             '<button style="background-color: transparent" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
             '<span class="glyphicon glyphicon-option-vertical"></span>' +
             '</button>' +
-            '<ul class="dropdown-menu dropdown-menu-right">' +
+            '<ul class="dropdown-menu">' +
             '<li><a href="#" class="add-cfg-item">增加配置</a></li>' +
             '</ul>' +
             '</div>';
@@ -145,7 +147,7 @@ function create_expand_name(value, row, index) {
             '<button style="background-color: transparent" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
             '<span class="glyphicon glyphicon-option-vertical"></span>' +
             '</button>' +
-            '<ul class="dropdown-menu dropdown-menu-right">' +
+            '<ul class="dropdown-menu">' +
             '<li><a href="#" class="modify-cfg-item">修改配置</a></li>' +
             '<li><a href="#" class="delete-cfg-item">删除配置</a></li>' +
             '<li role="separator" class="divider"></li>' +
@@ -159,7 +161,7 @@ function create_expand_name(value, row, index) {
             '<button style="background-color: transparent" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
             '<span class="glyphicon glyphicon-option-vertical"></span>' +
             '</button>' +
-            '<ul class="dropdown-menu dropdown-menu-right">' +
+            '<ul class="dropdown-menu">' +
             '<li><a href="#" class="del-exp-item">移除实验</a></li>' +
             '</ul>' +
             '</div>';
@@ -175,6 +177,7 @@ function get_layer_node(item) {
         'name': item.name,
         'create_time': item.create_time,
         'desc': item.desc,
+        'self_id': item.id,
         'layer_id': item.id,
         'layer_name': item.name,
         'layer_business': item.business,
@@ -199,6 +202,7 @@ function get_cfg_node(item) {
         "name": item.name,
         "create_time": item.create_time,
         "desc": item.desc,
+        'self_id': item.id,
         // 'layer_id': '',
         // 'layer_name': '',
         // 'layer_business': '',
@@ -221,6 +225,7 @@ function get_exp_node(item) {
         "type": "exp",
         "name": item.exp_name,
         "desc": item.desc,
+        'self_id': item.exp_id,
         "create_time": item.create_time,
         "exp_id": item.exp_id,
         "exp_name": item.exp_name,
@@ -232,69 +237,55 @@ function draw_layer_node(layer_items, cfg_items, exp_items) {
     var columns = [
         {
             field: 'name',
-            title: '名称(0)',
+            title: '名称',
             formatter: 'create_expand_name'
         },
         {
             align: 'center',
-            field: 'layer_id',
-            title: '层id(1)'
-        },
-        {
-            align: 'center',
-            field: 'layer_business',
-            title: '层业务(2)'
-        },
-        {
-            align: 'center',
-            field: 'cfg_id',
-            title: '配置id(3)'
+            field: 'self_id',
+            title: 'id'
         },
         {
             align: 'center',
             field: 'cfg_position',
-            title: '广告位(4)'
+            title: '广告位'
         },
         {
             align: 'center',
             field: 'cfg_start_value',
-            title: '起始值(5)'
+            title: '起始值'
         },
         {
             align: 'center',
             field: 'cfg_stop_value',
-            title: '结束值(6)'
+            title: '结束值'
         },
         {
             align: 'center',
             field: 'cfg_algo_request',
-            title: '请求串(7)'
+            title: '请求串'
         },
         {
             align: 'center',
             field: 'cfg_algo_response',
-            title: '应答串(8)'
+            title: '应答串'
         },
         {
             align: 'center',
             field: 'cfg_status',
-            title: '状态(9)',
+            title: '状态',
             formatter: 'create_status_button'
         },
         {
             align: 'center',
-            field: 'exp_id',
-            title: '实验id(10)'
-        },
-        {
-            align: 'center',
             field: 'create_time',
-            title: '创建时间(10)'
+            title: '创建时间'
         },
         {
             align: 'center',
             field: 'desc',
-            title: '描述(12)'
+            title: '描述',
+            class: 'no-display'
         }
     ];
 
@@ -502,14 +493,14 @@ $(document).on('click', '.modify-cfg-item', function () {
     var tr = $(this).closest('tr');
     var layer_id = $(tr).treegrid('getParentNode').find('td:eq(1)').text().trim();
     var item_name = $(tr).find('td:eq(0)').find('span.node-value').html();
-    var item_id = $(tr).find('td:eq(3)').text().trim();
-    var position = $(tr).find('td:eq(4)').text().trim();
-    var start_value = $(tr).find('td:eq(5)').text().trim();
-    var stop_value = $(tr).find('td:eq(6)').text().trim();
-    var algo_request = $(tr).find('td:eq(7)').text().trim();
-    var algo_response = $(tr).find('td:eq(8)').text().trim();
-    var status = $(tr).find('td:eq(9)').find('input').prop('checked');
-    var item_desc = $(tr).find('td:eq(12)').text().trim();
+    var item_id = $(tr).find('td:eq(1)').text().trim();
+    var position = $(tr).find('td:eq(2)').text().trim();
+    var start_value = $(tr).find('td:eq(3)').text().trim();
+    var stop_value = $(tr).find('td:eq(4)').text().trim();
+    var algo_request = $(tr).find('td:eq(5)').text().trim();
+    var algo_response = $(tr).find('td:eq(6)').text().trim();
+    var status = $(tr).find('td:eq(7)').find('input').prop('checked');
+    var item_desc = $(tr).find('td:eq(9)').text().trim();
 
     BootstrapDialog.show({
         message: function (dialog) {
@@ -637,9 +628,9 @@ $(document).on('click', '.modify-cfg-item', function () {
     });
 });
 
-// 删除实验项
+// 删除配置项
 $(document).on('click', '.delete-cfg-item', function () {
-    var item_id = $(this).closest('tr').find('td:eq(3)').text().trim();
+    var item_id = $(this).closest('tr').find('td:eq(1)').text().trim();
     $.showConfirm("确定要删除吗?", delete_one_cfg_item(item_id));
 });
 
@@ -674,7 +665,7 @@ function delete_one_cfg_item(item_id) {
 
 // 切换状态
 $(document).on('change', '.toggle-status', function () {
-    var item_id = $(this).closest('tr').find('td:eq(3)').text().trim();
+    var item_id = $(this).closest('tr').find('td:eq(1)').text().trim();
 
     var status = 0;
     if ($(this).prop('checked')) {
@@ -802,7 +793,7 @@ function handle_modify_cfg_item_response(response) {
     for (var i = 0; i < response.content.length; i++) {
         var item = response.content[i];
         $("#layer_item tbody").find("tr").each(function () {
-            var item_id = $(this).find("td:eq(3)").text().trim();
+            var item_id = $(this).find("td:eq(1)").text().trim();
             if (item_id !== item.id.toString()) {
                 return;
             }
@@ -928,7 +919,7 @@ function load_all_exp() {
 $(document).on('click', '.add-exp-item', function () {
     var $this_tr = $(this).closest('tr');
     var layer_id = $this_tr.treegrid('getParentNode').find('td:eq(1)').text().trim();
-    var item_id = $this_tr.find('td:eq(3)').text().trim();
+    var item_id = $this_tr.find('td:eq(1)').text().trim();
 
     BootstrapDialog.show({
         message: function (dialog) {
@@ -1086,8 +1077,8 @@ $(document).on('click', '.del-exp-item', function () {
     var $cfg_tr = $exp_tr.treegrid('getParentNode');
     var $layer_tr = $cfg_tr.treegrid('getParentNode');
     var layer_id = $layer_tr.find('td:eq(1)').text().trim();
-    var cfg_id = $cfg_tr.find('td:eq(3)').text().trim();
-    var exp_id = $exp_tr.find('td:eq(10)').text().trim();
+    var cfg_id = $cfg_tr.find('td:eq(1)').text().trim();
+    var exp_id = $exp_tr.find('td:eq(1)').text().trim();
 
     $.ajax({
             url: '/cfg_relation',

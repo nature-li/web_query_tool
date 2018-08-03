@@ -31,7 +31,7 @@ $.showConfirm = function (str, func_ok, func_close) {
             action: function (dialogItself) {
                 dialogItself.close();
             }
-        },{
+        }, {
             label: '确定',
             cssClass: 'btn-warning',
             action: function (dialogItself) {
@@ -95,4 +95,28 @@ function init_ad_network_select(function_on_success) {
             }
         }
     );
+}
+
+function zeroize(value, length) {
+    if (!length) {
+        length = 2;
+    }
+
+    value = String(value);
+    for (var i = 0, zeros = ''; i < (length - value.length); i++) {
+        zeros += '0';
+    }
+
+    return zeros + value;
+}
+
+// 格式化 datetime_picker
+function format_time_picker(date) {
+    var year = date.getFullYear();
+    var month = zeroize(date.getMonth() + 1);
+    var day = zeroize(date.getDate());
+    var hour = zeroize(date.getHours());
+    var minute = zeroize(date.getMinutes());
+
+    return year + '-' + month + '-' + day + ' ' + hour + ":" + minute;
 }

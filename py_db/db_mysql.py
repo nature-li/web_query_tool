@@ -49,7 +49,7 @@ class Experiment(Base):
     layer_id = Column(String(64))
     name = Column(String(64))
     status = Column(Integer, default=0)
-    online_time = Column(Integer)
+    online_time = Column(TIMESTAMP)
     desc = Column(String(256))
     create_time = Column(TIMESTAMP, default=func.now())
     UniqueConstraint('name')
@@ -466,7 +466,7 @@ class MysqlOperator(object):
                     a_item['layer_id'] = value.layer_id
                     a_item['name'] = value.name
                     a_item['status'] = value.status
-                    a_item['online_time'] = value.online_time
+                    a_item['online_time'] = value.online_time.strftime('%Y-%m-%d %H:%M:%S')
                     a_item['desc'] = value.desc
                     a_item['create_time'] = value.create_time.strftime('%Y-%m-%d %H:%M:%S')
 

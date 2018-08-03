@@ -51,7 +51,7 @@ function init_layer_selector() {
                 for (var i = 0; i < data.content.length; i++) {
                     var item = data.content[i];
 
-                    var option = '<option value="' + item.id + '">' + item.name + '</option>';
+                    option = '<option value="' + item.id + '">' + item.name + '</option>';
                     if (i === 0) {
                         option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
                     }
@@ -136,7 +136,7 @@ function create_expand_name(value, row, index) {
             '<button style="background-color: transparent" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
             '<span class="glyphicon glyphicon-option-vertical"></span>' +
             '</button>' +
-            '<ul class="dropdown-menu dropdown-menu-right">' +
+            '<ul class="dropdown-menu">' +
             '<li><a href="#" class="add-exp-item">增加实验</a></li>' +
             '</ul>' +
             '</div>';
@@ -147,7 +147,7 @@ function create_expand_name(value, row, index) {
             '<button style="background-color: transparent" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
             '<span class="glyphicon glyphicon-option-vertical"></span>' +
             '</button>' +
-            '<ul class="dropdown-menu dropdown-menu-right">' +
+            '<ul class="dropdown-menu">' +
             '<li><a href="#" class="modify-exp-item">修改实验</a></li>' +
             '<li><a href="#" class="delete-cxp-item">删除实验</a></li>' +
             '<li role="separator" class="divider"></li>' +
@@ -161,7 +161,7 @@ function create_expand_name(value, row, index) {
             '<button style="background-color: transparent" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
             '<span class="glyphicon glyphicon-option-vertical"></span>' +
             '</button>' +
-            '<ul class="dropdown-menu dropdown-menu-right">' +
+            '<ul class="dropdown-menu">' +
             '<li><a href="#" class="del-cfg-item">移除配置</a></li>' +
             '</ul>' +
             '</div>';
@@ -177,6 +177,7 @@ function get_layer_node(item) {
         'name': item.name,
         'create_time': item.create_time,
         'desc': item.desc,
+        'self_id': item.id,
         'layer_id': item.id,
         'layer_name': item.name,
         'layer_business': item.business
@@ -191,6 +192,7 @@ function get_exp_node(item) {
         "name": item.name,
         "create_time": item.create_time,
         'desc': item.desc,
+        'self_id': item.id,
         "exp_id": item.id,
         "exp_name": item.name,
         "exp_status": item.status,
@@ -206,6 +208,7 @@ function get_cfg_node(item) {
         "name": item.cfg_name,
         "create_time": item.create_time,
         "desc": item.desc,
+        'self_id': item.cfg_id,
         "cfg_id": item.cfg_id,
         "cfg_name": item.cfg_name,
         "cfg_position": item.position,
@@ -226,79 +229,35 @@ function draw_layer_node(layer_items, exp_items, cfg_items) {
         },
         {
             align: 'center',
-            field: 'layer_id',
-            title: '层id(1)'
-        },
-        {
-            align: 'center',
-            field: 'layer_business',
-            title: '层业务(2)'
-        },
-        {
-            align: 'center',
-            field: 'exp_id',
-            title: '实验id(3)'
+            field: 'self_id',
+            title: 'id(1)'
         },
         {
             align: 'center',
             field: 'exp_status',
-            title: '实验状态(4)',
+            title: '实验状态(2)',
             formatter: 'create_status_button'
         },
         {
             align: 'center',
             field: 'exp_online_time',
-            title: '上线时间(5)'
-        },
-        {
-            align: 'center',
-            field: 'cfg_id',
-            title: '配置id(6)'
-        },
-        {
-            align: 'center',
-            field: 'cfg_name',
-            title: '配置名称(7)'
-        },
-        {
-            align: 'center',
-            field: 'cfg_position',
-            title: '位置(8)'
-        },
-        {
-            align: 'center',
-            field: 'cfg_start_value',
-            title: '起始值(9)'
-        },
-        {
-            align: 'center',
-            field: 'cfg_stop_value',
-            title: '结束值(10)'
-        },
-        {
-            align: 'center',
-            field: 'cfg_algo_request',
-            title: 'algo请求串(11)'
-        },
-        {
-            align: 'center',
-            field: 'cfg_algo_response',
-            title: 'algo应答串(12)'
+            title: '上线时间(3)'
         },
         {
             align: 'center',
             field: 'cfg_status',
-            title: '配置状态(13)'
+            title: '配置状态(4)'
         },
         {
             align: 'center',
             field: 'create_time',
-            title: '创建时间(14)'
+            title: '创建时间(5)'
         },
         {
             align: 'center',
             field: 'desc',
-            title: '描述(15)'
+            title: '描述(6)',
+            class: 'no-display'
         }
     ];
 
@@ -932,7 +891,7 @@ function load_all_cfg() {
 }
 
 // 关联实验
-$(document).on('click', '.add-exp-item', function () {
+$(document).on('click', '.add-cfg-item', function () {
     var $this_tr = $(this).closest('tr');
     var layer_id = $this_tr.treegrid('getParentNode').find('td:eq(1)').text().trim();
     var item_id = $this_tr.find('td:eq(3)').text().trim();
@@ -1118,4 +1077,147 @@ $(document).on('click', '.del-exp-item', function () {
             }
         }
     );
+});
+
+$(document).on('click', '.add-exp-item', function () {
+    var $this_tr = $(this).closest('tr');
+    var layer_id = $this_tr.find('td:eq(1)').text().trim();
+
+    BootstrapDialog.show({
+        message: function (dialog) {
+            // header
+            var content = '';
+            content +=
+                '<form class="form-inline">' +
+                '<div class="form-group form-group-margin">' +
+                '<div style="margin-top: 10px;">' +
+                '<label class="control-label" style="margin: 0 5px;">启用</label>' +
+                '<div class="input-group">' +
+                '<input id="exp_status" type="checkbox" name="status"/>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="form-group form-group-margin" style="float: right">' +
+                '<label class="control-label" style="margin: 0 5px;">上线时间:</label>' +
+                '<div id="online_time_div" class="input-group date">' +
+                '<input id="online_time_value" class="form-control" size="16" value="" readonly>' +
+                '<span class="input-group-addon">' +
+                '<span class="glyphicon glyphicon-th"></span>' +
+                '</span>' +
+                '</div>' +
+                '</div>' +
+                '</form>';
+
+            content += '<div><hr /></div>';
+            content += '<div class="form">';
+            content += '<div class="form-group">' +
+                '<div><label>实验id：</label></div>' +
+                '<input id="exp_id" class="form-control clear-tips">' +
+                '</div>';
+            content += '<div class="form-group">' +
+                '<div><label>实验名称：</label></div>' +
+                '<input id="exp_name" class="form-control clear-tips">' +
+                '</div>';
+            content += '<div class="form-group">' +
+                '<div><label>描述信息：</label></div>' +
+                '<input id="exp_desc" class="form-control clear-tips">' +
+                '</div>';
+            content += '<div id="tip_div" class="form-group no-display">' +
+                '<div><label id="tip_msg" style="color: red"></label></div>' +
+                '</div>';
+            // footer
+            content += '</div>';
+
+            return content;
+        },
+        title: "增加实验项",
+        closable: false,
+        draggable: true,
+        onshown: function () {
+            $("#online_time_div").datetimepicker({
+                language: 'zh-CN',
+                format: "yyyy-mm-dd hh:ii",
+                autoclose: true,
+                todayBtn: true,
+                pickerPosition: "bottom-left",
+                todayHighlight: true
+            });
+
+            // set time limit
+            var now = new Date();
+            $("#online_time_value").datetimepicker('setStartDate', format_time_picker(now));
+
+            // set default time
+            var tomorrow = new Date();
+            // tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(23);
+            tomorrow.setMinutes(59);
+            tomorrow.setSeconds(59);
+            tomorrow.setMilliseconds(59);
+            $("#online_time_value").val(format_time_picker(tomorrow));
+        },
+        buttons: [{
+            label: '确定',
+            action: function (dialogItself) {
+                // 获取用户添加数据
+                var status = 0;
+                if ($("#status").prop('checked')) {
+                    status = 1;
+                }
+                var item_id = $("#item_id").val().trim();
+                var item_name = $("#item_name").val().trim();
+                var position = $("#position").val().trim();
+                var start_value = $("#start_value").val().trim();
+                var stop_value = $("#stop_value").val().trim();
+                var algo_request = $("#algo_request").val().trim();
+                var algo_response = $("#algo_response").val().trim();
+                var item_desc = $("#item_desc").val().trim();
+
+                if (!check_inputs(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
+                    return;
+                }
+
+                // 发送请求
+                $.ajax({
+                        url: '/tree_item',
+                        type: "post",
+                        data: {
+                            type: "ADD_ITEM",
+                            item_id: item_id,
+                            layer_id: layer_id,
+                            item_name: item_name,
+                            position: position,
+                            start_value: start_value,
+                            stop_value: stop_value,
+                            algo_request: algo_request,
+                            algo_response: algo_response,
+                            status: status,
+                            desc: item_desc
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            handle_add_cfg_item_response(response);
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            if (jqXHR.status == 302) {
+                                window.parent.location.replace("/");
+                            } else {
+                                $.showErr("添加失败");
+                            }
+                        }
+                    }
+                );
+
+                // 关闭窗口
+                dialogItself.close();
+            }
+        },
+            {
+                label: '取消',
+                action: function (dialogItself) {
+                    dialogItself.close();
+                }
+            }]
+    });
 });
