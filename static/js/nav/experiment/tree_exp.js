@@ -341,128 +341,6 @@ function load_cfg_node(layer_items, exp_items, func_on_success) {
     );
 }
 
-// 增加配置项
-$(document).on('click', ".add-cfg-item", function () {
-    var $this_tr = $(this).closest('tr');
-    var layer_id = $this_tr.find('td:eq(1)').text().trim();
-
-    BootstrapDialog.show({
-        message: function (dialog) {
-            // header
-            var content = '<div class="form">';
-
-            content += '<div class="form-group">' +
-                '<label style="margin: 0 5px;">启用</label>' +
-                '<input id="status" type="checkbox" name="status"/>' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<div><label>配置id：</label></div>' +
-                '<input id="item_id" class="form-control clear-tips">' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<div><label>配置名称：</label></div>' +
-                '<input id="item_name" class="form-control clear-tips">' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<div><label>位置：</label></div>' +
-                '<input id="position" class="form-control clear-tips">' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<div><label>起始值：</label></div>' +
-                '<input id="start_value" type="number" class="form-control clear-tips">' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<div><label>结束值：</label></div>' +
-                '<input id="stop_value" type="number" class="form-control clear-tips">' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<div><label>algo请求串：</label></div>' +
-                '<input id="algo_request" class="form-control clear-tips">' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<div><label>algo应答串：</label></div>' +
-                '<input id="algo_response" class="form-control clear-tips">' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<div><label>描述信息：</label></div>' +
-                '<input id="item_desc" class="form-control clear-tips">' +
-                '</div>';
-            content += '<div id="tip_div" class="form-group no-display">' +
-                '<div><label id="tip_msg" style="color: red">abc</label></div>' +
-                '</div>';
-            // footer
-            content += '</div>';
-
-            return content;
-        },
-        title: "增加配置项",
-        closable: false,
-        draggable: true,
-        buttons: [{
-            label: '确定',
-            action: function (dialogItself) {
-                // 获取用户添加数据
-                var status = 0;
-                if ($("#status").prop('checked')) {
-                    status = 1;
-                }
-                var item_id = $("#item_id").val().trim();
-                var item_name = $("#item_name").val().trim();
-                var position = $("#position").val().trim();
-                var start_value = $("#start_value").val().trim();
-                var stop_value = $("#stop_value").val().trim();
-                var algo_request = $("#algo_request").val().trim();
-                var algo_response = $("#algo_response").val().trim();
-                var item_desc = $("#item_desc").val().trim();
-
-                if (!check_inputs(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
-                    return;
-                }
-
-                // 发送请求
-                $.ajax({
-                        url: '/tree_item',
-                        type: "post",
-                        data: {
-                            type: "ADD_ITEM",
-                            item_id: item_id,
-                            layer_id: layer_id,
-                            item_name: item_name,
-                            position: position,
-                            start_value: start_value,
-                            stop_value: stop_value,
-                            algo_request: algo_request,
-                            algo_response: algo_response,
-                            status: status,
-                            desc: item_desc
-                        },
-                        dataType: 'json',
-                        success: function (response) {
-                            handle_add_cfg_item_response(response);
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            if (jqXHR.status == 302) {
-                                window.parent.location.replace("/");
-                            } else {
-                                $.showErr("添加失败");
-                            }
-                        }
-                    }
-                );
-
-                // 关闭窗口
-                dialogItself.close();
-            }
-        },
-            {
-                label: '取消',
-                action: function (dialogItself) {
-                    dialogItself.close();
-                }
-            }]
-    });
-});
-
 // 修改实验项
 $(document).on('click', '.modify-cfg-item', function () {
     var tr = $(this).closest('tr');
@@ -857,8 +735,16 @@ function init_exp_selector() {
 }
 
 $(document).on('change', '#exp_selector', function () {
-    reload_layer_node();
+    clear_exp_selector();
+    reload_layer_node(init_exp_selector);
 });
+
+function clear_exp_selector() {
+    $("#exp_selector").html('');
+    var option = '<option value="">选择实验</option>';
+    $("#exp_selector").append(option);
+    $("#exp_selector").selectpicker('refresh');
+}
 
 function load_all_cfg() {
     var layer_id = $("#layer_selector").val();
@@ -890,11 +776,11 @@ function load_all_cfg() {
     );
 }
 
-// 关联实验
+// 关联配置
 $(document).on('click', '.add-cfg-item', function () {
     var $this_tr = $(this).closest('tr');
     var layer_id = $this_tr.treegrid('getParentNode').find('td:eq(1)').text().trim();
-    var item_id = $this_tr.find('td:eq(3)').text().trim();
+    var exp_id = $this_tr.find('td:eq(1)').text().trim();
 
     BootstrapDialog.show({
         message: function (dialog) {
@@ -902,43 +788,43 @@ $(document).on('click', '.add-cfg-item', function () {
             var content = '<div class="form">';
 
             content += '<div class="form-group">' +
-                '<label style="margin: 0 5px;">选择实验</label>' +
+                '<label style="margin: 0 5px;">选择配置</label>' +
                 '<div>' +
-                '<select id="exp_selector" class="selectpicker form-control" data-size="10" data-live-search="true" multiple>' +
+                '<select id="cfg_selector" class="selectpicker form-control" data-size="10" data-live-search="true" multiple>' +
                 '</select>' +
                 '</div>' +
                 '</div>';
             content += '<div id="tip_div" class="form-group no-display">' +
-                '<div><label id="tip_msg" style="color: red">abc</label></div>' +
+                '<div><label id="tip_msg" style="color: red"></label></div>' +
                 '</div>';
             // footer
             content += '</div>';
             return content;
         },
-        title: "关联实验",
+        title: "关联配置",
         closable: false,
         draggable: true,
         onshown: function (dialog) {
-            for (var i = 0; i < window.save_data.all_exp.length; i++) {
-                var item = window.save_data.all_exp[i];
-                if (item.layer_id !== layer_id) {
+            for (var i = 0; i < window.save_data.all_cfg.length; i++) {
+                var cfg = window.save_data.all_cfg[i];
+                if (cfg.layer_id !== layer_id) {
                     continue;
                 }
 
-                var option = '<option value="' + item.id + '">' + item.name + '</option>';
-                if (has_relation(item.layer_id, item_id, item.id)) {
-                    option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
+                var option = '<option value="' + cfg.id + '">' + cfg.name + '</option>';
+                if (has_relation(cfg.layer_id, cfg.id, exp_id)) {
+                    option = '<option value="' + cfg.id + '" selected="selected">' + cfg.name + '</option>';
                 }
 
-                $("#exp_selector").append(option);
+                $("#cfg_selector").append(option);
             }
-            $("#exp_selector").selectpicker('refresh');
-            console.log($("#exp_selector").hasClass('selectpicker'));
+            $("#cfg_selector").selectpicker('refresh');
+            console.log($("#cfg_selector").hasClass('selectpicker'));
         },
         buttons: [{
             label: '确定',
             action: function (dialogItself) {
-                var exp_value = $("#exp_selector").val();
+                var exp_value = $("#cfg_selector").val();
                 console.log(exp_value);
 
                 // 发送请求
