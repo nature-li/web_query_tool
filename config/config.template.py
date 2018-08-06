@@ -6,7 +6,7 @@ from py_log.logger import LogEnv
 # 日志配置
 server_log_env = LogEnv.develop
 server_log_target = "logs"
-server_log_name = "platform"
+server_log_name = "result"
 server_log_size = 100 * 1024 * 1024
 server_log_count = 100
 
