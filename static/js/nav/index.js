@@ -70,7 +70,7 @@ function set_experiment_nav() {
     set_menu_active("#menu_experiment_control");
 
     // 加载数据
-    $("#right_frame").attr("src", "/tree_item");
+    $("#right_frame").attr("src", "/tree_cfg");
 
     // 自适应框架大小
     frame_auto_size();
@@ -151,9 +151,9 @@ function experiment_html() {
                         <!--<i id="i_cfg_item" class="glyphicon glyphicon-pencil"></i>-->
                     <!--</a>-->
                 <!--</li>-->
-                <li id="li_tree_item">
-                    <a id="a_tree_item" href="#">配置视图
-                        <i id="i_tree_item" class="glyphicon glyphicon-pencil"></i>
+                <li id="li_tree_cfg">
+                    <a id="a_tree_cfg" href="#">配置视图
+                        <i id="i_tree_cfg" class="glyphicon glyphicon-pencil"></i>
                     </a>
                 </li>
                 <li id="li_tree_exp">

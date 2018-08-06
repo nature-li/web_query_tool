@@ -11,6 +11,7 @@ from urllib import quote_plus as urlquote
 from config import config
 import traceback
 import json
+import datetime
 from py_log.logger import Logger
 
 Base = declarative_base()
@@ -49,13 +50,13 @@ class Experiment(Base):
     layer_id = Column(String(64))
     name = Column(String(64))
     status = Column(Integer, default=0)
-    online_time = Column(TIMESTAMP)
     desc = Column(String(256))
     create_time = Column(TIMESTAMP, default=func.now())
+    online_time = Column(TIMESTAMP)
     UniqueConstraint('name')
 
 
-class Exp2Item(Base):
+class Exp2Cfg(Base):
     __tablename__ = 'cfg_2_exp'
     id = Column(Integer, primary_key=True, autoincrement=True)
     layer_id = Column(String(64))
@@ -490,13 +491,13 @@ class MysqlOperator(object):
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 # Delete old relation
-                session.query(Exp2Item).filter(Exp2Item.layer_id == layer_id, Exp2Item.cfg_id == item_id).delete(synchronize_session=False)
+                session.query(Exp2Cfg).filter(Exp2Cfg.layer_id == layer_id, Exp2Cfg.cfg_id == item_id).delete(synchronize_session=False)
                 session.commit()
 
                 # Insert new relation
                 relation_list = list()
                 for exp_id in exp_id_list:
-                    exp_2_item = Exp2Item()
+                    exp_2_item = Exp2Cfg()
                     relation_list.append(exp_2_item)
                     exp_2_item.layer_id = layer_id
                     exp_2_item.cfg_id = item_id
@@ -504,13 +505,13 @@ class MysqlOperator(object):
                 session.bulk_save_objects(relation_list)
                 session.commit()
 
-                db_item_list = session.query(Exp2Item.id,
-                                             Exp2Item.layer_id,
-                                             Exp2Item.cfg_id,
-                                             Exp2Item.exp_id,
-                                             Exp2Item.create_time).filter(
-                    Exp2Item.layer_id == layer_id,
-                    Exp2Item.cfg_id == item_id)[:]
+                db_item_list = session.query(Exp2Cfg.id,
+                                             Exp2Cfg.layer_id,
+                                             Exp2Cfg.cfg_id,
+                                             Exp2Cfg.exp_id,
+                                             Exp2Cfg.create_time).filter(
+                    Exp2Cfg.layer_id == layer_id,
+                    Exp2Cfg.cfg_id == item_id)[:]
                 a_dict = dict()
                 a_dict['success'] = True
                 a_dict['msg'] = 'ok'
@@ -548,26 +549,26 @@ class MysqlOperator(object):
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 # 查询数据
-                count_query = session.query(Exp2Item.id)
-                value_query = session.query(Exp2Item.id,
-                                            Exp2Item.layer_id,
-                                            Exp2Item.cfg_id,
-                                            Exp2Item.exp_id,
+                count_query = session.query(Exp2Cfg.id)
+                value_query = session.query(Exp2Cfg.id,
+                                            Exp2Cfg.layer_id,
+                                            Exp2Cfg.cfg_id,
+                                            Exp2Cfg.exp_id,
                                             Experiment.name.label('exp_name'),
                                             Experiment.desc,
-                                            Exp2Item.create_time).join(Experiment, Experiment.id == Exp2Item.exp_id)
+                                            Exp2Cfg.create_time).join(Experiment, Experiment.id == Exp2Cfg.exp_id)
 
                 if layer_id:
-                    count_query = count_query.filter(Exp2Item.layer_id == layer_id)
-                    value_query = value_query.filter(Exp2Item.layer_id == layer_id)
+                    count_query = count_query.filter(Exp2Cfg.layer_id == layer_id)
+                    value_query = value_query.filter(Exp2Cfg.layer_id == layer_id)
 
                 if cfg_id:
-                    count_query = count_query.filter(Exp2Item.cfg_id == cfg_id)
-                    value_query = value_query.filter(Exp2Item.cfg_id == cfg_id)
+                    count_query = count_query.filter(Exp2Cfg.cfg_id == cfg_id)
+                    value_query = value_query.filter(Exp2Cfg.cfg_id == cfg_id)
 
                 if exp_id:
-                    count_query = count_query.filter(Exp2Item.exp_id == exp_id)
-                    value_query = value_query.filter(Exp2Item.exp_id == exp_id)
+                    count_query = count_query.filter(Exp2Cfg.exp_id == exp_id)
+                    value_query = value_query.filter(Exp2Cfg.exp_id == exp_id)
 
                 count = count_query.count()
                 values = value_query[off_set: limit_count]
@@ -579,7 +580,7 @@ class MysqlOperator(object):
                     a_exp_list.append(a_item)
                     a_item['id'] = value.id
                     a_item['layer_id'] = value.layer_id
-                    a_item['item_id'] = value.cfg_id
+                    a_item['cfg_id'] = value.cfg_id
                     a_item['exp_id'] = value.exp_id
                     a_item['exp_name'] = value.exp_name
                     a_item['desc'] = value.desc
@@ -604,10 +605,10 @@ class MysqlOperator(object):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
-                session.query(Exp2Item).filter(
-                    Exp2Item.layer_id == layer_id,
-                    Exp2Item.cfg_id == cfg_id,
-                    Exp2Item.exp_id == exp_id).delete(synchronize_session=False)
+                session.query(Exp2Cfg).filter(
+                    Exp2Cfg.layer_id == layer_id,
+                    Exp2Cfg.cfg_id == cfg_id,
+                    Exp2Cfg.exp_id == exp_id).delete(synchronize_session=False)
                 session.commit()
 
                 a_dict = dict()
@@ -636,11 +637,11 @@ class MysqlOperator(object):
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 # 查询数据
-                count_query = session.query(Exp2Item.id)
-                value_query = session.query(Exp2Item.id,
-                                            Exp2Item.layer_id,
-                                            Exp2Item.cfg_id,
-                                            Exp2Item.exp_id,
+                count_query = session.query(Exp2Cfg.id)
+                value_query = session.query(Exp2Cfg.id,
+                                            Exp2Cfg.layer_id,
+                                            Exp2Cfg.cfg_id,
+                                            Exp2Cfg.exp_id,
                                             CfgItem.name,
                                             CfgItem.position,
                                             CfgItem.start_value,
@@ -649,19 +650,19 @@ class MysqlOperator(object):
                                             CfgItem.algo_response,
                                             CfgItem.status,
                                             CfgItem.desc,
-                                            Exp2Item.create_time).join(CfgItem, CfgItem.id == Exp2Item.cfg_id)
+                                            Exp2Cfg.create_time).join(CfgItem, CfgItem.id == Exp2Cfg.cfg_id)
 
                 if layer_id:
-                    count_query = count_query.filter(Exp2Item.layer_id == layer_id)
-                    value_query = value_query.filter(Exp2Item.layer_id == layer_id)
+                    count_query = count_query.filter(Exp2Cfg.layer_id == layer_id)
+                    value_query = value_query.filter(Exp2Cfg.layer_id == layer_id)
 
                 if cfg_id:
-                    count_query = count_query.filter(Exp2Item.cfg_id == cfg_id)
-                    value_query = value_query.filter(Exp2Item.cfg_id == cfg_id)
+                    count_query = count_query.filter(Exp2Cfg.cfg_id == cfg_id)
+                    value_query = value_query.filter(Exp2Cfg.cfg_id == cfg_id)
 
                 if exp_id:
-                    count_query = count_query.filter(Exp2Item.exp_id == exp_id)
-                    value_query = value_query.filter(Exp2Item.exp_id == exp_id)
+                    count_query = count_query.filter(Exp2Cfg.exp_id == exp_id)
+                    value_query = value_query.filter(Exp2Cfg.exp_id == exp_id)
 
                 count = count_query.count()
                 values = value_query[off_set: limit_count]
@@ -697,4 +698,216 @@ class MysqlOperator(object):
             a_dict['success'] = 'false'
             a_dict['content'] = list()
             a_dict['item_count'] = 0
+            return json.dumps(a_dict)
+
+    @classmethod
+    def add_one_exp(cls, layer_id, exp_id, exp_name, exp_status, online_time, exp_desc):
+        try:
+            exp = Experiment()
+            exp.layer_id = layer_id
+            exp.id = exp_id
+            exp.name = exp_name
+            exp.status = exp_status
+            exp.online_time = datetime.datetime.strptime(online_time, '%Y-%m-%d %H:%M:%S')
+            exp.desc = exp_desc
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                session.add(exp)
+                session.commit()
+
+                db_exp_list = session.query(Experiment.id,
+                                            Experiment.layer_id,
+                                            Experiment.name,
+                                            Experiment.status,
+                                            Experiment.online_time,
+                                            Experiment.desc,
+                                            Experiment.create_time).filter(Experiment.id == exp_id)[:]
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                a_dict['content'] = content = list()
+                if len(db_exp_list) > 0:
+                    item = db_exp_list[0]
+                    a_exp = {
+                        'layer_id': item.layer_id,
+                        'id': item.id,
+                        'name': item.name,
+                        'status': item.status,
+                        'online_time': item.online_time.strftime('%Y-%m-%d %H:%M:%S'),
+                        'desc': item.desc,
+                        'create_time': item.create_time.strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    content.append(a_exp)
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'INSERT INTO db ERROR'
+            return json.dumps(a_dict)
+
+    @classmethod
+    def modify_exp_status(cls, exp_id, exp_status):
+        try:
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                exp = session.query(Experiment).filter(Experiment.id == exp_id).first()
+                if not exp:
+                    Logger.error(traceback.format_exc())
+                    a_dict = dict()
+                    a_dict['success'] = False
+                    a_dict['msg'] = 'cfg_id does not exist'
+                    return json.dumps(a_dict)
+
+                exp.status = exp_status
+                session.commit()
+
+                db_exp_list = session.query(Experiment.id,
+                                            Experiment.layer_id,
+                                            Experiment.name,
+                                            Experiment.status,
+                                            Experiment.online_time,
+                                            Experiment.desc,
+                                            Experiment.create_time).filter(Experiment.id == exp_id)[:]
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                a_dict['content'] = content = list()
+                if len(db_exp_list) > 0:
+                    item = db_exp_list[0]
+                    a_exp = {
+                        'layer_id': item.layer_id,
+                        'id': item.id,
+                        'name': item.name,
+                        'status': item.status,
+                        'online_time': item.online_time.strftime('%Y-%m-%d %H:%M:%S'),
+                        'desc': item.desc,
+                        'create_time': item.create_time.strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    content.append(a_exp)
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'update db failed'
+            return json.dumps(a_dict)
+
+    @classmethod
+    def modify_experiment(cls, layer_id, exp_id, exp_name, exp_status, online_time, exp_desc):
+        try:
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                exp = session.query(Experiment).filter(Experiment.id == exp_id).first()
+                if not exp:
+                    Logger.error(traceback.format_exc())
+                    a_dict = dict()
+                    a_dict['success'] = False
+                    a_dict['msg'] = 'db_id does not exist'
+                    return json.dumps(a_dict)
+
+                exp.name = exp_name
+                exp.layer_id = layer_id
+                exp.status = exp_status
+                exp.online_time = online_time
+                exp.desc = exp_desc
+                session.commit()
+
+                db_exp_list = session.query(Experiment.id,
+                                            Experiment.layer_id,
+                                            Experiment.name,
+                                            Experiment.status,
+                                            Experiment.online_time,
+                                            Experiment.desc,
+                                            Experiment.create_time).filter(Experiment.id == exp_id)[:]
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                a_dict['content'] = content = list()
+                if len(db_exp_list) > 0:
+                    item = db_exp_list[0]
+                    a_exp = {
+                        'layer_id': item.layer_id,
+                        'id': item.id,
+                        'name': item.name,
+                        'status': item.status,
+                        'online_time': item.online_time.strftime('%Y-%m-%d %H:%M:%S'),
+                        'desc': item.desc,
+                        'create_time': item.create_time.strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    content.append(a_exp)
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'update db failed'
+            return json.dumps(a_dict)
+
+    @classmethod
+    def delete_experiment(cls, exp_id):
+        try:
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                session.query(Experiment).filter(Experiment.id == exp_id).delete(synchronize_session=False)
+                session.commit()
+
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'delete db failed'
+            return json.dumps(a_dict)
+
+    @classmethod
+    def put_exp_relation(cls, layer_id, exp_id, cfg_id_list):
+        try:
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                # Delete old relation
+                session.query(Exp2Cfg).filter(Exp2Cfg.layer_id == layer_id, Exp2Cfg.exp_id == exp_id).delete(synchronize_session=False)
+                session.commit()
+
+                # Insert new relation
+                relation_list = list()
+                for cfg_id in cfg_id_list:
+                    exp_2_item = Exp2Cfg()
+                    relation_list.append(exp_2_item)
+                    exp_2_item.layer_id = layer_id
+                    exp_2_item.cfg_id = cfg_id
+                    exp_2_item.exp_id = exp_id
+                session.bulk_save_objects(relation_list)
+                session.commit()
+
+                db_item_list = session.query(Exp2Cfg.id,
+                                             Exp2Cfg.layer_id,
+                                             Exp2Cfg.cfg_id,
+                                             Exp2Cfg.exp_id,
+                                             Exp2Cfg.create_time).filter(
+                    Exp2Cfg.layer_id == layer_id,
+                    Exp2Cfg.exp_id == exp_id)[:]
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                a_dict['content'] = content = list()
+                if len(db_item_list) > 0:
+                    item = db_item_list[0]
+                    a_layer = {
+                        'id': item.id,
+                        'layer_id': item.layer_id,
+                        'cfg_id': item.cfg_id,
+                        'exp_id': item.exp_id,
+                        'create_time': item.create_time.strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    content.append(a_layer)
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'update db failed'
             return json.dumps(a_dict)

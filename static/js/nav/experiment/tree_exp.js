@@ -30,6 +30,7 @@ function reset_save_data() {
     };
 }
 
+// 初始化层次下拉列表框
 function init_layer_selector() {
     $.ajax({
             url: '/layer',
@@ -72,6 +73,7 @@ function init_layer_selector() {
     );
 }
 
+// 重构树视图
 function reload_layer_node(func_on_success) {
     reset_save_data();
 
@@ -109,6 +111,7 @@ function reload_layer_node(func_on_success) {
     );
 }
 
+// 为实验可用状态添加按钮
 function create_status_button(value, row, index) {
     if (value === 0) {
         return '<input type="checkbox" class="toggle-status" data-toggle="toggle" data-style="radius" data-on="启用" ' +
@@ -123,6 +126,20 @@ function create_status_button(value, row, index) {
     return null;
 }
 
+// 为配置项添加状态图片
+function create_cfg_status(value, row, index) {
+    if (value === 0) {
+        return '<img src="/static/images/error.png" alt="禁用"/>'
+    }
+
+    if (value === 1) {
+        return '<img src="/static/images/right.png" alt="开启"/>'
+    }
+
+    return null;
+}
+
+// 创建每一行对应的下拉菜单
 function create_expand_name(value, row, index) {
     var html = '<span class="node-value">' +
         value +
@@ -148,9 +165,17 @@ function create_expand_name(value, row, index) {
             '<span class="glyphicon glyphicon-option-vertical"></span>' +
             '</button>' +
             '<ul class="dropdown-menu">' +
-            '<li><a href="#" class="modify-exp-item">修改实验</a></li>' +
-            '<li><a href="#" class="delete-cxp-item">删除实验</a></li>' +
-            '<li role="separator" class="divider"></li>' +
+            '<li><a href="#" class="modify-exp-item">修改实验</a></li>';
+
+        var layer_id = row['layer_id'];
+        var exp_id = row['exp_id'];
+        if (is_exp_empty(layer_id, exp_id)) {
+            html += '<li><a href="#" class="delete-exp-item">删除实验</a></li>';
+        } else {
+            html += '<li class="disabled"><a href="#" class="delete-exp-item">删除实验</a></li>';
+        }
+
+        html += '<li role="separator" class="divider"></li>' +
             '<li><a href="#" class="add-cfg-item">关联配置</a></li>' +
             '</ul>' +
             '</div>';
@@ -169,6 +194,7 @@ function create_expand_name(value, row, index) {
     return html;
 }
 
+// 创建层节点
 function get_layer_node(item) {
     return {
         "unique_pid": 0,
@@ -184,6 +210,7 @@ function get_layer_node(item) {
     };
 }
 
+// 创建实验结点
 function get_exp_node(item) {
     return {
         "unique_pid": "layer_" + item.layer_id,
@@ -193,6 +220,7 @@ function get_exp_node(item) {
         "create_time": item.create_time,
         'desc': item.desc,
         'self_id': item.id,
+        'layer_id': item.layer_id,
         "exp_id": item.id,
         "exp_name": item.name,
         "exp_status": item.status,
@@ -200,6 +228,7 @@ function get_exp_node(item) {
     }
 }
 
+// 创建配置结点
 function get_cfg_node(item) {
     return {
         "unique_pid": "exp_" + item.exp_id,
@@ -220,43 +249,45 @@ function get_cfg_node(item) {
     };
 }
 
+// 重构树视图
 function draw_layer_node(layer_items, exp_items, cfg_items) {
     var columns = [
         {
             field: 'name',
-            title: '名称(0)',
+            title: '名称',
             formatter: 'create_expand_name'
         },
         {
             align: 'center',
             field: 'self_id',
-            title: 'id(1)'
+            title: 'id'
         },
         {
             align: 'center',
             field: 'exp_status',
-            title: '实验状态(2)',
+            title: '实验状态',
             formatter: 'create_status_button'
         },
         {
             align: 'center',
             field: 'exp_online_time',
-            title: '上线时间(3)'
+            title: '上线时间'
         },
         {
             align: 'center',
             field: 'cfg_status',
-            title: '配置状态(4)'
+            title: '配置状态',
+            formatter: create_cfg_status
         },
         {
             align: 'center',
             field: 'create_time',
-            title: '创建时间(5)'
+            title: '创建时间'
         },
         {
             align: 'center',
             field: 'desc',
-            title: '描述(6)',
+            title: '描述',
             class: 'no-display'
         }
     ];
@@ -269,7 +300,7 @@ function draw_layer_node(layer_items, exp_items, cfg_items) {
         parentIdField: "unique_pid",
         uniqueId: "unique_id",
         treeShowField: "name",
-        columns: columns,
+        columns: columns
     });
 
     $layer_tree.bootstrapTable('removeAll');
@@ -282,17 +313,17 @@ function draw_layer_node(layer_items, exp_items, cfg_items) {
             row: node
         });
     }
-    for (var i = 0; i < exp_items.length; i++) {
-        var item = exp_items[i];
-        var node = get_exp_node(item);
+    for (i = 0; i < exp_items.length; i++) {
+        item = exp_items[i];
+        node = get_exp_node(item);
         $layer_tree.bootstrapTable('insertRow', {
             index: 0,
             row: node
         });
     }
-    for (var i = 0; i < cfg_items.length; i++) {
-        var item = cfg_items[i];
-        var node = get_cfg_node(item);
+    for (i = 0; i < cfg_items.length; i++) {
+        item = cfg_items[i];
+        node = get_cfg_node(item);
         $layer_tree.bootstrapTable('insertRow', {
             index: 0,
             row: node
@@ -302,8 +333,8 @@ function draw_layer_node(layer_items, exp_items, cfg_items) {
     render_tree();
 }
 
-// Reload page
-function load_cfg_node(layer_items, exp_items, func_on_success) {
+// 仅加载与某实验有关联的配置
+function load_relation_cfg_node(layer_items, exp_items, func_on_success) {
     var layer_id = $("#layer_selector").val();
     var exp_id = $("#exp_selector").val();
     $.ajax({
@@ -342,127 +373,123 @@ function load_cfg_node(layer_items, exp_items, func_on_success) {
 }
 
 // 修改实验项
-$(document).on('click', '.modify-cfg-item', function () {
+$(document).on('click', '.modify-exp-item', function () {
     var tr = $(this).closest('tr');
     var layer_id = $(tr).treegrid('getParentNode').find('td:eq(1)').text().trim();
-    var item_name = $(tr).find('td:eq(0)').find('span.node-value').html();
-    var item_id = $(tr).find('td:eq(3)').text().trim();
-    var position = $(tr).find('td:eq(4)').text().trim();
-    var start_value = $(tr).find('td:eq(5)').text().trim();
-    var stop_value = $(tr).find('td:eq(6)').text().trim();
-    var algo_request = $(tr).find('td:eq(7)').text().trim();
-    var algo_response = $(tr).find('td:eq(8)').text().trim();
-    var status = $(tr).find('td:eq(9)').find('input').prop('checked');
-    var item_desc = $(tr).find('td:eq(12)').text().trim();
+    var exp_name = $(tr).find('td:eq(0)').find('span.node-value').html();
+    var exp_id = $(tr).find('td:eq(1)').text().trim();
+    var exp_status = $(tr).find('td:eq(2)').find('input').prop('checked');
+    var online_time = $(tr).find('td:eq(3)').text().trim();
+    var exp_desc = $(tr).find('td:eq(6)').text().trim();
 
     BootstrapDialog.show({
         message: function (dialog) {
             // header
-            var content = '<div class="form">';
+            var content = '';
+            content +=
+                '<form class="form-inline">' +
+                '<div class="form-group form-group-margin">' +
+                '<div style="margin-top: 10px;">' +
+                '<label class="control-label" style="margin: 0 5px;">启用</label>' +
+                '<div class="input-group">';
 
-            if (!status) {
-                content += '<div class="form-group">' +
-                    '<label style="margin: 0 5px;">启用</label>' +
-                    '<input id="status" type="checkbox" name="status"/>' +
-                    '</div>';
-            } else {
-                content += '<div class="form-group">' +
-                    '<label style="margin: 0 5px;">启用</label>' +
-                    '<input id="status" type="checkbox" name="status" checked/>' +
-                    '</div>';
-            }
+                if (!exp_status) {
+                    content += '<input id="exp_status" type="checkbox" name="status"/>';
+                } else {
+                    content += '<input id="exp_status" type="checkbox" name="status" checked/>';
+                }
+                content += '</div>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="form-group form-group-margin" style="float: right">' +
+                '<label class="control-label" style="margin: 0 5px;">上线时间:</label>' +
+                '<div id="online_time_div" class="input-group date">' +
+                '<input id="online_time_value" class="form-control" size="16" value="" readonly>' +
+                '<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>' +
+                '</div>' +
+                '</div>' +
+                '</form>';
+
             content += '<div><hr /></div>';
+            content += '<div class="form">';
             content += '<div class="form-group">' +
-                '<label>配置id：</label>' +
-                '<input id="item_id" class="form-control clear-tips" value="' + item_id + '" readonly>' +
+                '<div><label>实验id：</label></div>' +
+                '<input id="exp_id" class="form-control clear-tips" value="' + exp_id + '" readonly>' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<label>配置名称：</label>' +
-                '<input id="item_name" class="form-control clear-tips" value="' + item_name + '">' +
+                '<div><label>实验名称：</label></div>' +
+                '<input id="exp_name" class="form-control clear-tips" value="' + exp_name + '">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<label>位置：</label>' +
-                '<input id="position" class="form-control clear-tips" value="' + position + '">' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<label>起始值：</label>' +
-                '<input type="number" id="start_value" class="form-control clear-tips" value="' + start_value + '">' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<label>结束值：</label>' +
-                '<input type="number" id="stop_value" class="form-control clear-tips" value="' + stop_value + '">' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<label>algo请求串：</label>' +
-                '<input id="algo_request" class="form-control clear-tips" value="' + algo_request + '">' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<label>algo应答串：</label>' +
-                '<input id="algo_response" class="form-control clear-tips" value="' + algo_response + '">' +
-                '</div>';
-            content += '<div class="form-group">' +
-                '<label>配置描述：</label>' +
-                '<input id="item_desc" class="form-control clear-tips" value="' + item_desc + '">' +
+                '<div><label>描述信息：</label></div>' +
+                '<input id="exp_desc" class="form-control clear-tips" value="' + exp_desc + '">' +
                 '</div>';
             content += '<div id="tip_div" class="form-group no-display">' +
                 '<div><label id="tip_msg" style="color: red"></label></div>' +
                 '</div>';
-
             // footer
             content += '</div>';
 
             return content;
         },
-        title: "修改配置项（" + item_id + "）",
+        title: "修改实验项",
         closable: false,
         draggable: true,
+        onshown: function () {
+            $("#online_time_div").datetimepicker({
+                language: 'zh-CN',
+                format: "yyyy-mm-dd hh:ii",
+                autoclose: true,
+                todayBtn: true,
+                pickerPosition: "bottom-left",
+                todayHighlight: true
+            });
+
+            // set default time
+            var tomorrow = new Date(online_time);
+            $("#online_time_value").val(format_time_picker(tomorrow));
+        },
         buttons: [{
             label: '确定',
             action: function (dialogItself) {
                 // 获取用户添加数据
-                var status = 0;
-                if ($("#status").prop('checked')) {
-                    status = 1;
+                var exp_status = 0;
+                if ($("#exp_status").prop('checked')) {
+                    exp_status = 1;
                 }
-                var item_id = $("#item_id").val().trim();
-                var item_name = $("#item_name").val().trim();
-                var position = $("#position").val().trim();
-                var start_value = $("#start_value").val().trim();
-                var stop_value = $("#stop_value").val().trim();
-                var algo_request = $("#algo_request").val().trim();
-                var algo_response = $("#algo_response").val().trim();
-                var item_desc = $("#item_desc").val().trim();
 
-                if (!check_inputs(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
+                var online_time = $("#online_time_value").val() + ":00";
+                var exp_id = $("#exp_id").val().trim();
+                var exp_name = $("#exp_name").val().trim();
+                var exp_desc = $("#exp_desc").val().trim();
+
+                if (!check_inputs(layer_id, exp_id, exp_name, exp_status, online_time, exp_desc)) {
                     return;
                 }
 
                 // 发送请求
                 $.ajax({
-                        url: '/tree_item',
+                        url: '/tree_exp',
                         type: "put",
                         data: {
-                            type: "MODIFY_ITEM",
-                            item_id: item_id,
+                            type: "MODIFY_EXP",
                             layer_id: layer_id,
-                            item_name: item_name,
-                            position: position,
-                            start_value: start_value,
-                            stop_value: stop_value,
-                            algo_request: algo_request,
-                            algo_response: algo_response,
-                            status: status,
-                            desc: item_desc
+                            exp_id: exp_id,
+                            exp_name: exp_name,
+                            exp_status: exp_status,
+                            online_time: online_time,
+                            exp_desc: exp_desc
                         },
                         dataType: 'json',
                         success: function (response) {
-                            handle_modify_cfg_item_response(response);
+                            handle_modify_exp_response(response);
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             if (jqXHR.status == 302) {
                                 window.parent.location.replace("/");
                             } else {
-                                $.showErr("修改失败");
+                                $.showErr("添加失败");
                             }
                         }
                     }
@@ -482,25 +509,25 @@ $(document).on('click', '.modify-cfg-item', function () {
 });
 
 // 删除实验项
-$(document).on('click', '.delete-cfg-item', function () {
-    var item_id = $(this).closest('tr').find('td:eq(3)').text().trim();
-    $.showConfirm("确定要删除吗?", delete_one_cfg_item(item_id));
+$(document).on('click', '.delete-exp-item', function () {
+    var exp_id = $(this).closest('tr').find('td:eq(1)').text().trim();
+    $.showConfirm("确定要删除吗?", delete_one_exp_item(exp_id));
 });
 
 // 删除实验项
-function delete_one_cfg_item(item_id) {
+function delete_one_exp_item(exp_id) {
     function work_func() {
         // 发送请求
         $.ajax({
-                url: '/tree_item',
+                url: '/tree_exp',
                 type: "delete",
                 data: {
-                    type: 'DEL_ITEM',
-                    item_id: item_id
+                    type: 'DEL_EXP',
+                    exp_id: exp_id
                 },
                 dataType: 'json',
                 success: function (response) {
-                    handle_delete_cfg_item_response(response, item_id);
+                    handle_delete_exp_response(response, exp_id);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     if (jqXHR.status == 302) {
@@ -516,27 +543,27 @@ function delete_one_cfg_item(item_id) {
     return work_func;
 }
 
-// 切换状态
+// 实验切换状态
 $(document).on('change', '.toggle-status', function () {
-    var item_id = $(this).closest('tr').find('td:eq(3)').text().trim();
+    var exp_id = $(this).closest('tr').find('td:eq(1)').text().trim();
 
-    var status = 0;
+    var exp_status = 0;
     if ($(this).prop('checked')) {
-        status = 1;
+        exp_status = 1;
     }
 
     // 发送请求
     $.ajax({
-            url: '/tree_item',
+            url: '/tree_exp',
             type: "put",
             data: {
                 type: 'MODIFY_STATUS',
-                item_id: item_id,
-                status: status
+                exp_id: exp_id,
+                exp_status: exp_status
             },
             dataType: 'json',
             success: function (response) {
-                handle_modify_cfg_item_response(response);
+                handle_modify_exp_response(response);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -564,78 +591,38 @@ function show_tip_msg(msg) {
     }
 }
 
-function check_inputs(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc) {
-    if (item_id === "") {
-        show_tip_msg("配置id不能为空");
-        return false;
-    }
-
+// 输入检测
+function check_inputs(layer_id, exp_id, exp_name, exp_status, online_time, exp_desc) {
     if (layer_id === "") {
         show_tip_msg("层id不能为空");
         return false;
     }
 
-    if (item_name === "") {
-        show_tip_msg("配置名称不能为空");
+    if (exp_id === "") {
+        show_tip_msg("实验id不能为空");
         return false;
     }
 
-    if (position === "") {
-        show_tip_msg("位置不能为空");
+    if (exp_name === "") {
+        show_tip_msg("实验名称不能为空");
         return false;
     }
 
-    if (start_value === "") {
-        show_tip_msg("起始值不能为空");
-        return false;
-    }
-    start_value = parseInt(start_value);
-
-    if (stop_value === "") {
-        show_tip_msg("结束值不能为空");
-        return false;
-    }
-    stop_value = parseInt(stop_value);
-
-    if (start_value > stop_value) {
-        show_tip_msg("起始值不能大于结束值");
+    if (exp_status === "") {
+        show_tip_msg("状态不能为空");
         return false;
     }
 
-    if (algo_request === "") {
-        show_tip_msg("algo请求串不能为空");
-        return false;
-    }
-
-    if (algo_response === "") {
-        show_tip_msg("algo应答串不能为空");
+    if (online_time === "") {
+        show_tip_msg("上线时间不能为空");
         return false;
     }
 
     return true;
 }
 
-function handle_add_cfg_item_response(response) {
-    if (response.success !== true) {
-        $.showErr('添加失败');
-        return;
-    }
-
-    var $layer_tree = $("#layer_item");
-    for (var i = 0; i < response.content.length; i++) {
-        var item = response.content[i];
-        var cfg_node = get_cfg_node(item);
-
-        $layer_tree.bootstrapTable('insertRow', {
-            index: 0,
-            row: cfg_node
-        });
-
-        render_tree();
-    }
-}
-
-function handle_modify_cfg_item_response(response) {
+// 修改实验
+function handle_modify_exp_response(response) {
     if (response.success !== true) {
         $.showErr("更新失败");
         reload_layer_node();
@@ -645,40 +632,36 @@ function handle_modify_cfg_item_response(response) {
     var $layer_tree = $("#layer_item");
     for (var i = 0; i < response.content.length; i++) {
         var item = response.content[i];
-        $("#layer_item tbody").find("tr").each(function () {
-            var item_id = $(this).find("td:eq(3)").text().trim();
-            if (item_id !== item.id.toString()) {
-                return;
-            }
 
-            var cfg_node = get_cfg_node(item);
-            var row = $layer_tree.bootstrapTable('getRowByUniqueId', "cfg_" + item.id);
-            var data = $layer_tree.bootstrapTable('getData');
-            var row_idx = data.indexOf(row);
+        var exp_node = get_exp_node(item);
+        var row = $layer_tree.bootstrapTable('getRowByUniqueId', "exp_" + item.id);
+        var data = $layer_tree.bootstrapTable('getData');
+        var row_idx = data.indexOf(row);
 
-            $layer_tree.bootstrapTable('updateRow', {
-                index: row_idx,
-                row: cfg_node
-            });
-
-            render_tree();
+        $layer_tree.bootstrapTable('updateRow', {
+            index: row_idx,
+            row: exp_node
         });
+
+        render_tree();
     }
 }
 
-function handle_delete_cfg_item_response(response, item_id) {
+// 删除实验
+function handle_delete_exp_response(response, exp_id) {
     if (response.success !== true) {
         $.showErr("删除失败");
         return;
     }
 
-    var unique_id = 'cfg_' + item_id;
+    var unique_id = 'exp_' + exp_id;
     var $layer_tree = $("#layer_item");
     $layer_tree.bootstrapTable('removeByUniqueId', unique_id);
 
     render_tree();
 }
 
+// 重构树视图
 function render_tree() {
     var $layer_tree = $("#layer_item");
 
@@ -698,18 +681,13 @@ function render_tree() {
     });
 }
 
+// 触发层次下拉列表框
 $(document).on('change', '#layer_selector', function () {
     clear_exp_selector();
     reload_layer_node(init_exp_selector);
 });
 
-function clear_exp_selector() {
-    $("#exp_selector").html('');
-    var option = '<option value="">选择实验</option>';
-    $("#exp_selector").append(option);
-    $("#exp_selector").selectpicker('refresh');
-}
-
+// 初始化实验下拉列表框
 function init_exp_selector() {
     var layer_id = $("#layer_selector").val();
 
@@ -734,11 +712,12 @@ function init_exp_selector() {
     $("#exp_selector").selectpicker('refresh');
 }
 
+// 触发实验下拉列表框
 $(document).on('change', '#exp_selector', function () {
-    clear_exp_selector();
-    reload_layer_node(init_exp_selector);
+    reload_layer_node();
 });
 
+// 清除实验下拉列表框
 function clear_exp_selector() {
     $("#exp_selector").html('');
     var option = '<option value="">选择实验</option>';
@@ -746,13 +725,14 @@ function clear_exp_selector() {
     $("#exp_selector").selectpicker('refresh');
 }
 
+// 加载所有配置
 function load_all_cfg() {
     var layer_id = $("#layer_selector").val();
     $.ajax({
-            url: '/tree_item',
+            url: '/tree_cfg',
             type: "get",
             data: {
-                'type': 'QUERY_ITEM',
+                'type': 'QUERY_CFG',
                 'layer_id': layer_id,
                 'off_set': 0,
                 'limit': -1
@@ -776,7 +756,7 @@ function load_all_cfg() {
     );
 }
 
-// 关联配置
+// 为实验关联配置
 $(document).on('click', '.add-cfg-item', function () {
     var $this_tr = $(this).closest('tr');
     var layer_id = $this_tr.treegrid('getParentNode').find('td:eq(1)').text().trim();
@@ -819,23 +799,21 @@ $(document).on('click', '.add-cfg-item', function () {
                 $("#cfg_selector").append(option);
             }
             $("#cfg_selector").selectpicker('refresh');
-            console.log($("#cfg_selector").hasClass('selectpicker'));
         },
         buttons: [{
             label: '确定',
             action: function (dialogItself) {
-                var exp_value = $("#cfg_selector").val();
-                console.log(exp_value);
+                var cfg_value = $("#cfg_selector").val();
 
                 // 发送请求
                 $.ajax({
-                        url: '/cfg_relation',
+                        url: '/exp_relation',
                         type: "put",
                         data: {
                             type: "PUT_RELATION",
-                            item_id: item_id,
                             layer_id: layer_id,
-                            exp_id: exp_value,
+                            exp_id: exp_id,
+                            cfg_id: cfg_value
                         },
                         dataType: 'json',
                         success: function (response) {
@@ -864,20 +842,23 @@ $(document).on('click', '.add-cfg-item', function () {
     });
 });
 
+// 菜单显示前 resize 页面
 $(document).on('click', '.dropdown-toggle', function () {
     $("#layer_item").bootstrapTable('scrollTo', 'bottom');
 });
 
 
+// 为实验关联配置
 function handle_add_exp_relation_response(response) {
     reload_layer_node();
 }
 
+// 加载所有实验
 function load_exp_node(layer_items, func_on_success) {
     var layer_id = $("#layer_selector").val();
     var exp_id = $("#exp_selector").val();
     $.ajax({
-            url: '/experiment',
+            url: '/tree_exp',
             type: "get",
             data: {
                 'type': 'QUERY_EXP',
@@ -893,7 +874,7 @@ function load_exp_node(layer_items, func_on_success) {
                 }
 
                 window.save_data.all_exp = data.content;
-                load_cfg_node(layer_items, window.save_data.all_exp, func_on_success);
+                load_relation_cfg_node(layer_items, window.save_data.all_exp, func_on_success);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -906,7 +887,7 @@ function load_exp_node(layer_items, func_on_success) {
     );
 }
 
-
+// 判断实验和配置间关系
 function has_relation(layer_id, cfg_id, exp_id) {
     for (var i = 0; i < window.save_data.all_relation.length; i++) {
         var item = window.save_data.all_relation[i];
@@ -915,7 +896,7 @@ function has_relation(layer_id, cfg_id, exp_id) {
             continue;
         }
 
-        if (item.item_id !== cfg_id) {
+        if (item.cfg_id !== cfg_id) {
             continue;
         }
 
@@ -929,22 +910,23 @@ function has_relation(layer_id, cfg_id, exp_id) {
     return false;
 }
 
-$(document).on('click', '.del-exp-item', function () {
-    var $exp_tr = $(this).closest('tr');
-    var $cfg_tr = $exp_tr.treegrid('getParentNode');
-    var $layer_tr = $cfg_tr.treegrid('getParentNode');
+// 移除配置
+$(document).on('click', '.del-cfg-item', function () {
+    var $cfg_tr = $(this).closest('tr');
+    var $exp_tr = $cfg_tr.treegrid('getParentNode');
+    var $layer_tr = $exp_tr.treegrid('getParentNode');
     var layer_id = $layer_tr.find('td:eq(1)').text().trim();
-    var cfg_id = $cfg_tr.find('td:eq(3)').text().trim();
-    var exp_id = $exp_tr.find('td:eq(10)').text().trim();
+    var exp_id = $exp_tr.find('td:eq(1)').text().trim();
+    var cfg_id = $cfg_tr.find('td:eq(1)').text().trim();
 
     $.ajax({
-            url: '/cfg_relation',
+            url: '/exp_relation',
             type: "delete",
             data: {
                 'type': 'DEL_RELATION',
                 'layer_id': layer_id,
-                'item_id': cfg_id,
                 'exp_id': exp_id,
+                'cfg_id': cfg_id
             },
             dataType: 'json',
             success: function (data) {
@@ -965,6 +947,7 @@ $(document).on('click', '.del-exp-item', function () {
     );
 });
 
+// 添加实验
 $(document).on('click', '.add-exp-item', function () {
     var $this_tr = $(this).closest('tr');
     var layer_id = $this_tr.find('td:eq(1)').text().trim();
@@ -988,9 +971,7 @@ $(document).on('click', '.add-exp-item', function () {
                 '<label class="control-label" style="margin: 0 5px;">上线时间:</label>' +
                 '<div id="online_time_div" class="input-group date">' +
                 '<input id="online_time_value" class="form-control" size="16" value="" readonly>' +
-                '<span class="input-group-addon">' +
-                '<span class="glyphicon glyphicon-th"></span>' +
-                '</span>' +
+                '<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>' +
                 '</div>' +
                 '</div>' +
                 '</form>';
@@ -1031,12 +1012,11 @@ $(document).on('click', '.add-exp-item', function () {
             });
 
             // set time limit
-            var now = new Date();
-            $("#online_time_value").datetimepicker('setStartDate', format_time_picker(now));
+            // var now = new Date();
+            // $("#online_time_div").datetimepicker('setStartDate', format_time_picker(now));
 
             // set default time
             var tomorrow = new Date();
-            // tomorrow.setDate(tomorrow.getDate() + 1);
             tomorrow.setHours(23);
             tomorrow.setMinutes(59);
             tomorrow.setSeconds(59);
@@ -1047,43 +1027,36 @@ $(document).on('click', '.add-exp-item', function () {
             label: '确定',
             action: function (dialogItself) {
                 // 获取用户添加数据
-                var status = 0;
-                if ($("#status").prop('checked')) {
-                    status = 1;
+                var exp_status = 0;
+                if ($("#exp_status").prop('checked')) {
+                    exp_status = 1;
                 }
-                var item_id = $("#item_id").val().trim();
-                var item_name = $("#item_name").val().trim();
-                var position = $("#position").val().trim();
-                var start_value = $("#start_value").val().trim();
-                var stop_value = $("#stop_value").val().trim();
-                var algo_request = $("#algo_request").val().trim();
-                var algo_response = $("#algo_response").val().trim();
-                var item_desc = $("#item_desc").val().trim();
 
-                if (!check_inputs(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
+                var online_time = $("#online_time_value").val() + ":00";
+                var exp_id = $("#exp_id").val().trim();
+                var exp_name = $("#exp_name").val().trim();
+                var exp_desc = $("#exp_desc").val().trim();
+
+                if (!check_inputs(layer_id, exp_id, exp_name, exp_status, online_time, exp_desc)) {
                     return;
                 }
 
                 // 发送请求
                 $.ajax({
-                        url: '/tree_item',
+                        url: '/tree_exp',
                         type: "post",
                         data: {
-                            type: "ADD_ITEM",
-                            item_id: item_id,
+                            type: "ADD_EXP",
                             layer_id: layer_id,
-                            item_name: item_name,
-                            position: position,
-                            start_value: start_value,
-                            stop_value: stop_value,
-                            algo_request: algo_request,
-                            algo_response: algo_response,
-                            status: status,
-                            desc: item_desc
+                            exp_id: exp_id,
+                            exp_name: exp_name,
+                            exp_status: exp_status,
+                            online_time: online_time,
+                            exp_desc: exp_desc
                         },
                         dataType: 'json',
                         success: function (response) {
-                            handle_add_cfg_item_response(response);
+                            handle_add_exp_response(response);
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             if (jqXHR.status == 302) {
@@ -1107,3 +1080,37 @@ $(document).on('click', '.add-exp-item', function () {
             }]
     });
 });
+
+// 添加实验
+function handle_add_exp_response(response) {
+    if (response.success !== true) {
+        $.showErr('添加失败');
+        return;
+    }
+
+    var $layer_tree = $("#layer_item");
+    for (var i = 0; i < response.content.length; i++) {
+        var item = response.content[i];
+        var exp_node = get_exp_node(item);
+
+        $layer_tree.bootstrapTable('insertRow', {
+            index: 0,
+            row: exp_node
+        });
+
+        render_tree();
+    }
+}
+
+// 判断实验是否有关联配置
+function is_exp_empty(layer_id, exp_id) {
+    for (var i = 0; i < window.save_data.all_relation.length; i++) {
+        var item = window.save_data.all_relation[i];
+
+        if (item.layer_id === layer_id && item.exp_id === exp_id) {
+            return false;
+        }
+    }
+
+    return true;
+}

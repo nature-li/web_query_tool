@@ -226,13 +226,13 @@ class CfgItemHandler(BaseHandler):
         if not req_type:
             self.render('experiment/cfg_item.html', static_version=config.server_static_version)
             return
-        if req_type == "QUERY_ITEM":
+        if req_type == "QUERY_CFG":
             layer_id = self.get_argument('layer_id', None)
-            item_id = self.get_argument('item_id', None)
+            cfg_id = self.get_argument('cfg_id', None)
             item_name = self.get_argument('item_name', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_cfg_item(layer_id, item_id, item_name, off_set, limit)
+            json_text = MysqlOperator.query_cfg_item(layer_id, cfg_id, item_name, off_set, limit)
             self.write(json_text)
             return
 
@@ -250,8 +250,8 @@ class CfgItemHandler(BaseHandler):
             return
 
         req_type = self.get_argument('type', None)
-        if req_type == 'ADD_ITEM':
-            item_id = self.get_argument('item_id', None)
+        if req_type == 'ADD_CFG':
+            cfg_id = self.get_argument('cfg_id', None)
             layer_id = self.get_argument('layer_id', None)
             item_name = self.get_argument('item_name', None)
             position = self.get_argument('position', None)
@@ -261,7 +261,7 @@ class CfgItemHandler(BaseHandler):
             algo_response = self.get_argument('algo_response')
             status = self.get_argument('status', None)
             desc = self.get_argument('desc', None)
-            json_text = MysqlOperator.add_cfg_item(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
+            json_text = MysqlOperator.add_cfg_item(cfg_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
             self.write(json_text)
             return
 
@@ -284,8 +284,8 @@ class CfgItemHandler(BaseHandler):
             return
 
         req_type = self.get_argument('type', None)
-        if req_type == 'MODIFY_ITEM':
-            item_id = self.get_argument('item_id', None)
+        if req_type == 'MODIFY_CFG':
+            cfg_id = self.get_argument('cfg_id', None)
             layer_id = self.get_argument('layer_id', None)
             item_name = self.get_argument('item_name', None)
             position = self.get_argument('position', None)
@@ -295,14 +295,14 @@ class CfgItemHandler(BaseHandler):
             algo_response = self.get_argument('algo_response')
             status = self.get_argument('status', None)
             desc = self.get_argument('desc', None)
-            json_text = MysqlOperator.modify_cfg_item(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
+            json_text = MysqlOperator.modify_cfg_item(cfg_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
             self.write(json_text)
             return
 
         if req_type == 'MODIFY_STATUS':
-            item_id = self.get_argument('item_id', None)
+            cfg_id = self.get_argument('cfg_id', None)
             status = self.get_argument('status', None)
-            json_text = MysqlOperator.modify_cfg_item_status(item_id, status)
+            json_text = MysqlOperator.modify_cfg_item_status(cfg_id, status)
             self.write(json_text)
             return
 
@@ -325,9 +325,9 @@ class CfgItemHandler(BaseHandler):
             return
 
         req_type = self.get_argument('type', None)
-        if req_type == 'DEL_ITEM':
-            item_id = self.get_argument('item_id', None)
-            json_text = MysqlOperator.delete_cfg_item(item_id)
+        if req_type == 'DEL_CFG':
+            cfg_id = self.get_argument('cfg_id', None)
+            json_text = MysqlOperator.delete_cfg_item(cfg_id)
             self.write(json_text)
             return
 
@@ -739,7 +739,7 @@ class HourAdIdeaPositionCount(tornado.web.RequestHandler):
         self.handle()
 
 
-class TreeItemHandler(BaseHandler):
+class TreeCfgHandler(BaseHandler):
     def get(self):
         user_name, show_name = self.get_login_user()
         if not user_name:
@@ -755,11 +755,11 @@ class TreeItemHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if not req_type:
-            self.render('experiment/tree_item.html', static_version=config.server_static_version)
+            self.render('experiment/tree_cfg.html', static_version=config.server_static_version)
             return
-        if req_type == "QUERY_ITEM":
+        if req_type == "QUERY_CFG":
             layer_id = self.get_argument('layer_id', None)
-            cfg_id = self.get_argument('item_id', None)
+            cfg_id = self.get_argument('cfg_id', None)
             item_name = self.get_argument('item_name', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
@@ -781,8 +781,8 @@ class TreeItemHandler(BaseHandler):
             return
 
         req_type = self.get_argument('type', None)
-        if req_type == 'ADD_ITEM':
-            item_id = self.get_argument('item_id', None)
+        if req_type == 'ADD_CFG':
+            cfg_id = self.get_argument('cfg_id', None)
             layer_id = self.get_argument('layer_id', None)
             item_name = self.get_argument('item_name', None)
             position = self.get_argument('position', None)
@@ -792,7 +792,7 @@ class TreeItemHandler(BaseHandler):
             algo_response = self.get_argument('algo_response')
             status = self.get_argument('status', None)
             desc = self.get_argument('desc', None)
-            json_text = MysqlOperator.add_cfg_item(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
+            json_text = MysqlOperator.add_cfg_item(cfg_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
             self.write(json_text)
             return
 
@@ -815,8 +815,8 @@ class TreeItemHandler(BaseHandler):
             return
 
         req_type = self.get_argument('type', None)
-        if req_type == 'MODIFY_ITEM':
-            item_id = self.get_argument('item_id', None)
+        if req_type == 'MODIFY_CFG':
+            cfg_id = self.get_argument('cfg_id', None)
             layer_id = self.get_argument('layer_id', None)
             item_name = self.get_argument('item_name', None)
             position = self.get_argument('position', None)
@@ -826,14 +826,14 @@ class TreeItemHandler(BaseHandler):
             algo_response = self.get_argument('algo_response')
             status = self.get_argument('status', None)
             desc = self.get_argument('desc', None)
-            json_text = MysqlOperator.modify_cfg_item(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
+            json_text = MysqlOperator.modify_cfg_item(cfg_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
             self.write(json_text)
             return
 
         if req_type == 'MODIFY_STATUS':
-            item_id = self.get_argument('item_id', None)
+            cfg_id = self.get_argument('cfg_id', None)
             status = self.get_argument('status', None)
-            json_text = MysqlOperator.modify_cfg_item_status(item_id, status)
+            json_text = MysqlOperator.modify_cfg_item_status(cfg_id, status)
             self.write(json_text)
             return
 
@@ -856,9 +856,9 @@ class TreeItemHandler(BaseHandler):
             return
 
         req_type = self.get_argument('type', None)
-        if req_type == 'DEL_ITEM':
-            item_id = self.get_argument('item_id', None)
-            json_text = MysqlOperator.delete_cfg_item(item_id)
+        if req_type == 'DEL_CFG':
+            cfg_id = self.get_argument('cfg_id', None)
+            json_text = MysqlOperator.delete_cfg_item(cfg_id)
             self.write(json_text)
             return
 
@@ -866,31 +866,6 @@ class TreeItemHandler(BaseHandler):
         result_dict['success'] = False
         result_dict['msg'] = 'Invalid req_type: ' + req_type
         self.write(json.dumps(result_dict, ensure_ascii=False))
-
-
-class ExperimentHandler(BaseHandler):
-    def get(self):
-        user_name, show_name = self.get_login_user()
-        if not user_name:
-            return
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-
-        user = DbOperator.get_user_info(user_name)
-        if not user:
-            self.redirect('/logout')
-        if not user.user_right & UserRight.EXPERIMENT:
-            self.render('error.html', static_version=config.server_static_version)
-            return
-
-        req_type = self.get_argument('type', None)
-        if req_type == "QUERY_EXP":
-            layer_id = self.get_argument('layer_id', None)
-            exp_id = self.get_argument('exp_id', None)
-            off_set = self.get_argument('off_set', None)
-            limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_experiment(layer_id, exp_id, off_set, limit)
-            self.write(json_text)
-            return
 
 
 class CfgRelationHandler(BaseHandler):
@@ -910,7 +885,7 @@ class CfgRelationHandler(BaseHandler):
         req_type = self.get_argument('type', None)
         if req_type == 'GET_RELATION':
             layer_id = self.get_argument('layer_id', None)
-            cfg_id = self.get_argument('item_id', None)
+            cfg_id = self.get_argument('cfg_id', None)
             exp_id = self.get_argument('exp_id', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
@@ -934,9 +909,9 @@ class CfgRelationHandler(BaseHandler):
         req_type = self.get_argument('type', None)
         if req_type == 'PUT_RELATION':
             layer_id = self.get_argument('layer_id', None)
-            item_id = self.get_argument('item_id', None)
+            cfg_id = self.get_argument('cfg_id', None)
             exp_id_list = self.request.arguments.get('exp_id[]', [])
-            json_text = MysqlOperator.put_cfg_relation(layer_id, item_id, exp_id_list)
+            json_text = MysqlOperator.put_cfg_relation(layer_id, cfg_id, exp_id_list)
             self.write(json_text)
             return
 
@@ -956,9 +931,9 @@ class CfgRelationHandler(BaseHandler):
         req_type = self.get_argument('type', None)
         if req_type == 'DEL_RELATION':
             layer_id = self.get_argument('layer_id', None)
-            item_id = self.get_argument('item_id', None)
+            cfg_id = self.get_argument('cfg_id', None)
             exp_id = self.get_argument('exp_id', None)
-            json_text = MysqlOperator.delete_relation(layer_id, item_id, exp_id)
+            json_text = MysqlOperator.delete_relation(layer_id, cfg_id, exp_id)
             self.write(json_text)
             return
 
@@ -981,7 +956,7 @@ class ExpRelationHandler(BaseHandler):
         if req_type == 'GET_RELATION':
             layer_id = self.get_argument('layer_id', None)
             exp_id = self.get_argument('exp_id', None)
-            cfg_id = self.get_argument('item_id', None)
+            cfg_id = self.get_argument('cfg_id', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
             json_text = MysqlOperator.query_exp_relation(layer_id, exp_id, cfg_id, off_set, limit)
@@ -1004,9 +979,9 @@ class ExpRelationHandler(BaseHandler):
         req_type = self.get_argument('type', None)
         if req_type == 'PUT_RELATION':
             layer_id = self.get_argument('layer_id', None)
-            item_id = self.get_argument('item_id', None)
-            exp_id_list = self.request.arguments.get('exp_id[]', [])
-            json_text = MysqlOperator.put_cfg_relation(layer_id, item_id, exp_id_list)
+            exp_id = self.get_argument('exp_id', None)
+            cfg_id_list = self.request.arguments.get('cfg_id[]', [])
+            json_text = MysqlOperator.put_exp_relation(layer_id, exp_id, cfg_id_list)
             self.write(json_text)
             return
 
@@ -1026,9 +1001,9 @@ class ExpRelationHandler(BaseHandler):
         req_type = self.get_argument('type', None)
         if req_type == 'DEL_RELATION':
             layer_id = self.get_argument('layer_id', None)
-            item_id = self.get_argument('item_id', None)
             exp_id = self.get_argument('exp_id', None)
-            json_text = MysqlOperator.delete_relation(layer_id, item_id, exp_id)
+            cfg_id = self.get_argument('cfg_id', None)
+            json_text = MysqlOperator.delete_relation(layer_id, cfg_id, exp_id)
             self.write(json_text)
             return
 
@@ -1051,13 +1026,14 @@ class TreeExpHandler(BaseHandler):
         if not req_type:
             self.render('experiment/tree_exp.html', static_version=config.server_static_version)
             return
-        if req_type == "QUERY_ITEM":
+
+        req_type = self.get_argument('type', None)
+        if req_type == "QUERY_EXP":
             layer_id = self.get_argument('layer_id', None)
-            item_id = self.get_argument('item_id', None)
-            item_name = self.get_argument('item_name', None)
+            exp_id = self.get_argument('exp_id', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_cfg_item(layer_id, item_id, item_name, off_set, limit)
+            json_text = MysqlOperator.query_experiment(layer_id, exp_id, off_set, limit)
             self.write(json_text)
             return
 
@@ -1075,18 +1051,14 @@ class TreeExpHandler(BaseHandler):
             return
 
         req_type = self.get_argument('type', None)
-        if req_type == 'ADD_ITEM':
-            item_id = self.get_argument('item_id', None)
+        if req_type == 'ADD_EXP':
             layer_id = self.get_argument('layer_id', None)
-            item_name = self.get_argument('item_name', None)
-            position = self.get_argument('position', None)
-            start_value = self.get_argument('start_value', None)
-            stop_value = self.get_argument('stop_value', None)
-            algo_request = self.get_argument('algo_request')
-            algo_response = self.get_argument('algo_response')
-            status = self.get_argument('status', None)
-            desc = self.get_argument('desc', None)
-            json_text = MysqlOperator.add_cfg_item(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
+            exp_id = self.get_argument('exp_id', None)
+            exp_name = self.get_argument('exp_name', None)
+            exp_status = self.get_argument('exp_status', None)
+            online_time = self.get_argument('online_time', None)
+            exp_desc = self.get_argument('exp_desc', None)
+            json_text = MysqlOperator.add_one_exp(layer_id, exp_id, exp_name, exp_status, online_time, exp_desc)
             self.write(json_text)
             return
 
@@ -1109,25 +1081,21 @@ class TreeExpHandler(BaseHandler):
             return
 
         req_type = self.get_argument('type', None)
-        if req_type == 'MODIFY_ITEM':
-            item_id = self.get_argument('item_id', None)
+        if req_type == 'MODIFY_EXP':
             layer_id = self.get_argument('layer_id', None)
-            item_name = self.get_argument('item_name', None)
-            position = self.get_argument('position', None)
-            start_value = self.get_argument('start_value', None)
-            stop_value = self.get_argument('stop_value', None)
-            algo_request = self.get_argument('algo_request')
-            algo_response = self.get_argument('algo_response')
-            status = self.get_argument('status', None)
-            desc = self.get_argument('desc', None)
-            json_text = MysqlOperator.modify_cfg_item(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
+            exp_id = self.get_argument('exp_id', None)
+            exp_name = self.get_argument('exp_name', None)
+            exp_status = self.get_argument('exp_status', None)
+            online_time = self.get_argument('online_time', None)
+            exp_desc = self.get_argument('exp_desc', None)
+            json_text = MysqlOperator.modify_experiment(layer_id, exp_id, exp_name, exp_status, online_time, exp_desc)
             self.write(json_text)
             return
 
         if req_type == 'MODIFY_STATUS':
-            item_id = self.get_argument('item_id', None)
-            status = self.get_argument('status', None)
-            json_text = MysqlOperator.modify_cfg_item_status(item_id, status)
+            exp_id = self.get_argument('exp_id', None)
+            exp_status = self.get_argument('exp_status', None)
+            json_text = MysqlOperator.modify_exp_status(exp_id, exp_status)
             self.write(json_text)
             return
 
@@ -1150,9 +1118,9 @@ class TreeExpHandler(BaseHandler):
             return
 
         req_type = self.get_argument('type', None)
-        if req_type == 'DEL_ITEM':
-            item_id = self.get_argument('item_id', None)
-            json_text = MysqlOperator.delete_cfg_item(item_id)
+        if req_type == 'DEL_EXP':
+            exp_id = self.get_argument('exp_id', None)
+            json_text = MysqlOperator.delete_experiment(exp_id)
             self.write(json_text)
             return
 
@@ -1224,9 +1192,8 @@ def __main__():
             (r'/query_chart_data', ChartDataQueryHandler),
             # (r'/cfg_item', CfgItemHandler),
             (r'/layer', LayerHandler),
-            (r'/tree_item', TreeItemHandler),
+            (r'/tree_cfg', TreeCfgHandler),
             (r'/tree_exp', TreeExpHandler),
-            (r'/experiment', ExperimentHandler),
             (r'/cfg_relation', CfgRelationHandler),
             (r'/exp_relation', ExpRelationHandler),
         ],

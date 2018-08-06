@@ -14,7 +14,7 @@ server_log_count = 100
 server_listen_port = 33333
 server_debug_mode = False
 server_cookie_secret = "write_your_own_password"
-server_expire_time = 30 * 60
+server_expire_time = 24 * 3600
 
 # 数据库所在位置
 server_db_uri = 'sqlite:////Users/liyanguo/tmp/sqlite/count.db'

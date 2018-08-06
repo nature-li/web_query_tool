@@ -1,6 +1,6 @@
 $(document).ready(function () {
     // 改变菜单背景色
-    set_page_active("#li_tree_item");
+    set_page_active("#li_tree_cfg");
 
     // 定义全局变量
     if (!window.save_data) {
@@ -30,6 +30,7 @@ function reset_save_data() {
     };
 }
 
+// 初始化层选择器
 function init_layer_selector() {
     $.ajax({
             url: '/layer',
@@ -72,6 +73,7 @@ function init_layer_selector() {
     );
 }
 
+// 更新树视图
 function reload_layer_node(func_on_success) {
     reset_save_data();
 
@@ -109,6 +111,7 @@ function reload_layer_node(func_on_success) {
     );
 }
 
+// 创建配置状态按钮
 function create_status_button(value, row, index) {
     if (value === 0) {
         return '<input type="checkbox" class="toggle-status" data-toggle="toggle" data-style="radius" data-on="启用" ' +
@@ -123,6 +126,7 @@ function create_status_button(value, row, index) {
     return null;
 }
 
+// 创建下拉菜单
 function create_expand_name(value, row, index) {
     var html = '<span class="node-value">' +
         value +
@@ -148,9 +152,17 @@ function create_expand_name(value, row, index) {
             '<span class="glyphicon glyphicon-option-vertical"></span>' +
             '</button>' +
             '<ul class="dropdown-menu">' +
-            '<li><a href="#" class="modify-cfg-item">修改配置</a></li>' +
-            '<li><a href="#" class="delete-cfg-item">删除配置</a></li>' +
-            '<li role="separator" class="divider"></li>' +
+            '<li><a href="#" class="modify-cfg-item">修改配置</a></li>';
+
+        var layer_id = row['layer_id'];
+        var cfg_id = row['cfg_id'];
+        if (is_cfg_empty(layer_id, cfg_id)) {
+            html += '<li><a href="#" class="delete-cfg-item">删除配置</a></li>';
+        } else {
+            html += '<li class="disabled"><a href="#" class="delete-cfg-item">删除配置</a></li>';
+        }
+
+        html += '<li role="separator" class="divider"></li>' +
             '<li><a href="#" class="add-exp-item">关联实验</a></li>' +
             '</ul>' +
             '</div>';
@@ -169,6 +181,7 @@ function create_expand_name(value, row, index) {
     return html;
 }
 
+// 层结点
 function get_layer_node(item) {
     return {
         "unique_pid": 0,
@@ -194,6 +207,7 @@ function get_layer_node(item) {
     };
 }
 
+// 配置结点
 function get_cfg_node(item) {
     return {
         "unique_pid": "layer_" + item.layer_id,
@@ -203,7 +217,7 @@ function get_cfg_node(item) {
         "create_time": item.create_time,
         "desc": item.desc,
         'self_id': item.id,
-        // 'layer_id': '',
+        'layer_id': item.layer_id,
         // 'layer_name': '',
         // 'layer_business': '',
         "cfg_id": item.id,
@@ -218,9 +232,10 @@ function get_cfg_node(item) {
     };
 }
 
+// 实验结点
 function get_exp_node(item) {
     return {
-        "unique_pid": "cfg_" + item.item_id,
+        "unique_pid": "cfg_" + item.cfg_id,
         "unique_id": "exp_" + item.exp_id,
         "type": "exp",
         "name": item.exp_name,
@@ -229,10 +244,11 @@ function get_exp_node(item) {
         "create_time": item.create_time,
         "exp_id": item.exp_id,
         "exp_name": item.exp_name,
-        "exp_cfg_id": item.item_id
+        "exp_cfg_id": item.cfg_id
     }
 }
 
+// 画树结点
 function draw_layer_node(layer_items, cfg_items, exp_items) {
     var columns = [
         {
@@ -297,7 +313,7 @@ function draw_layer_node(layer_items, cfg_items, exp_items) {
         parentIdField: "unique_pid",
         uniqueId: "unique_id",
         treeShowField: "name",
-        columns: columns,
+        columns: columns
     });
 
     $layer_tree.bootstrapTable('removeAll');
@@ -310,17 +326,17 @@ function draw_layer_node(layer_items, cfg_items, exp_items) {
             row: node
         });
     }
-    for (var i = 0; i < cfg_items.length; i++) {
-        var item = cfg_items[i];
-        var node = get_cfg_node(item);
+    for (i = 0; i < cfg_items.length; i++) {
+        item = cfg_items[i];
+        node = get_cfg_node(item);
         $layer_tree.bootstrapTable('insertRow', {
             index: 0,
             row: node
         });
     }
-    for (var i = 0; i < exp_items.length; i++) {
-        var item = exp_items[i];
-        var node = get_exp_node(item);
+    for (i = 0; i < exp_items.length; i++) {
+        item = exp_items[i];
+        node = get_exp_node(item);
         $layer_tree.bootstrapTable('insertRow', {
             index: 0,
             row: node
@@ -330,17 +346,17 @@ function draw_layer_node(layer_items, cfg_items, exp_items) {
     render_tree();
 }
 
-// Reload page
+// 加载配置节点
 function load_cfg_node(layer_items, func_on_success) {
     var layer_id = $("#layer_selector").val();
     var cfg_id = $("#cfg_selector").val();
     $.ajax({
-            url: '/tree_item',
+            url: '/tree_cfg',
             type: "get",
             data: {
-                'type': 'QUERY_ITEM',
+                'type': 'QUERY_CFG',
                 'layer_id': layer_id,
-                'item_id': cfg_id,
+                'cfg_id': cfg_id,
                 'item_name': '',
                 'off_set': 0,
                 'limit': -1
@@ -353,7 +369,7 @@ function load_cfg_node(layer_items, func_on_success) {
 
                 // 加载实验节点
                 window.save_data.all_cfg = data.content;
-                load_exp_node(layer_items, window.save_data.all_cfg, func_on_success);
+                load_relation_exp_node(layer_items, window.save_data.all_cfg, func_on_success);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status == 302) {
@@ -382,7 +398,7 @@ $(document).on('click', ".add-cfg-item", function () {
                 '</div>';
             content += '<div class="form-group">' +
                 '<div><label>配置id：</label></div>' +
-                '<input id="item_id" class="form-control clear-tips">' +
+                '<input id="cfg_id" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<div><label>配置名称：</label></div>' +
@@ -431,7 +447,7 @@ $(document).on('click', ".add-cfg-item", function () {
                 if ($("#status").prop('checked')) {
                     status = 1;
                 }
-                var item_id = $("#item_id").val().trim();
+                var cfg_id = $("#cfg_id").val().trim();
                 var item_name = $("#item_name").val().trim();
                 var position = $("#position").val().trim();
                 var start_value = $("#start_value").val().trim();
@@ -440,17 +456,17 @@ $(document).on('click', ".add-cfg-item", function () {
                 var algo_response = $("#algo_response").val().trim();
                 var item_desc = $("#item_desc").val().trim();
 
-                if (!check_inputs(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
+                if (!check_inputs(cfg_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
                     return;
                 }
 
                 // 发送请求
                 $.ajax({
-                        url: '/tree_item',
+                        url: '/tree_cfg',
                         type: "post",
                         data: {
-                            type: "ADD_ITEM",
-                            item_id: item_id,
+                            type: "ADD_CFG",
+                            cfg_id: cfg_id,
                             layer_id: layer_id,
                             item_name: item_name,
                             position: position,
@@ -488,12 +504,12 @@ $(document).on('click', ".add-cfg-item", function () {
     });
 });
 
-// 修改实验项
+// 修改配置项
 $(document).on('click', '.modify-cfg-item', function () {
     var tr = $(this).closest('tr');
     var layer_id = $(tr).treegrid('getParentNode').find('td:eq(1)').text().trim();
     var item_name = $(tr).find('td:eq(0)').find('span.node-value').html();
-    var item_id = $(tr).find('td:eq(1)').text().trim();
+    var cfg_id = $(tr).find('td:eq(1)').text().trim();
     var position = $(tr).find('td:eq(2)').text().trim();
     var start_value = $(tr).find('td:eq(3)').text().trim();
     var stop_value = $(tr).find('td:eq(4)').text().trim();
@@ -521,7 +537,7 @@ $(document).on('click', '.modify-cfg-item', function () {
             content += '<div><hr /></div>';
             content += '<div class="form-group">' +
                 '<label>配置id：</label>' +
-                '<input id="item_id" class="form-control clear-tips" value="' + item_id + '" readonly>' +
+                '<input id="cfg_id" class="form-control clear-tips" value="' + cfg_id + '" readonly>' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<label>配置名称：</label>' +
@@ -560,7 +576,7 @@ $(document).on('click', '.modify-cfg-item', function () {
 
             return content;
         },
-        title: "修改配置项（" + item_id + "）",
+        title: "修改配置项（" + cfg_id + "）",
         closable: false,
         draggable: true,
         buttons: [{
@@ -571,7 +587,7 @@ $(document).on('click', '.modify-cfg-item', function () {
                 if ($("#status").prop('checked')) {
                     status = 1;
                 }
-                var item_id = $("#item_id").val().trim();
+                var cfg_id = $("#cfg_id").val().trim();
                 var item_name = $("#item_name").val().trim();
                 var position = $("#position").val().trim();
                 var start_value = $("#start_value").val().trim();
@@ -580,17 +596,17 @@ $(document).on('click', '.modify-cfg-item', function () {
                 var algo_response = $("#algo_response").val().trim();
                 var item_desc = $("#item_desc").val().trim();
 
-                if (!check_inputs(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
+                if (!check_inputs(cfg_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
                     return;
                 }
 
                 // 发送请求
                 $.ajax({
-                        url: '/tree_item',
+                        url: '/tree_cfg',
                         type: "put",
                         data: {
-                            type: "MODIFY_ITEM",
-                            item_id: item_id,
+                            type: "MODIFY_CFG",
+                            cfg_id: cfg_id,
                             layer_id: layer_id,
                             item_name: item_name,
                             position: position,
@@ -630,24 +646,24 @@ $(document).on('click', '.modify-cfg-item', function () {
 
 // 删除配置项
 $(document).on('click', '.delete-cfg-item', function () {
-    var item_id = $(this).closest('tr').find('td:eq(1)').text().trim();
-    $.showConfirm("确定要删除吗?", delete_one_cfg_item(item_id));
+    var cfg_id = $(this).closest('tr').find('td:eq(1)').text().trim();
+    $.showConfirm("确定要删除吗?", delete_one_cfg_item(cfg_id));
 });
 
-// 删除实验项
-function delete_one_cfg_item(item_id) {
+// 删除配置项
+function delete_one_cfg_item(cfg_id) {
     function work_func() {
         // 发送请求
         $.ajax({
-                url: '/tree_item',
+                url: '/tree_cfg',
                 type: "delete",
                 data: {
-                    type: 'DEL_ITEM',
-                    item_id: item_id
+                    type: 'DEL_CFG',
+                    cfg_id: cfg_id
                 },
                 dataType: 'json',
                 success: function (response) {
-                    handle_delete_cfg_item_response(response, item_id);
+                    handle_delete_cfg_item_response(response, cfg_id);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     if (jqXHR.status == 302) {
@@ -663,9 +679,9 @@ function delete_one_cfg_item(item_id) {
     return work_func;
 }
 
-// 切换状态
+// 配置状态切换
 $(document).on('change', '.toggle-status', function () {
-    var item_id = $(this).closest('tr').find('td:eq(1)').text().trim();
+    var cfg_id = $(this).closest('tr').find('td:eq(1)').text().trim();
 
     var status = 0;
     if ($(this).prop('checked')) {
@@ -674,11 +690,11 @@ $(document).on('change', '.toggle-status', function () {
 
     // 发送请求
     $.ajax({
-            url: '/tree_item',
+            url: '/tree_cfg',
             type: "put",
             data: {
                 type: 'MODIFY_STATUS',
-                item_id: item_id,
+                cfg_id: cfg_id,
                 status: status
             },
             dataType: 'json',
@@ -711,8 +727,9 @@ function show_tip_msg(msg) {
     }
 }
 
-function check_inputs(item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc) {
-    if (item_id === "") {
+// 添加、修改配置时的输入检测
+function check_inputs(cfg_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc) {
+    if (cfg_id === "") {
         show_tip_msg("配置id不能为空");
         return false;
     }
@@ -762,70 +779,37 @@ function check_inputs(item_id, layer_id, item_name, position, start_value, stop_
     return true;
 }
 
+// 重构树视图
 function handle_add_cfg_item_response(response) {
     if (response.success !== true) {
         $.showErr('添加失败');
         return;
     }
 
-    var $layer_tree = $("#layer_item");
-    for (var i = 0; i < response.content.length; i++) {
-        var item = response.content[i];
-        var cfg_node = get_cfg_node(item);
-
-        $layer_tree.bootstrapTable('insertRow', {
-            index: 0,
-            row: cfg_node
-        });
-
-        render_tree();
-    }
+    reload_layer_node();
 }
 
+// 重构树视图
 function handle_modify_cfg_item_response(response) {
     if (response.success !== true) {
         $.showErr("更新失败");
-        reload_layer_node();
         return;
     }
 
-    var $layer_tree = $("#layer_item");
-    for (var i = 0; i < response.content.length; i++) {
-        var item = response.content[i];
-        $("#layer_item tbody").find("tr").each(function () {
-            var item_id = $(this).find("td:eq(1)").text().trim();
-            if (item_id !== item.id.toString()) {
-                return;
-            }
-
-            var cfg_node = get_cfg_node(item);
-            var row = $layer_tree.bootstrapTable('getRowByUniqueId', "cfg_" + item.id);
-            var data = $layer_tree.bootstrapTable('getData');
-            var row_idx = data.indexOf(row);
-
-            $layer_tree.bootstrapTable('updateRow', {
-                index: row_idx,
-                row: cfg_node
-            });
-
-            render_tree();
-        });
-    }
+    reload_layer_node();
 }
 
-function handle_delete_cfg_item_response(response, item_id) {
+// 重构树视图
+function handle_delete_cfg_item_response(response, cfg_id) {
     if (response.success !== true) {
         $.showErr("删除失败");
         return;
     }
 
-    var unique_id = 'cfg_' + item_id;
-    var $layer_tree = $("#layer_item");
-    $layer_tree.bootstrapTable('removeByUniqueId', unique_id);
-
-    render_tree();
+    reload_layer_node();
 }
 
+// 重构树视图
 function render_tree() {
     var $layer_tree = $("#layer_item");
 
@@ -845,11 +829,13 @@ function render_tree() {
     });
 }
 
+// 层次下拉列表框更改
 $(document).on('change', '#layer_selector', function () {
     clear_cfg_selector();
     reload_layer_node(init_cfg_selector);
 });
 
+// 清除配置下拉列表框
 function clear_cfg_selector() {
     $("#cfg_selector").html('');
     var option = '<option value="">选择配置</option>';
@@ -857,6 +843,7 @@ function clear_cfg_selector() {
     $("#cfg_selector").selectpicker('refresh');
 }
 
+// 初始化配置下拉列表框
 function init_cfg_selector() {
     var layer_id = $("#layer_selector").val();
 
@@ -881,14 +868,16 @@ function init_cfg_selector() {
     $("#cfg_selector").selectpicker('refresh');
 }
 
+// 配置下拉列表框更改
 $(document).on('change', '#cfg_selector', function () {
     reload_layer_node();
 });
 
+// 加载某层次或全部层次下所有实验
 function load_all_exp() {
     var layer_id = $("#layer_selector").val();
     $.ajax({
-            url: '/experiment',
+            url: '/tree_exp',
             type: "get",
             data: {
                 'type': 'QUERY_EXP',
@@ -915,11 +904,11 @@ function load_all_exp() {
     );
 }
 
-// 关联实验
+// 为配置项关联实验
 $(document).on('click', '.add-exp-item', function () {
     var $this_tr = $(this).closest('tr');
     var layer_id = $this_tr.treegrid('getParentNode').find('td:eq(1)').text().trim();
-    var item_id = $this_tr.find('td:eq(1)').text().trim();
+    var cfg_id = $this_tr.find('td:eq(1)').text().trim();
 
     BootstrapDialog.show({
         message: function (dialog) {
@@ -951,7 +940,7 @@ $(document).on('click', '.add-exp-item', function () {
                 }
 
                 var option = '<option value="' + item.id + '">' + item.name + '</option>';
-                if (has_relation(item.layer_id, item_id, item.id)) {
+                if (has_relation(item.layer_id, cfg_id, item.id)) {
                     option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
                 }
 
@@ -972,7 +961,7 @@ $(document).on('click', '.add-exp-item', function () {
                         type: "put",
                         data: {
                             type: "PUT_RELATION",
-                            item_id: item_id,
+                            cfg_id: cfg_id,
                             layer_id: layer_id,
                             exp_id: exp_value,
                         },
@@ -1003,16 +992,19 @@ $(document).on('click', '.add-exp-item', function () {
     });
 });
 
+// 菜单显示前 resize 页面
 $(document).on('click', '.dropdown-toggle', function () {
     $("#layer_item").bootstrapTable('scrollTo', 'bottom');
 });
 
 
+// 为配置项添加关联实验
 function handle_add_exp_relation_response(response) {
     reload_layer_node();
 }
 
-function load_exp_node(layer_items, cfg_items, func_on_success) {
+// 仅加载与配置项有关联的实验
+function load_relation_exp_node(layer_items, cfg_items, func_on_success) {
     var layer_id = $("#layer_selector").val();
     var cfg_id = $("#cfg_selector").val();
     $.ajax({
@@ -1021,7 +1013,7 @@ function load_exp_node(layer_items, cfg_items, func_on_success) {
             data: {
                 'type': 'GET_RELATION',
                 'layer_id': layer_id,
-                'item_id': cfg_id,
+                'cfg_id': cfg_id,
                 'off_set': 0,
                 'limit': -1
             },
@@ -1049,7 +1041,7 @@ function load_exp_node(layer_items, cfg_items, func_on_success) {
     );
 }
 
-
+// 判断某配置项和实验项是否有关联
 function has_relation(layer_id, cfg_id, exp_id) {
     for (var i = 0; i < window.save_data.all_relation.length; i++) {
         var item = window.save_data.all_relation[i];
@@ -1058,7 +1050,7 @@ function has_relation(layer_id, cfg_id, exp_id) {
             continue;
         }
 
-        if (item.item_id !== cfg_id) {
+        if (item.cfg_id !== cfg_id) {
             continue;
         }
 
@@ -1072,6 +1064,7 @@ function has_relation(layer_id, cfg_id, exp_id) {
     return false;
 }
 
+// 点击移除实验项
 $(document).on('click', '.del-exp-item', function () {
     var $exp_tr = $(this).closest('tr');
     var $cfg_tr = $exp_tr.treegrid('getParentNode');
@@ -1086,7 +1079,7 @@ $(document).on('click', '.del-exp-item', function () {
             data: {
                 'type': 'DEL_RELATION',
                 'layer_id': layer_id,
-                'item_id': cfg_id,
+                'cfg_id': cfg_id,
                 'exp_id': exp_id,
             },
             dataType: 'json',
@@ -1107,3 +1100,16 @@ $(document).on('click', '.del-exp-item', function () {
         }
     );
 });
+
+// 判断配置是否有关联配置
+function is_cfg_empty(layer_id, cfg_id) {
+    for (var i = 0; i < window.save_data.all_relation.length; i++) {
+        var item = window.save_data.all_relation[i];
+
+        if (item.layer_id === layer_id && item.cfg_id === cfg_id) {
+            return false;
+        }
+    }
+
+    return true;
+}

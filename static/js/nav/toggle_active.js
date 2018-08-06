@@ -75,9 +75,9 @@ $(document).on("click", "#a_chart", function () {
 //     frame_auto_size();
 // });
 
-// a_tree_item 点击事件
-$(document).on("click", "#a_tree_item", function () {
-    $("#right_frame").attr("src", "tree_item");
+// a_tree_cfg 点击事件
+$(document).on("click", "#a_tree_cfg", function () {
+    $("#right_frame").attr("src", "tree_cfg");
 
     // 菜单 active 状态改变
     set_menu_active("#menu_experiment_control");
@@ -128,7 +128,7 @@ function set_page_active(page_id) {
     // $("#li_cfg_item", window.parent.document).removeClass("selected_menu");
     $("#li_user_list", window.parent.document).removeClass("selected_menu");
     $("#li_network_list", window.parent.document).removeClass("selected_menu");
-    $("#li_tree_item", window.parent.document).removeClass("selected_menu");
+    $("#li_tree_cfg", window.parent.document).removeClass("selected_menu");
     $("#li_tree_exp", window.parent.document).removeClass("selected_menu");
 
     $(page_id, window.parent.document).addClass("selected_menu");
