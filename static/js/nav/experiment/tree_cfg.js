@@ -26,7 +26,8 @@ function reset_save_data() {
         'all_layer': [],
         'all_cfg': [],
         'all_exp': [],
-        'all_relation': []
+        'all_relation': [],
+        'all_position': []
     };
 }
 
@@ -77,6 +78,10 @@ function init_layer_selector() {
 function reload_layer_node(func_on_success) {
     reset_save_data();
 
+    // 加载所有位置
+    load_all_position();
+
+    // 重构树视图
     var layer_id = $("#layer_selector").val();
     $.ajax({
             url: '/layer',
@@ -405,9 +410,13 @@ $(document).on('click', ".add-cfg-item", function () {
                 '<input id="item_name" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>位置：</label></div>' +
-                '<input id="position" class="form-control clear-tips">' +
+                '<label style="margin: 0 5px;">选择位置</label>' +
+                '<div>' +
+                '<select id="position" class="selectpicker form-control" data-size="10" data-live-search="true" multiple>' +
+                '</select>' +
+                '</div>' +
                 '</div>';
+
             content += '<div class="form-group">' +
                 '<div><label>起始值：</label></div>' +
                 '<input id="start_value" type="number" class="form-control clear-tips">' +
@@ -439,6 +448,15 @@ $(document).on('click', ".add-cfg-item", function () {
         title: "增加配置项",
         closable: false,
         draggable: true,
+        onshown: function () {
+            for (var i = 0; i < window.save_data.all_position.length; i++) {
+                var pos = window.save_data.all_position[i];
+
+                var option = '<option value="' + pos.position + '">' + pos.position + '</option>';
+                $("#position").append(option);
+            }
+            $("#position").selectpicker('refresh');
+        },
         buttons: [{
             label: '确定',
             action: function (dialogItself) {
@@ -449,7 +467,7 @@ $(document).on('click', ".add-cfg-item", function () {
                 }
                 var cfg_id = $("#cfg_id").val().trim();
                 var item_name = $("#item_name").val().trim();
-                var position = $("#position").val().trim();
+                var position = $("#position").val().join();
                 var start_value = $("#start_value").val().trim();
                 var stop_value = $("#stop_value").val().trim();
                 var algo_request = $("#algo_request").val().trim();
@@ -544,8 +562,11 @@ $(document).on('click', '.modify-cfg-item', function () {
                 '<input id="item_name" class="form-control clear-tips" value="' + item_name + '">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<label>位置：</label>' +
-                '<input id="position" class="form-control clear-tips" value="' + position + '">' +
+                '<label style="margin: 0 5px;">选择位置</label>' +
+                '<div>' +
+                '<select id="position" class="selectpicker form-control" data-size="10" data-live-search="true" multiple>' +
+                '</select>' +
+                '</div>' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<label>起始值：</label>' +
@@ -579,6 +600,25 @@ $(document).on('click', '.modify-cfg-item', function () {
         title: "修改配置项（" + cfg_id + "）",
         closable: false,
         draggable: true,
+        onshown: function () {
+            var exist = {};
+            var a_list = position.split(',');
+            for (var i = 0; i < a_list.length; i++) {
+                exist[a_list[i]] = i;
+            }
+
+            for (i = 0; i < window.save_data.all_position.length; i++) {
+                var pos = window.save_data.all_position[i];
+
+                var option = '<option value="' + pos.position + '">' + pos.position + '</option>';
+                if (exist[pos.position] !== undefined) {
+                    option = '<option value="' + pos.position + '" selected="selected">' + pos.position + '</option>';
+                }
+
+                $("#position").append(option);
+            }
+            $("#position").selectpicker('refresh');
+        },
         buttons: [{
             label: '确定',
             action: function (dialogItself) {
@@ -589,7 +629,7 @@ $(document).on('click', '.modify-cfg-item', function () {
                 }
                 var cfg_id = $("#cfg_id").val().trim();
                 var item_name = $("#item_name").val().trim();
-                var position = $("#position").val().trim();
+                var position = $("#position").val().join();
                 var start_value = $("#start_value").val().trim();
                 var stop_value = $("#stop_value").val().trim();
                 var algo_request = $("#algo_request").val().trim();
@@ -1112,4 +1152,33 @@ function is_cfg_empty(layer_id, cfg_id) {
     }
 
     return true;
+}
+
+// 加载位置
+function load_all_position() {
+    $.ajax({
+            url: '/exp_position',
+            type: "get",
+            data: {
+                'type': 'QUERY_POS',
+                'off_set': 0,
+                'limit': -1
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.success !== "true") {
+                    return;
+                }
+
+                window.save_data.all_position = data.content;
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status == 302) {
+                    window.parent.location.replace("/");
+                } else {
+                    console.log("query failed")
+                }
+            }
+        }
+    );
 }

@@ -1130,6 +1130,29 @@ class TreeExpHandler(BaseHandler):
         self.write(json.dumps(result_dict, ensure_ascii=False))
 
 
+class ExpPositionHandler(BaseHandler):
+    def get(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == "QUERY_POS":
+            off_set = self.get_argument('off_set', None)
+            limit = self.get_argument('limit', None)
+            json_text = MysqlOperator.query_exp_position(off_set, limit)
+            self.write(json_text)
+            return
+
+
 def __main__():
     # 设置编码
     reload(sys)
@@ -1196,6 +1219,7 @@ def __main__():
             (r'/tree_exp', TreeExpHandler),
             (r'/cfg_relation', CfgRelationHandler),
             (r'/exp_relation', ExpRelationHandler),
+            (r'/exp_position', ExpPositionHandler),
         ],
         cookie_secret=config.server_cookie_secret,
         template_path=os.path.join(os.path.dirname(__file__), "templates"),

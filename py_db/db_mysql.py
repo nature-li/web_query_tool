@@ -17,17 +17,18 @@ from py_log.logger import Logger
 Base = declarative_base()
 
 
-# 实验平台
+# 实验层
 class Layer(Base):
     __tablename__ = 'layer'
     id = Column(String(64), primary_key=True)
     name = Column(String(128))
     business = Column(String(64))
-    desc = Column(String(256))
+    desc = Column(String(256), nullable=True)
     create_time = Column(TIMESTAMP, default=func.now())
     UniqueConstraint('name')
 
 
+# 配置项
 class CfgItem(Base):
     __tablename__ = 'cfg_item'
     id = Column(String(64), primary_key=True)
@@ -39,23 +40,25 @@ class CfgItem(Base):
     algo_request = Column(String(256))
     algo_response = Column(String(256))
     status = Column(Integer, default=0)
-    desc = Column(String(256))
+    desc = Column(String(256), nullable=True)
     create_time = Column(TIMESTAMP, default=func.now())
     UniqueConstraint('name')
 
 
+# 实验
 class Experiment(Base):
     __tablename__ = 'experiment'
     id = Column(String(64), primary_key=True)
     layer_id = Column(String(64))
     name = Column(String(64))
     status = Column(Integer, default=0)
-    desc = Column(String(256))
+    desc = Column(String(256), nullable=True)
     create_time = Column(TIMESTAMP, default=func.now())
     online_time = Column(TIMESTAMP)
     UniqueConstraint('name')
 
 
+# 实验和配置关联关系
 class Exp2Cfg(Base):
     __tablename__ = 'cfg_2_exp'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -64,6 +67,15 @@ class Exp2Cfg(Base):
     exp_id = Column(String(64))
     create_time = Column(TIMESTAMP, default=func.now())
     UniqueConstraint('layer_id', 'cfg_id', 'exp_id')
+
+
+# 实验位置
+class ExpPosition(Base):
+    __tablename__ = 'position'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    position = Column(String(32))
+    desc = Column(String(256), nullable=True)
+    create_time = Column(TIMESTAMP, default=func.now())
 
 
 class Defer(object):
@@ -910,4 +922,51 @@ class MysqlOperator(object):
             a_dict = dict()
             a_dict['success'] = False
             a_dict['msg'] = 'update db failed'
+            return json.dumps(a_dict)
+
+    @classmethod
+    def query_exp_position(cls, off_set, limit):
+        try:
+            # 转换类型
+            off_set = int(off_set)
+            limit = int(limit)
+            if limit == -1:
+                limit_count = None
+            else:
+                limit_count = off_set + limit
+
+            # 创建session
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                # 查询数据
+                count_query = session.query(ExpPosition.id)
+                value_query = session.query(ExpPosition.id,
+                                            ExpPosition.position,
+                                            ExpPosition.desc,
+                                            ExpPosition.create_time)
+                count = count_query.count()
+                values = value_query[off_set: limit_count]
+
+                # 返回结果
+                a_item_list = list()
+                for value in values:
+                    a_item = dict()
+                    a_item_list.append(a_item)
+                    a_item['id'] = value.id
+                    a_item['position'] = value.position
+                    a_item['desc'] = value.desc
+                    a_item['create_time'] = value.create_time.strftime('%Y-%m-%d %H:%M:%S')
+
+                # 返回成功
+                a_dict = dict()
+                a_dict['success'] = 'true'
+                a_dict['content'] = a_item_list
+                a_dict['item_count'] = count
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = 'false'
+            a_dict['content'] = list()
+            a_dict['item_count'] = 0
             return json.dumps(a_dict)
