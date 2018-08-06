@@ -625,26 +625,10 @@ function check_inputs(layer_id, exp_id, exp_name, exp_status, online_time, exp_d
 function handle_modify_exp_response(response) {
     if (response.success !== true) {
         $.showErr("更新失败");
-        reload_layer_node();
         return;
     }
 
-    var $layer_tree = $("#layer_item");
-    for (var i = 0; i < response.content.length; i++) {
-        var item = response.content[i];
-
-        var exp_node = get_exp_node(item);
-        var row = $layer_tree.bootstrapTable('getRowByUniqueId', "exp_" + item.id);
-        var data = $layer_tree.bootstrapTable('getData');
-        var row_idx = data.indexOf(row);
-
-        $layer_tree.bootstrapTable('updateRow', {
-            index: row_idx,
-            row: exp_node
-        });
-
-        render_tree();
-    }
+    reload_layer_node();
 }
 
 // 删除实验
