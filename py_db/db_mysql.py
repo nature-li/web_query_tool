@@ -863,7 +863,9 @@ class MysqlOperator(object):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
-                session.query(Experiment).filter(Experiment.id == exp_id).delete(synchronize_session=False)
+                session.query(Experiment).filter(
+                    Experiment.id == exp_id).filter(
+                    ~exists().where(Exp2Cfg.exp_id == exp_id)).delete(synchronize_session=False)
                 session.commit()
 
                 a_dict = dict()
