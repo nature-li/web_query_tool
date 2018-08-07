@@ -198,7 +198,7 @@ function create_expand_name(value, row, index) {
 function get_layer_node(item) {
     return {
         "unique_pid": 0,
-        'unique_id': md5('layer_' + item.id),
+        'unique_id': toHex('layer_' + item.id),
         "type": "layer",
         'name': item.name,
         'create_time': item.create_time,
@@ -213,8 +213,8 @@ function get_layer_node(item) {
 // 创建实验结点
 function get_exp_node(item) {
     return {
-        "unique_pid": md5("layer_" + item.layer_id),
-        "unique_id": md5("exp_" + item.id),
+        "unique_pid": toHex("layer_" + item.layer_id),
+        "unique_id": toHex("exp_" + item.id),
         "type": "exp",
         "name": item.name,
         "create_time": item.create_time,
@@ -231,8 +231,8 @@ function get_exp_node(item) {
 // 创建配置结点
 function get_cfg_node(item) {
     return {
-        "unique_pid": md5("exp_" + item.exp_id),
-        "unique_id": md5("cfg_" + item.id),
+        "unique_pid": toHex("exp_" + item.exp_id),
+        "unique_id": toHex("cfg_" + item.id),
         "type": "cfg",
         "name": item.cfg_name,
         "create_time": item.create_time,

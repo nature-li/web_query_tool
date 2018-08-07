@@ -120,3 +120,19 @@ function format_time_picker(date) {
 
     return year + '-' + month + '-' + day + ' ' + hour + ":" + minute;
 }
+
+// 转化为十六进制
+function toHex(raw) {
+    if (!raw) {
+        return '';
+    }
+
+    var result = '';
+    for (var i = 0; i < raw.length; i++) {
+        var ascii = raw.charCodeAt(i);
+        var hex = ascii.toString(16);
+        result += hex;
+    }
+
+    return result;
+}
