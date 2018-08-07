@@ -1,3 +1,6 @@
+var old_cfg_id = undefined;
+var old_cfg_name = undefined;
+
 $(document).ready(function () {
     // 改变菜单背景色
     set_page_active("#li_tree_cfg");
@@ -362,7 +365,7 @@ function load_cfg_node(layer_items, func_on_success) {
                 'type': 'QUERY_CFG',
                 'layer_id': layer_id,
                 'cfg_id': cfg_id,
-                'item_name': '',
+                'cfg_name': '',
                 'off_set': 0,
                 'limit': -1
             },
@@ -389,6 +392,9 @@ function load_cfg_node(layer_items, func_on_success) {
 
 // 增加配置项
 $(document).on('click', ".add-cfg-item", function () {
+    old_cfg_id = undefined;
+    old_cfg_name = undefined;
+
     var $this_tr = $(this).closest('tr');
     var layer_id = $this_tr.find('td:eq(1)').text().trim();
 
@@ -402,12 +408,12 @@ $(document).on('click', ".add-cfg-item", function () {
                 '<input id="status" type="checkbox" name="status"/>' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>配置id：</label></div>' +
+                '<div><label>配置id：</label><label id="cfg_id_tip" style="color: red"></label></div>' +
                 '<input id="cfg_id" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>配置名称：</label></div>' +
-                '<input id="item_name" class="form-control clear-tips">' +
+                '<div><label>配置名称：</label><label id="cfg_name_tip" style="color: red"></label></div>' +
+                '<input id="cfg_name" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<label style="margin: 0 5px;">选择位置</label>' +
@@ -466,7 +472,7 @@ $(document).on('click', ".add-cfg-item", function () {
                     status = 1;
                 }
                 var cfg_id = $("#cfg_id").val().trim();
-                var item_name = $("#item_name").val().trim();
+                var cfg_name = $("#cfg_name").val().trim();
                 var position = $("#position").val().join();
                 var start_value = $("#start_value").val().trim();
                 var stop_value = $("#stop_value").val().trim();
@@ -474,7 +480,11 @@ $(document).on('click', ".add-cfg-item", function () {
                 var algo_response = $("#algo_response").val().trim();
                 var item_desc = $("#item_desc").val().trim();
 
-                if (!check_inputs(cfg_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
+                if (!check_invalid_tips()) {
+                    return;
+                }
+
+                if (!check_inputs(cfg_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
                     return;
                 }
 
@@ -486,7 +496,7 @@ $(document).on('click', ".add-cfg-item", function () {
                             type: "ADD_CFG",
                             cfg_id: cfg_id,
                             layer_id: layer_id,
-                            item_name: item_name,
+                            cfg_name: cfg_name,
                             position: position,
                             start_value: start_value,
                             stop_value: stop_value,
@@ -526,7 +536,7 @@ $(document).on('click', ".add-cfg-item", function () {
 $(document).on('click', '.modify-cfg-item', function () {
     var tr = $(this).closest('tr');
     var layer_id = $(tr).treegrid('getParentNode').find('td:eq(1)').text().trim();
-    var item_name = $(tr).find('td:eq(0)').find('span.node-value').html();
+    var cfg_name = $(tr).find('td:eq(0)').find('span.node-value').html();
     var cfg_id = $(tr).find('td:eq(1)').text().trim();
     var position = $(tr).find('td:eq(2)').text().trim();
     var start_value = $(tr).find('td:eq(3)').text().trim();
@@ -535,6 +545,9 @@ $(document).on('click', '.modify-cfg-item', function () {
     var algo_response = $(tr).find('td:eq(6)').text().trim();
     var status = $(tr).find('td:eq(7)').find('input').prop('checked');
     var item_desc = $(tr).find('td:eq(9)').text().trim();
+
+    old_cfg_id = cfg_id;
+    old_cfg_name = cfg_name;
 
     BootstrapDialog.show({
         message: function (dialog) {
@@ -554,12 +567,12 @@ $(document).on('click', '.modify-cfg-item', function () {
             }
             content += '<div><hr /></div>';
             content += '<div class="form-group">' +
-                '<label>配置id：</label>' +
+                '<label>配置id：</label><label id="cfg_id_tip" style="color: red"></label>' +
                 '<input id="cfg_id" class="form-control clear-tips" value="' + cfg_id + '" readonly>' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<label>配置名称：</label>' +
-                '<input id="item_name" class="form-control clear-tips" value="' + item_name + '">' +
+                '<label>配置名称：</label><label id="cfg_name_tip" style="color: red"></label>' +
+                '<input id="cfg_name" class="form-control clear-tips" value="' + cfg_name + '">' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<label style="margin: 0 5px;">选择位置</label>' +
@@ -628,7 +641,7 @@ $(document).on('click', '.modify-cfg-item', function () {
                     status = 1;
                 }
                 var cfg_id = $("#cfg_id").val().trim();
-                var item_name = $("#item_name").val().trim();
+                var cfg_name = $("#cfg_name").val().trim();
                 var position = $("#position").val().join();
                 var start_value = $("#start_value").val().trim();
                 var stop_value = $("#stop_value").val().trim();
@@ -636,7 +649,11 @@ $(document).on('click', '.modify-cfg-item', function () {
                 var algo_response = $("#algo_response").val().trim();
                 var item_desc = $("#item_desc").val().trim();
 
-                if (!check_inputs(cfg_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
+                if (!check_invalid_tips()) {
+                    return;
+                }
+
+                if (!check_inputs(cfg_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, item_desc)) {
                     return;
                 }
 
@@ -648,7 +665,7 @@ $(document).on('click', '.modify-cfg-item', function () {
                             type: "MODIFY_CFG",
                             cfg_id: cfg_id,
                             layer_id: layer_id,
-                            item_name: item_name,
+                            cfg_name: cfg_name,
                             position: position,
                             start_value: start_value,
                             stop_value: stop_value,
@@ -768,7 +785,7 @@ function show_tip_msg(msg) {
 }
 
 // 添加、修改配置时的输入检测
-function check_inputs(cfg_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, item_desc) {
+function check_inputs(cfg_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, item_desc) {
     if (cfg_id === "") {
         show_tip_msg("配置id不能为空");
         return false;
@@ -779,7 +796,7 @@ function check_inputs(cfg_id, layer_id, item_name, position, start_value, stop_v
         return false;
     }
 
-    if (item_name === "") {
+    if (cfg_name === "") {
         show_tip_msg("配置名称不能为空");
         return false;
     }
@@ -1184,4 +1201,85 @@ function load_all_position() {
             }
         }
     );
+}
+
+$(document).on('input', '#cfg_id', function () {
+    var cfg_id = $("#cfg_id").val().trim();
+    if (!cfg_id) {
+        return;
+    }
+
+    if (cfg_id === old_cfg_id) {
+        $("#cfg_id_tip").html('');
+        return;
+    }
+
+    $.ajax({
+            url: '/tree_cfg',
+            type: "get",
+            data: {
+                'type': 'CHECK_ID_EXIST',
+                'cfg_id': cfg_id
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.success !== true) {
+                    return;
+                }
+
+                if (data.count > 0) {
+                    $("#cfg_id_tip").html(cfg_id + '已存在!');
+                } else {
+                    $("#cfg_id_tip").html('');
+                }
+            }
+        }
+    );
+});
+
+$(document).on('input', '#cfg_name', function () {
+    var cfg_name = $("#cfg_name").val().trim();
+    if (!cfg_name) {
+        return;
+    }
+
+    if (cfg_name === old_cfg_name) {
+        $("#cfg_name_tip").html('');
+        return;
+    }
+
+    $.ajax({
+            url: '/tree_cfg',
+            type: "get",
+            data: {
+                'type': 'CHECK_NAME_EXIST',
+                'cfg_name': cfg_name
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.success !== true) {
+                    return;
+                }
+
+                if (data.count > 0) {
+                    $("#cfg_name_tip").html(cfg_name + '已存在!');
+                } else {
+                    $("#cfg_name_tip").html('');
+                }
+            }
+        }
+    );
+});
+
+
+function check_invalid_tips() {
+    if ($("#cfg_id_tip").html() !== '') {
+        return false;
+    }
+
+    if ($("#cfg_name_tip").html() !== '') {
+        return false;
+    }
+
+    return true;
 }

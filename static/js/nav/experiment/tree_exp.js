@@ -1,3 +1,6 @@
+var old_exp_id = undefined;
+var old_exp_name = undefined;
+
 $(document).ready(function () {
     // 改变菜单背景色
     set_page_active("#li_tree_exp");
@@ -344,7 +347,7 @@ function load_relation_cfg_node(layer_items, exp_items, func_on_success) {
                 'type': 'GET_RELATION',
                 'layer_id': layer_id,
                 'exp_id': exp_id,
-                'item_name': '',
+                'cfg_name': '',
                 'off_set': 0,
                 'limit': -1
             },
@@ -382,6 +385,9 @@ $(document).on('click', '.modify-exp-item', function () {
     var online_time = $(tr).find('td:eq(3)').text().trim();
     var exp_desc = $(tr).find('td:eq(6)').text().trim();
 
+    old_exp_id = exp_id;
+    old_exp_name = exp_name;
+
     BootstrapDialog.show({
         message: function (dialog) {
             // header
@@ -414,11 +420,11 @@ $(document).on('click', '.modify-exp-item', function () {
             content += '<div><hr /></div>';
             content += '<div class="form">';
             content += '<div class="form-group">' +
-                '<div><label>实验id：</label></div>' +
+                '<div><label>实验id：</label><label id="exp_id_tip" style="color: red"></label></div>' +
                 '<input id="exp_id" class="form-control clear-tips" value="' + exp_id + '" readonly>' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>实验名称：</label></div>' +
+                '<div><label>实验名称：</label><label id="exp_name_tip" style="color: red"></label></div>' +
                 '<input id="exp_name" class="form-control clear-tips" value="' + exp_name + '">' +
                 '</div>';
             content += '<div class="form-group">' +
@@ -463,6 +469,10 @@ $(document).on('click', '.modify-exp-item', function () {
                 var exp_id = $("#exp_id").val().trim();
                 var exp_name = $("#exp_name").val().trim();
                 var exp_desc = $("#exp_desc").val().trim();
+
+                if (!check_invalid_tips()) {
+                    return;
+                }
 
                 if (!check_inputs(layer_id, exp_id, exp_name, exp_status, online_time, exp_desc)) {
                     return;
@@ -931,6 +941,9 @@ $(document).on('click', '.del-cfg-item', function () {
 
 // 添加实验
 $(document).on('click', '.add-exp-item', function () {
+    old_exp_id = undefined;
+    old_exp_name = undefined;
+
     var $this_tr = $(this).closest('tr');
     var layer_id = $this_tr.find('td:eq(1)').text().trim();
 
@@ -961,11 +974,11 @@ $(document).on('click', '.add-exp-item', function () {
             content += '<div><hr /></div>';
             content += '<div class="form">';
             content += '<div class="form-group">' +
-                '<div><label>实验id：</label></div>' +
+                '<div><label>实验id：</label><label id="exp_id_tip" style="color: red"></label></div>' +
                 '<input id="exp_id" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>实验名称：</label></div>' +
+                '<div><label>实验名称：</label><label id="exp_name_tip" style="color: red"></label></div>' +
                 '<input id="exp_name" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
@@ -1018,6 +1031,10 @@ $(document).on('click', '.add-exp-item', function () {
                 var exp_id = $("#exp_id").val().trim();
                 var exp_name = $("#exp_name").val().trim();
                 var exp_desc = $("#exp_desc").val().trim();
+
+                if (!check_invalid_tips()) {
+                    return;
+                }
 
                 if (!check_inputs(layer_id, exp_id, exp_name, exp_status, online_time, exp_desc)) {
                     return;
@@ -1082,6 +1099,87 @@ function is_exp_empty(layer_id, exp_id) {
         if (item.layer_id === layer_id && item.exp_id === exp_id) {
             return false;
         }
+    }
+
+    return true;
+}
+
+$(document).on('input', '#exp_id', function () {
+    var exp_id = $("#exp_id").val().trim();
+    if (!exp_id) {
+        return;
+    }
+
+    if (exp_id === old_exp_id) {
+        $("#exp_id_tip").html('');
+        return;
+    }
+
+    $.ajax({
+            url: '/tree_exp',
+            type: "get",
+            data: {
+                'type': 'CHECK_ID_EXIST',
+                'exp_id': exp_id
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.success !== true) {
+                    return;
+                }
+
+                if (data.count > 0) {
+                    $("#exp_id_tip").html(exp_id + '已存在!');
+                } else {
+                    $("#exp_id_tip").html('');
+                }
+            }
+        }
+    );
+});
+
+$(document).on('input', '#exp_name', function () {
+    var exp_name = $("#exp_name").val().trim();
+    if (!exp_name) {
+        return;
+    }
+
+    if (old_exp_name === exp_name) {
+        $("#exp_name_tip").html('');
+        return;
+    }
+
+    $.ajax({
+            url: '/tree_exp',
+            type: "get",
+            data: {
+                'type': 'CHECK_NAME_EXIST',
+                'exp_name': exp_name
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.success !== true) {
+                    return;
+                }
+
+                if (data.count > 0) {
+                    $("#exp_name_tip").html(exp_name + '已存在!');
+                } else {
+                    $("#exp_name_tip").html('');
+                }
+            }
+        }
+    );
+});
+
+
+function check_invalid_tips() {
+    if ($("#exp_id_tip").html() !== '') {
+        return false;
+    }
+
+    if ($("#exp_name_tip").html() !== '') {
+        return false;
     }
 
     return true;

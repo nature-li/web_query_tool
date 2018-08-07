@@ -109,12 +109,12 @@ class MysqlOperator(object):
 
     # add experiment
     @classmethod
-    def add_cfg_item(cls, item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc):
+    def add_cfg_item(cls, item_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, status, desc):
         try:
             item = CfgItem()
             item.id = item_id
             item.layer_id = layer_id
-            item.name = item_name
+            item.name = cfg_name
             item.position = position
             item.start_value = start_value
             item.stop_value = stop_value
@@ -169,7 +169,7 @@ class MysqlOperator(object):
 
     # query cfg
     @classmethod
-    def query_cfg_item(cls, layer_id, cfg_id, item_name, off_set, limit):
+    def query_cfg_item(cls, layer_id, cfg_id, cfg_name, off_set, limit):
         try:
             # 转换类型
             off_set = int(off_set)
@@ -204,8 +204,8 @@ class MysqlOperator(object):
                     count_query = count_query.filter(CfgItem.layer_id == layer_id)
                     value_query = value_query.filter(CfgItem.layer_id == layer_id)
 
-                if item_name:
-                    like_condition = '%' + item_name + '%'
+                if cfg_name:
+                    like_condition = '%' + cfg_name + '%'
                     count_query = count_query.filter(CfgItem.name.like(like_condition))
                     value_query = value_query.filter(CfgItem.name.like(like_condition))
                 count = count_query.count()
@@ -244,7 +244,7 @@ class MysqlOperator(object):
 
     # modify experiment
     @classmethod
-    def modify_cfg_item(cls, item_id, layer_id, item_name, position, start_value, stop_value, algo_request, algo_response, status, desc):
+    def modify_cfg_item(cls, item_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, status, desc):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
@@ -256,7 +256,7 @@ class MysqlOperator(object):
                     a_dict['msg'] = 'db_id does not exist'
                     return json.dumps(a_dict)
 
-                item.name = item_name
+                item.name = cfg_name
                 item.layer_id = layer_id
                 item.position = position
                 item.start_value = start_value
@@ -973,4 +973,92 @@ class MysqlOperator(object):
             a_dict['success'] = 'false'
             a_dict['content'] = list()
             a_dict['item_count'] = 0
+            return json.dumps(a_dict)
+
+    @classmethod
+    def check_cfg_id_exist(cls, cfg_id):
+        try:
+            # 创建session
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                # 查询数据
+                count_query = session.query(CfgItem.id).filter(CfgItem.id == cfg_id)
+                count = count_query.count()
+
+                # 返回成功
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['count'] = count
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['count'] = -1
+            return json.dumps(a_dict)
+
+    @classmethod
+    def check_cfg_name_exist(cls, cfg_name):
+        try:
+            # 创建session
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                # 查询数据
+                count_query = session.query(CfgItem.name).filter(CfgItem.name == cfg_name)
+                count = count_query.count()
+
+                # 返回成功
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['count'] = count
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['count'] = -1
+            return json.dumps(a_dict)
+
+    @classmethod
+    def check_exp_id_exist(cls, exp_id):
+        try:
+            # 创建session
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                # 查询数据
+                count_query = session.query(Experiment.id).filter(Experiment.id == exp_id)
+                count = count_query.count()
+
+                # 返回成功
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['count'] = count
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['count'] = -1
+            return json.dumps(a_dict)
+
+    @classmethod
+    def check_exp_name_exist(cls, exp_name):
+        try:
+            # 创建session
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                # 查询数据
+                count_query = session.query(Experiment.name).filter(Experiment.name == exp_name)
+                count = count_query.count()
+
+                # 返回成功
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['count'] = count
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['count'] = -1
             return json.dumps(a_dict)
