@@ -823,6 +823,7 @@ function check_inputs(cfg_id, layer_id, item_name, position, start_value, stop_v
 function handle_add_cfg_item_response(response) {
     if (response.success !== true) {
         $.showErr('添加失败');
+        reload_layer_node();
         return;
     }
 
@@ -833,6 +834,7 @@ function handle_add_cfg_item_response(response) {
 function handle_modify_cfg_item_response(response) {
     if (response.success !== true) {
         $.showErr("更新失败");
+        reload_layer_node();
         return;
     }
 
@@ -843,6 +845,7 @@ function handle_modify_cfg_item_response(response) {
 function handle_delete_cfg_item_response(response, cfg_id) {
     if (response.success !== true) {
         $.showErr("删除失败");
+        reload_layer_node();
         return;
     }
 

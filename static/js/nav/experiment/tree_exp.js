@@ -625,6 +625,7 @@ function check_inputs(layer_id, exp_id, exp_name, exp_status, online_time, exp_d
 function handle_modify_exp_response(response) {
     if (response.success !== true) {
         $.showErr("更新失败");
+        reload_layer_node();
         return;
     }
 
@@ -635,14 +636,11 @@ function handle_modify_exp_response(response) {
 function handle_delete_exp_response(response, exp_id) {
     if (response.success !== true) {
         $.showErr("删除失败");
+        reload_layer_node();
         return;
     }
 
-    var unique_id = 'exp_' + exp_id;
-    var $layer_tree = $("#layer_item");
-    $layer_tree.bootstrapTable('removeByUniqueId', unique_id);
-
-    render_tree();
+    reload_layer_node();
 }
 
 // 重构树视图
@@ -1069,21 +1067,11 @@ $(document).on('click', '.add-exp-item', function () {
 function handle_add_exp_response(response) {
     if (response.success !== true) {
         $.showErr('添加失败');
+        reload_layer_node();
         return;
     }
 
-    var $layer_tree = $("#layer_item");
-    for (var i = 0; i < response.content.length; i++) {
-        var item = response.content[i];
-        var exp_node = get_exp_node(item);
-
-        $layer_tree.bootstrapTable('insertRow', {
-            index: 0,
-            row: exp_node
-        });
-
-        render_tree();
-    }
+    reload_layer_node();
 }
 
 // 判断实验是否有关联配置
