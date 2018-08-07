@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, BigInteger, Float, TIMESTAMP, UniqueConstraint, Date, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy import create_engine
-from sqlalchemy import or_, not_, and_
+from sqlalchemy import or_, not_, and_, exists
 from sqlalchemy.orm import sessionmaker
 from urllib import quote_plus as urlquote
 from config import config
@@ -312,7 +312,9 @@ class MysqlOperator(object):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
-                session.query(CfgItem).filter(CfgItem.id == item_id).delete(synchronize_session=False)
+                session.query(CfgItem).filter(
+                    CfgItem.id == item_id).filter(
+                    ~exists().where(Exp2Cfg.cfg_id == item_id)).delete(synchronize_session=False)
                 session.commit()
 
                 a_dict = dict()
