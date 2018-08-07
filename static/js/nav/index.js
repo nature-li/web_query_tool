@@ -116,22 +116,26 @@ function statistic_html() {
            <ul id="statisticViewer" class="nav nav-list collapse secondmenu in">
                 <li id="li_position">
                     <a id="a_position" href="#">自查询
-                        <i id="i_position" class="glyphicon glyphicon-search"></i>
+                        <img src="/static/images/blue_search.png" />
+                        <!--<i id="i_position" class="glyphicon glyphicon-search"></i>-->
                     </a>
                 </li>
                 <li id="li_chart">
                     <a id="a_chart" href="#">可视化
-                        <i id="i_chart" class="glyphicon glyphicon-search"></i>
+                        <img src="/static/images/blue_chart.png" />
+                        <!--<i id="i_chart" class="glyphicon glyphicon-search"></i>-->
                     </a>
                 </li>
                 <li id="li_day_count">
                     <a id="a_day_count" href="#">日统计
-                        <i id="i_day_count" class="glyphicon glyphicon-search"></i>
+                        <img src="/static/images/blue_table.png" />
+                        <!--<i id="i_day_count" class="glyphicon glyphicon-search"></i>-->
                     </a>
                 </li>
                 <li id="li_hour_count">
                     <a id="a_hour_count" href="#">时统计
-                        <i id="i_hour_count" class="glyphicon glyphicon-search"></i>
+                        <img src="/static/images/blue_table.png" />
+                        <!--<i id="i_hour_count" class="glyphicon glyphicon-search"></i>-->
                     </a>
                 </li>
             </ul>
@@ -153,12 +157,14 @@ function experiment_html() {
                 <!--</li>-->
                 <li id="li_tree_cfg">
                     <a id="a_tree_cfg" href="#">配置视图
-                        <i id="i_tree_cfg" class="glyphicon glyphicon-pencil"></i>
+                    <img src="/static/images/blue_config.png" />
+                        <!--<i id="i_tree_cfg" class="glyphicon glyphicon-pencil"></i>-->
                     </a>
                 </li>
                 <li id="li_tree_exp">
                     <a id="a_tree_exp" href="#">实验视图
-                        <i id="i_tree_exp" class="glyphicon glyphicon-pencil"></i>
+                        <img src="/static/images/blue_exp.png" />
+                        <!--<i id="i_tree_exp" class="glyphicon glyphicon-pencil"></i>-->
                     </a>
                 </li>
             </ul>
@@ -175,7 +181,8 @@ function system_html() {
            <ul id="systemViewer" class="nav nav-list collapse secondmenu in">
                 <li id="li_user_list">
                     <a id="a_user_list" href="#">用户权限
-                        <i id="i_user_list" class="glyphicon glyphicon-wrench"></i>
+                        <img src="/static/images/blue_user.png" />
+                        <!--<i id="i_user_list" class="glyphicon glyphicon-wrench"></i>-->
                     </a>
                 </li>
             </ul>
