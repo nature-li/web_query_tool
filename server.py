@@ -774,8 +774,18 @@ class TreeCfgHandler(BaseHandler):
             return
 
         if req_type == 'CHECK_NAME_EXIST':
+            cfg_id = self.get_argument('cfg_id', None)
             cfg_name = self.get_argument('cfg_name', None)
-            json_text = MysqlOperator.check_cfg_name_exist(cfg_name)
+            json_text = MysqlOperator.check_cfg_name_exist(cfg_id, cfg_name)
+            self.write(json_text)
+            return
+
+        if req_type == 'CHECK_RANGE':
+            layer_id = self.get_argument('layer_id', None)
+            position = self.get_argument('position', None)
+            start_value = self.get_argument('start_value', None)
+            stop_value = self.get_argument('stop_value', None)
+            json_text = MysqlOperator.check_range_conflict(layer_id, position, start_value, stop_value)
             self.write(json_text)
             return
 
@@ -1056,8 +1066,9 @@ class TreeExpHandler(BaseHandler):
             return
 
         if req_type == 'CHECK_NAME_EXIST':
+            exp_id = self.get_argument('exp_id', None)
             exp_name = self.get_argument('exp_name', None)
-            json_text = MysqlOperator.check_exp_name_exist(exp_name)
+            json_text = MysqlOperator.check_exp_name_exist(exp_id, exp_name)
             self.write(json_text)
             return
 

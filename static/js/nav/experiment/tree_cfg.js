@@ -1,6 +1,3 @@
-var old_cfg_id = undefined;
-var old_cfg_name = undefined;
-
 $(document).ready(function () {
     // 改变菜单背景色
     set_page_active("#li_tree_cfg");
@@ -392,9 +389,6 @@ function load_cfg_node(layer_items, func_on_success) {
 
 // 增加配置项
 $(document).on('click', ".add-cfg-item", function () {
-    old_cfg_id = undefined;
-    old_cfg_name = undefined;
-
     var $this_tr = $(this).closest('tr');
     var layer_id = $this_tr.find('td:eq(1)').text().trim();
 
@@ -406,6 +400,10 @@ $(document).on('click', ".add-cfg-item", function () {
             content += '<div class="form-group">' +
                 '<label style="margin: 0 5px;">启用</label>' +
                 '<input id="status" type="checkbox" name="status"/>' +
+                '</div>';
+            content += '<div><hr /></div>';
+            content += '<div class="form-group">' +
+                '<input id="layer_id" class="no-display" value="' + layer_id + '" readonly>' +
                 '</div>';
             content += '<div class="form-group">' +
                 '<div><label>配置id：</label><label id="cfg_id_tip" style="color: red"></label></div>' +
@@ -424,11 +422,11 @@ $(document).on('click', ".add-cfg-item", function () {
                 '</div>';
 
             content += '<div class="form-group">' +
-                '<div><label>起始值：</label></div>' +
+                '<div><label>起始值：</label><label id="start_value_tip" style="color: red"></label></div>' +
                 '<input id="start_value" type="number" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>结束值：</label></div>' +
+                '<div><label>结束值：</label><label id="stop_value_tip" style="color: red"></label></div>' +
                 '<input id="stop_value" type="number" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
@@ -459,6 +457,9 @@ $(document).on('click', ".add-cfg-item", function () {
                 var pos = window.save_data.all_position[i];
 
                 var option = '<option value="' + pos.position + '">' + pos.position + '</option>';
+                if (i === 0) {
+                    option = '<option value="' + pos.position + '" selected="selected">' + pos.position + '</option>';
+                }
                 $("#position").append(option);
             }
             $("#position").selectpicker('refresh');
@@ -546,9 +547,6 @@ $(document).on('click', '.modify-cfg-item', function () {
     var status = $(tr).find('td:eq(7)').find('input').prop('checked');
     var item_desc = $(tr).find('td:eq(9)').text().trim();
 
-    old_cfg_id = cfg_id;
-    old_cfg_name = cfg_name;
-
     BootstrapDialog.show({
         message: function (dialog) {
             // header
@@ -567,6 +565,9 @@ $(document).on('click', '.modify-cfg-item', function () {
             }
             content += '<div><hr /></div>';
             content += '<div class="form-group">' +
+                '<input id="layer_id" class="no-display" value="' + layer_id + '" readonly>' +
+                '</div>';
+            content += '<div class="form-group">' +
                 '<label>配置id：</label><label id="cfg_id_tip" style="color: red"></label>' +
                 '<input id="cfg_id" class="form-control clear-tips" value="' + cfg_id + '" readonly>' +
                 '</div>';
@@ -582,11 +583,11 @@ $(document).on('click', '.modify-cfg-item', function () {
                 '</div>' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<label>起始值：</label>' +
+                '<label>起始值：</label><label id="start_value_tip" style="color: red"></label>' +
                 '<input type="number" id="start_value" class="form-control clear-tips" value="' + start_value + '">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<label>结束值：</label>' +
+                '<label>结束值：</label><label id="stop_value_tip" style="color: red"></label>' +
                 '<input type="number" id="stop_value" class="form-control clear-tips" value="' + stop_value + '">' +
                 '</div>';
             content += '<div class="form-group">' +
@@ -1209,11 +1210,6 @@ $(document).on('input', '#cfg_id', function () {
         return;
     }
 
-    if (cfg_id === old_cfg_id) {
-        $("#cfg_id_tip").html('');
-        return;
-    }
-
     $.ajax({
             url: '/tree_cfg',
             type: "get",
@@ -1238,13 +1234,9 @@ $(document).on('input', '#cfg_id', function () {
 });
 
 $(document).on('input', '#cfg_name', function () {
+    var cfg_id = $("#cfg_id").val().trim();
     var cfg_name = $("#cfg_name").val().trim();
     if (!cfg_name) {
-        return;
-    }
-
-    if (cfg_name === old_cfg_name) {
-        $("#cfg_name_tip").html('');
         return;
     }
 
@@ -1253,6 +1245,7 @@ $(document).on('input', '#cfg_name', function () {
             type: "get",
             data: {
                 'type': 'CHECK_NAME_EXIST',
+                'cfg_id': cfg_id,
                 'cfg_name': cfg_name
             },
             dataType: 'json',
@@ -1281,5 +1274,91 @@ function check_invalid_tips() {
         return false;
     }
 
+    if ($("#start_value_tip").html() !== '') {
+        return false;
+    }
+
+    if ($("#stop_value_tip").html() !== '') {
+        return false;
+    }
+
     return true;
+}
+
+// 位置变动
+$(document).on('change', '#position', check_range());
+// 起始位置更新
+$(document).on('input', '#start_value', check_range("#start_value_tip"));
+// 结束位置更新
+$(document).on('input', '#stop_value', check_range("#stop_value_tip"));
+
+
+function check_range(tip_id) {
+    return function () {
+        var layer_id = $("#layer_id").val().trim();
+        var position = $("#position").val().join();
+        var start_value = $("#start_value").val().trim();
+        var stop_value = $("#stop_value").val().trim();
+
+        // 位置为空时清除提示
+        if (!position) {
+            $("#start_value_tip").html('');
+            $("#stop_value_tip").html('');
+            return;
+        }
+
+        // 两者都为空时清除提示
+        if (!start_value && !stop_value) {
+            $("#start_value_tip").html('');
+            $("#stop_value_tip").html('');
+            return;
+        }
+
+        // 位置变动时tip_id一定为空
+        if (!tip_id) {
+            if (stop_value) {
+                tip_id = "#stop_value_tip";
+            } else {
+                tip_id = '#start_value_tip';
+            }
+        }
+
+        // 先做本地范围检测
+        if (start_value && stop_value) {
+            start_value = parseInt(start_value);
+            stop_value = parseInt(stop_value);
+            if (stop_value <= start_value) {
+                $(tip_id).html("范围无效");
+                return;
+            }
+
+            $(tip_id).html("");
+        }
+
+        // 服务端范围检测
+        $.ajax({
+                url: '/tree_cfg',
+                type: "get",
+                data: {
+                    'type': 'CHECK_RANGE',
+                    'layer_id': layer_id,
+                    'position': position,
+                    'start_value': start_value,
+                    'stop_value': stop_value
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.success !== true) {
+                        return;
+                    }
+
+                    if (data.conflict === true) {
+                        $(tip_id).html('范围冲突');
+                    } else {
+                        $(tip_id).html('');
+                    }
+                }
+            }
+        );
+    }
 }

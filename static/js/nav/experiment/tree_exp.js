@@ -1,6 +1,3 @@
-var old_exp_id = undefined;
-var old_exp_name = undefined;
-
 $(document).ready(function () {
     // 改变菜单背景色
     set_page_active("#li_tree_exp");
@@ -385,9 +382,6 @@ $(document).on('click', '.modify-exp-item', function () {
     var online_time = $(tr).find('td:eq(3)').text().trim();
     var exp_desc = $(tr).find('td:eq(6)').text().trim();
 
-    old_exp_id = exp_id;
-    old_exp_name = exp_name;
-
     BootstrapDialog.show({
         message: function (dialog) {
             // header
@@ -419,6 +413,9 @@ $(document).on('click', '.modify-exp-item', function () {
 
             content += '<div><hr /></div>';
             content += '<div class="form">';
+            content += '<div class="form-group">' +
+                '<input id="layer_id" class="hidden-self" value="' + layer_id + '" readonly>' +
+                '</div>';
             content += '<div class="form-group">' +
                 '<div><label>实验id：</label><label id="exp_id_tip" style="color: red"></label></div>' +
                 '<input id="exp_id" class="form-control clear-tips" value="' + exp_id + '" readonly>' +
@@ -941,9 +938,6 @@ $(document).on('click', '.del-cfg-item', function () {
 
 // 添加实验
 $(document).on('click', '.add-exp-item', function () {
-    old_exp_id = undefined;
-    old_exp_name = undefined;
-
     var $this_tr = $(this).closest('tr');
     var layer_id = $this_tr.find('td:eq(1)').text().trim();
 
@@ -973,6 +967,9 @@ $(document).on('click', '.add-exp-item', function () {
 
             content += '<div><hr /></div>';
             content += '<div class="form">';
+            content += '<div class="form-group">' +
+                '<input id="layer_id" class="hidden-self" value="' + layer_id + '" readonly>' +
+                '</div>';
             content += '<div class="form-group">' +
                 '<div><label>实验id：</label><label id="exp_id_tip" style="color: red"></label></div>' +
                 '<input id="exp_id" class="form-control clear-tips">' +
@@ -1110,11 +1107,6 @@ $(document).on('input', '#exp_id', function () {
         return;
     }
 
-    if (exp_id === old_exp_id) {
-        $("#exp_id_tip").html('');
-        return;
-    }
-
     $.ajax({
             url: '/tree_exp',
             type: "get",
@@ -1139,13 +1131,9 @@ $(document).on('input', '#exp_id', function () {
 });
 
 $(document).on('input', '#exp_name', function () {
+    var exp_id = $("#exp_id").val().trim();
     var exp_name = $("#exp_name").val().trim();
     if (!exp_name) {
-        return;
-    }
-
-    if (old_exp_name === exp_name) {
-        $("#exp_name_tip").html('');
         return;
     }
 
@@ -1154,6 +1142,7 @@ $(document).on('input', '#exp_name', function () {
             type: "get",
             data: {
                 'type': 'CHECK_NAME_EXIST',
+                'exp_id': exp_id,
                 'exp_name': exp_name
             },
             dataType: 'json',

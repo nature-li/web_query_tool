@@ -998,13 +998,15 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def check_cfg_name_exist(cls, cfg_name):
+    def check_cfg_name_exist(cls, cfg_id, cfg_name):
         try:
             # 创建session
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 # 查询数据
                 count_query = session.query(CfgItem.name).filter(CfgItem.name == cfg_name)
+                if cfg_id:
+                    count_query = count_query.filter(CfgItem.id != cfg_id)
                 count = count_query.count()
 
                 # 返回成功
@@ -1042,13 +1044,15 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def check_exp_name_exist(cls, exp_name):
+    def check_exp_name_exist(cls, exp_id, exp_name):
         try:
             # 创建session
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 # 查询数据
                 count_query = session.query(Experiment.name).filter(Experiment.name == exp_name)
+                if exp_id:
+                    count_query = count_query.filter(Experiment.id != exp_id)
                 count = count_query.count()
 
                 # 返回成功
@@ -1061,4 +1065,87 @@ class MysqlOperator(object):
             a_dict = dict()
             a_dict['success'] = False
             a_dict['count'] = -1
+            return json.dumps(a_dict)
+
+    @classmethod
+    def position_overlap(cls, left, right):
+        """
+        :type left: set[str]
+        :type right: set[str]
+        """
+        try:
+            if '*' in left or '*' in right:
+                return True
+            result = left & right
+            if len(result) > 0:
+                return True
+            return False
+        except:
+            Logger.error(traceback.format_exc())
+            return None
+
+    @classmethod
+    def check_range_conflict(cls, layer_id, check_position, start_value, stop_value):
+        try:
+            if start_value:
+                start_value = int(start_value)
+            else:
+                stop_value = None
+
+            if stop_value:
+                stop_value = int(stop_value)
+            else:
+                stop_value = None
+            position_set = set(check_position.split(','))
+            Logger.info("position_set: " + str(position_set))
+
+            # 创建session
+            exist_range = list()
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                values = session.query(CfgItem.position, CfgItem.start_value, CfgItem.stop_value).filter(
+                    CfgItem.layer_id == layer_id).all()
+                for value in values:
+                    exist_range.append((value.position, value.start_value, value.stop_value))
+
+            conflict = False
+            for item in exist_range:
+                # 判断 position 是否有交集
+                (position, start, end) = item
+                a_set = set(position.split(','))
+                Logger.info("a_set: " + str(a_set))
+                if not cls.position_overlap(position_set, a_set):
+                    continue
+
+                if start_value is not None:
+                    if start <= start_value <= end:
+                        Logger.info(str(item))
+                        conflict = True
+                        break
+                if stop_value is not None:
+                    if start <= stop_value <= end:
+                        Logger.info(str(item))
+                        conflict = True
+                        break
+                if start_value is not None and stop_value is not None:
+                    if start_value <= start <= stop_value:
+                        Logger.info(str(item))
+                        conflict = True
+                        break
+                    if start_value <= end <= stop_value:
+                        Logger.info(str(item))
+                        conflict = True
+                        break
+                Logger.info(str(item))
+
+            # 返回成功
+            a_dict = dict()
+            a_dict['success'] = True
+            a_dict['conflict'] = conflict
+            return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['conflict'] = False
             return json.dumps(a_dict)
