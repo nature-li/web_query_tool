@@ -43,6 +43,11 @@
         <div class="col-xs-12">
             <form class="form-inline">
                 <div class="form-group form-group-margin">
+                    <label>业务:</label>
+                    <select id="business_selector" class="selectpicker" data-size="10" data-live-search="true">
+                    </select>
+                </div>
+                <div class="form-group form-group-margin">
                     <label>实验层:</label>
                     <select id="layer_selector" class="selectpicker" data-size="10" data-live-search="true">
                     </select>
@@ -71,7 +76,7 @@
     <script src="/static/js/nav/public/public.js?v={{ static_version }}"></script>
     <script src="/static/js/nav/public/page_partition.js?v={{ static_version }}"></script>
     <script src="/static/js/nav/toggle_active.js?v={{ static_version }}"></script>
-    <script src="/static/js/nav/experiment/tree_exp.js?v={{ static_version }}"></script>
     <script src="/static/js/nav/experiment/exp_utils.js?v={{ static_version }}"></script>
+    <script src="/static/js/nav/experiment/tree_exp.js?v={{ static_version }}"></script>
 </body>
 </html>

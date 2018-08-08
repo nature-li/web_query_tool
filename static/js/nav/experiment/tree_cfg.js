@@ -7,8 +7,8 @@ $(document).ready(function () {
         reset_save_data();
     }
 
-    // 初始化下拉列表框、层节点、配置节点、加载所有实验
-    init_layer_selector();
+    // 初始化业务下拉列表框
+    init_business_selector(init_layer_selector);
 });
 
 // 初始化全局变量
@@ -31,13 +31,14 @@ function reset_save_data() {
     };
 }
 
-// 初始化层选择器
+// 初始化下拉列表框、层节点、配置节点、加载所有实验
 function init_layer_selector() {
     $.ajax({
             url: '/layer',
             type: "get",
             data: {
                 'type': 'QUERY_LAYER',
+                'bns_id': $("#business_selector").val(),
                 'layer_id': '',
                 'off_set': 0,
                 'limit': -1
@@ -48,6 +49,7 @@ function init_layer_selector() {
                     return;
                 }
 
+                $("#layer_selector").html('');
                 var option = '<option value="">选择层</option>';
                 $("#layer_selector").append(option);
                 for (var i = 0; i < data.content.length; i++) {
@@ -88,6 +90,7 @@ function reload_layer_node(func_on_success) {
             type: "get",
             data: {
                 'type': 'QUERY_LAYER',
+                'bns_id': $("#business_selector").val(),
                 'layer_id': layer_id,
                 'off_set': 0,
                 'limit': -1
@@ -360,6 +363,7 @@ function load_cfg_node(layer_items, func_on_success) {
             type: "get",
             data: {
                 'type': 'QUERY_CFG',
+                'bns_id': $("#business_selector").val(),
                 'layer_id': layer_id,
                 'cfg_id': cfg_id,
                 'cfg_name': '',
@@ -495,6 +499,7 @@ $(document).on('click', ".add-cfg-item", function () {
                         type: "post",
                         data: {
                             type: "ADD_CFG",
+                            bns_id: $("#business_selector").val(),
                             cfg_id: cfg_id,
                             layer_id: layer_id,
                             cfg_name: cfg_name,
@@ -664,6 +669,7 @@ $(document).on('click', '.modify-cfg-item', function () {
                         type: "put",
                         data: {
                             type: "MODIFY_CFG",
+                            bns_id: $("#business_selector").val(),
                             cfg_id: cfg_id,
                             layer_id: layer_id,
                             cfg_name: cfg_name,
@@ -714,6 +720,7 @@ function delete_one_cfg_item(cfg_id) {
         // 发送请求
         $.ajax({
                 url: '/tree_cfg',
+                bns_id: $("#business_selector").val(),
                 type: "delete",
                 data: {
                     type: 'DEL_CFG',
@@ -752,6 +759,7 @@ $(document).on('change', '.toggle-status', function () {
             type: "put",
             data: {
                 type: 'MODIFY_STATUS',
+                'bns_id': $("#business_selector").val(),
                 cfg_id: cfg_id,
                 status: status
             },
@@ -942,6 +950,7 @@ function load_all_exp() {
             type: "get",
             data: {
                 'type': 'QUERY_EXP',
+                'bns_id': $("#business_selector").val(),
                 'layer_id': layer_id,
                 'off_set': 0,
                 'limit': -1
@@ -1022,6 +1031,7 @@ $(document).on('click', '.add-exp-item', function () {
                         type: "put",
                         data: {
                             type: "PUT_RELATION",
+                            'bns_id': $("#business_selector").val(),
                             cfg_id: cfg_id,
                             layer_id: layer_id,
                             exp_id: exp_value,
@@ -1073,6 +1083,7 @@ function load_relation_exp_node(layer_items, cfg_items, func_on_success) {
             type: "get",
             data: {
                 'type': 'GET_RELATION',
+                'bns_id': $("#business_selector").val(),
                 'layer_id': layer_id,
                 'cfg_id': cfg_id,
                 'off_set': 0,
@@ -1139,6 +1150,7 @@ $(document).on('click', '.del-exp-item', function () {
             type: "delete",
             data: {
                 'type': 'DEL_RELATION',
+                'bns_id': $("#business_selector").val(),
                 'layer_id': layer_id,
                 'cfg_id': cfg_id,
                 'exp_id': exp_id,
@@ -1182,6 +1194,7 @@ function load_all_position() {
             type: "get",
             data: {
                 'type': 'QUERY_POS',
+                'bns_id': $("#business_selector").val(),
                 'off_set': 0,
                 'limit': -1
             },
@@ -1222,6 +1235,7 @@ $(document).on('input', '#cfg_id', function () {
             type: "get",
             data: {
                 'type': 'CHECK_ID_EXIST',
+                'bns_id': $("#business_selector").val(),
                 'cfg_id': cfg_id
             },
             dataType: 'json',
@@ -1252,6 +1266,7 @@ $(document).on('input', '#cfg_name', function () {
             type: "get",
             data: {
                 'type': 'CHECK_NAME_EXIST',
+                'bns_id': $("#business_selector").val(),
                 'cfg_id': cfg_id,
                 'cfg_name': cfg_name
             },
@@ -1381,6 +1396,7 @@ function check_range(tip_id) {
                 type: "get",
                 data: {
                     'type': 'CHECK_RANGE',
+                    'bns_id': $("#business_selector").val(),
                     'layer_id': layer_id,
                     'position': position,
                     'start_value': start_value,

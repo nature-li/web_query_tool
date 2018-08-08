@@ -200,141 +200,13 @@ class LayerHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == "QUERY_LAYER":
+            bns_id = self.get_argument('bns_id', None)
             layer_id = self.get_argument('layer_id', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_layer(layer_id, off_set, limit)
+            json_text = MysqlOperator.query_layer(bns_id, layer_id, off_set, limit)
             self.write(json_text)
             return
-
-
-class CfgItemHandler(BaseHandler):
-    def get(self):
-        user_name, show_name = self.get_login_user()
-        if not user_name:
-            return
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-
-        user = DbOperator.get_user_info(user_name)
-        if not user:
-            self.redirect('/logout')
-        if not user.user_right & UserRight.EXPERIMENT:
-            self.render('error.html', static_version=config.server_static_version)
-            return
-
-        req_type = self.get_argument('type', None)
-        if not req_type:
-            self.render('experiment/cfg_item.html', static_version=config.server_static_version)
-            return
-        if req_type == "QUERY_CFG":
-            layer_id = self.get_argument('layer_id', None)
-            cfg_id = self.get_argument('cfg_id', None)
-            cfg_name = self.get_argument('cfg_name', None)
-            off_set = self.get_argument('off_set', None)
-            limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_cfg_item(layer_id, cfg_id, cfg_name, off_set, limit)
-            self.write(json_text)
-            return
-
-    def post(self):
-        user_name, show_name = self.get_login_user()
-        if not user_name:
-            return
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-
-        user = DbOperator.get_user_info(user_name)
-        if not user:
-            self.redirect('/logout')
-        if not user.user_right & UserRight.EXPERIMENT:
-            self.render('error.html', static_version=config.server_static_version)
-            return
-
-        req_type = self.get_argument('type', None)
-        if req_type == 'ADD_CFG':
-            cfg_id = self.get_argument('cfg_id', None)
-            layer_id = self.get_argument('layer_id', None)
-            cfg_name = self.get_argument('cfg_name', None)
-            position = self.get_argument('position', None)
-            start_value = self.get_argument('start_value', None)
-            stop_value = self.get_argument('stop_value', None)
-            algo_request = self.get_argument('algo_request')
-            algo_response = self.get_argument('algo_response')
-            status = self.get_argument('status', None)
-            desc = self.get_argument('desc', None)
-            json_text = MysqlOperator.add_cfg_item(cfg_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
-            self.write(json_text)
-            return
-
-        result_dict = dict()
-        result_dict['success'] = False
-        result_dict['msg'] = 'Invalid req_type: ' + req_type
-        self.write(json.dumps(result_dict, ensure_ascii=False))
-
-    def put(self):
-        user_name, show_name = self.get_login_user()
-        if not user_name:
-            return
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-
-        user = DbOperator.get_user_info(user_name)
-        if not user:
-            self.redirect('/logout')
-        if not user.user_right & UserRight.EXPERIMENT:
-            self.render('error.html', static_version=config.server_static_version)
-            return
-
-        req_type = self.get_argument('type', None)
-        if req_type == 'MODIFY_CFG':
-            cfg_id = self.get_argument('cfg_id', None)
-            layer_id = self.get_argument('layer_id', None)
-            cfg_name = self.get_argument('cfg_name', None)
-            position = self.get_argument('position', None)
-            start_value = self.get_argument('start_value', None)
-            stop_value = self.get_argument('stop_value', None)
-            algo_request = self.get_argument('algo_request')
-            algo_response = self.get_argument('algo_response')
-            status = self.get_argument('status', None)
-            desc = self.get_argument('desc', None)
-            json_text = MysqlOperator.modify_cfg_item(cfg_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
-            self.write(json_text)
-            return
-
-        if req_type == 'MODIFY_STATUS':
-            cfg_id = self.get_argument('cfg_id', None)
-            status = self.get_argument('status', None)
-            json_text = MysqlOperator.modify_cfg_item_status(cfg_id, status)
-            self.write(json_text)
-            return
-
-        result_dict = dict()
-        result_dict['success'] = False
-        result_dict['msg'] = 'Invalid req_type: ' + req_type
-        self.write(json.dumps(result_dict, ensure_ascii=False))
-
-    def delete(self):
-        user_name, show_name = self.get_login_user()
-        if not user_name:
-            return
-        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
-
-        user = DbOperator.get_user_info(user_name)
-        if not user:
-            self.redirect('/logout')
-        if not user.user_right & UserRight.EXPERIMENT:
-            self.render('error.html', static_version=config.server_static_version)
-            return
-
-        req_type = self.get_argument('type', None)
-        if req_type == 'DEL_CFG':
-            cfg_id = self.get_argument('cfg_id', None)
-            json_text = MysqlOperator.delete_cfg_item(cfg_id)
-            self.write(json_text)
-            return
-
-        result_dict = dict()
-        result_dict['success'] = False
-        result_dict['msg'] = 'Invalid req_type: ' + req_type
-        self.write(json.dumps(result_dict, ensure_ascii=False))
 
 
 class NetworkListHandler(BaseHandler):
@@ -758,34 +630,38 @@ class TreeCfgHandler(BaseHandler):
             self.render('experiment/tree_cfg.html', static_version=config.server_static_version)
             return
         if req_type == "QUERY_CFG":
+            bns_id = self.get_argument('bns_id', None)
             layer_id = self.get_argument('layer_id', None)
             cfg_id = self.get_argument('cfg_id', None)
             cfg_name = self.get_argument('cfg_name', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_cfg_item(layer_id, cfg_id, cfg_name, off_set, limit)
+            json_text = MysqlOperator.query_cfg_item(bns_id, layer_id, cfg_id, cfg_name, off_set, limit)
             self.write(json_text)
             return
 
         if req_type == 'CHECK_ID_EXIST':
+            bns_id = self.get_argument('bns_id', None)
             cfg_id = self.get_argument('cfg_id', None)
-            json_text = MysqlOperator.check_cfg_id_exist(cfg_id)
+            json_text = MysqlOperator.check_cfg_id_exist(bns_id, cfg_id)
             self.write(json_text)
             return
 
         if req_type == 'CHECK_NAME_EXIST':
+            bns_id = self.get_argument('bns_id', None)
             cfg_id = self.get_argument('cfg_id', None)
             cfg_name = self.get_argument('cfg_name', None)
-            json_text = MysqlOperator.check_cfg_name_exist(cfg_id, cfg_name)
+            json_text = MysqlOperator.check_cfg_name_exist(bns_id, cfg_id, cfg_name)
             self.write(json_text)
             return
 
         if req_type == 'CHECK_RANGE':
+            bns_id = self.get_argument('bns_id', None)
             layer_id = self.get_argument('layer_id', None)
             position = self.get_argument('position', None)
             start_value = self.get_argument('start_value', None)
             stop_value = self.get_argument('stop_value', None)
-            json_text = MysqlOperator.check_range_conflict(layer_id, position, start_value, stop_value)
+            json_text = MysqlOperator.check_range_conflict(bns_id, layer_id, position, start_value, stop_value)
             self.write(json_text)
             return
 
@@ -804,6 +680,7 @@ class TreeCfgHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == 'ADD_CFG':
+            bns_id = self.get_argument('bns_id', None)
             cfg_id = self.get_argument('cfg_id', None)
             layer_id = self.get_argument('layer_id', None)
             cfg_name = self.get_argument('cfg_name', None)
@@ -814,7 +691,7 @@ class TreeCfgHandler(BaseHandler):
             algo_response = self.get_argument('algo_response')
             status = self.get_argument('status', None)
             desc = self.get_argument('desc', None)
-            json_text = MysqlOperator.add_cfg_item(cfg_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
+            json_text = MysqlOperator.add_cfg_item(bns_id, cfg_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
             self.write(json_text)
             return
 
@@ -838,6 +715,7 @@ class TreeCfgHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == 'MODIFY_CFG':
+            bns_id = self.get_argument('bns_id', None)
             cfg_id = self.get_argument('cfg_id', None)
             layer_id = self.get_argument('layer_id', None)
             cfg_name = self.get_argument('cfg_name', None)
@@ -848,14 +726,15 @@ class TreeCfgHandler(BaseHandler):
             algo_response = self.get_argument('algo_response')
             status = self.get_argument('status', None)
             desc = self.get_argument('desc', None)
-            json_text = MysqlOperator.modify_cfg_item(cfg_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
+            json_text = MysqlOperator.modify_cfg_item(bns_id, cfg_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, status, desc)
             self.write(json_text)
             return
 
         if req_type == 'MODIFY_STATUS':
+            bns_id = self.get_argument('bns_id', None)
             cfg_id = self.get_argument('cfg_id', None)
             status = self.get_argument('status', None)
-            json_text = MysqlOperator.modify_cfg_item_status(cfg_id, status)
+            json_text = MysqlOperator.modify_cfg_item_status(bns_id, cfg_id, status)
             self.write(json_text)
             return
 
@@ -879,8 +758,9 @@ class TreeCfgHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == 'DEL_CFG':
+            bns_id = self.get_argument('bns_id', None)
             cfg_id = self.get_argument('cfg_id', None)
-            json_text = MysqlOperator.delete_cfg_item(cfg_id)
+            json_text = MysqlOperator.delete_cfg_item(bns_id, cfg_id)
             self.write(json_text)
             return
 
@@ -906,12 +786,13 @@ class CfgRelationHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == 'GET_RELATION':
+            bns_id = self.get_argument('bns_id', None)
             layer_id = self.get_argument('layer_id', None)
             cfg_id = self.get_argument('cfg_id', None)
             exp_id = self.get_argument('exp_id', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_cfg_relation(layer_id, cfg_id, exp_id, off_set, limit)
+            json_text = MysqlOperator.query_cfg_relation(bns_id, layer_id, cfg_id, exp_id, off_set, limit)
             self.write(json_text)
             return
 
@@ -930,10 +811,11 @@ class CfgRelationHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == 'PUT_RELATION':
+            bns_id = self.get_argument('bns_id', None)
             layer_id = self.get_argument('layer_id', None)
             cfg_id = self.get_argument('cfg_id', None)
             exp_id_list = self.request.arguments.get('exp_id[]', [])
-            json_text = MysqlOperator.put_cfg_relation(layer_id, cfg_id, exp_id_list)
+            json_text = MysqlOperator.put_cfg_relation(bns_id, layer_id, cfg_id, exp_id_list)
             self.write(json_text)
             return
 
@@ -952,10 +834,11 @@ class CfgRelationHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == 'DEL_RELATION':
+            bns_id = self.get_argument('bns_id', None)
             layer_id = self.get_argument('layer_id', None)
             cfg_id = self.get_argument('cfg_id', None)
             exp_id = self.get_argument('exp_id', None)
-            json_text = MysqlOperator.delete_relation(layer_id, cfg_id, exp_id)
+            json_text = MysqlOperator.delete_relation(bns_id, layer_id, cfg_id, exp_id)
             self.write(json_text)
             return
 
@@ -976,12 +859,13 @@ class ExpRelationHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == 'GET_RELATION':
+            bns_id = self.get_argument('bns_id', None)
             layer_id = self.get_argument('layer_id', None)
             exp_id = self.get_argument('exp_id', None)
             cfg_id = self.get_argument('cfg_id', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_exp_relation(layer_id, exp_id, cfg_id, off_set, limit)
+            json_text = MysqlOperator.query_exp_relation(bns_id, layer_id, exp_id, cfg_id, off_set, limit)
             self.write(json_text)
             return
 
@@ -1000,10 +884,11 @@ class ExpRelationHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == 'PUT_RELATION':
+            bns_id = self.get_argument('bns_id', None)
             layer_id = self.get_argument('layer_id', None)
             exp_id = self.get_argument('exp_id', None)
             cfg_id_list = self.request.arguments.get('cfg_id[]', [])
-            json_text = MysqlOperator.put_exp_relation(layer_id, exp_id, cfg_id_list)
+            json_text = MysqlOperator.put_exp_relation(bns_id, layer_id, exp_id, cfg_id_list)
             self.write(json_text)
             return
 
@@ -1022,10 +907,11 @@ class ExpRelationHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == 'DEL_RELATION':
+            bns_id = self.get_argument('bns_id', None)
             layer_id = self.get_argument('layer_id', None)
             exp_id = self.get_argument('exp_id', None)
             cfg_id = self.get_argument('cfg_id', None)
-            json_text = MysqlOperator.delete_relation(layer_id, cfg_id, exp_id)
+            json_text = MysqlOperator.delete_relation(bns_id, layer_id, cfg_id, exp_id)
             self.write(json_text)
             return
 
@@ -1051,24 +937,27 @@ class TreeExpHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == "QUERY_EXP":
+            bns_id = self.get_argument('bns_id', None)
             layer_id = self.get_argument('layer_id', None)
             exp_id = self.get_argument('exp_id', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_experiment(layer_id, exp_id, off_set, limit)
+            json_text = MysqlOperator.query_experiment(bns_id, layer_id, exp_id, off_set, limit)
             self.write(json_text)
             return
 
         if req_type == 'CHECK_ID_EXIST':
+            bns_id = self.get_argument('bns_id', None)
             exp_id = self.get_argument('exp_id', None)
-            json_text = MysqlOperator.check_exp_id_exist(exp_id)
+            json_text = MysqlOperator.check_exp_id_exist(bns_id, exp_id)
             self.write(json_text)
             return
 
         if req_type == 'CHECK_NAME_EXIST':
+            bns_id = self.get_argument('bns_id', None)
             exp_id = self.get_argument('exp_id', None)
             exp_name = self.get_argument('exp_name', None)
-            json_text = MysqlOperator.check_exp_name_exist(exp_id, exp_name)
+            json_text = MysqlOperator.check_exp_name_exist(bns_id, exp_id, exp_name)
             self.write(json_text)
             return
 
@@ -1087,13 +976,14 @@ class TreeExpHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == 'ADD_EXP':
+            bns_id = self.get_argument('bns_id', None)
             layer_id = self.get_argument('layer_id', None)
             exp_id = self.get_argument('exp_id', None)
             exp_name = self.get_argument('exp_name', None)
             exp_status = self.get_argument('exp_status', None)
             online_time = self.get_argument('online_time', None)
             exp_desc = self.get_argument('exp_desc', None)
-            json_text = MysqlOperator.add_one_exp(layer_id, exp_id, exp_name, exp_status, online_time, exp_desc)
+            json_text = MysqlOperator.add_one_exp(bns_id, layer_id, exp_id, exp_name, exp_status, online_time, exp_desc)
             self.write(json_text)
             return
 
@@ -1117,20 +1007,22 @@ class TreeExpHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == 'MODIFY_EXP':
+            bns_id = self.get_argument('bns_id', None)
             layer_id = self.get_argument('layer_id', None)
             exp_id = self.get_argument('exp_id', None)
             exp_name = self.get_argument('exp_name', None)
             exp_status = self.get_argument('exp_status', None)
             online_time = self.get_argument('online_time', None)
             exp_desc = self.get_argument('exp_desc', None)
-            json_text = MysqlOperator.modify_experiment(layer_id, exp_id, exp_name, exp_status, online_time, exp_desc)
+            json_text = MysqlOperator.modify_experiment(bns_id, layer_id, exp_id, exp_name, exp_status, online_time, exp_desc)
             self.write(json_text)
             return
 
         if req_type == 'MODIFY_STATUS':
+            bns_id = self.get_argument('bns_id', None)
             exp_id = self.get_argument('exp_id', None)
             exp_status = self.get_argument('exp_status', None)
-            json_text = MysqlOperator.modify_exp_status(exp_id, exp_status)
+            json_text = MysqlOperator.modify_exp_status(bns_id, exp_id, exp_status)
             self.write(json_text)
             return
 
@@ -1154,8 +1046,9 @@ class TreeExpHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == 'DEL_EXP':
+            bns_id = self.get_argument('bns_id', None)
             exp_id = self.get_argument('exp_id', None)
-            json_text = MysqlOperator.delete_experiment(exp_id)
+            json_text = MysqlOperator.delete_experiment(bns_id, exp_id)
             self.write(json_text)
             return
 
@@ -1184,6 +1077,30 @@ class ExpPositionHandler(BaseHandler):
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
             json_text = MysqlOperator.query_exp_position(off_set, limit)
+            self.write(json_text)
+            return
+
+
+class BusinessHandler(BaseHandler):
+    def get(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == "QUERY_BNS":
+            name = self.get_argument('name', None)
+            off_set = self.get_argument('off_set', None)
+            limit = self.get_argument('limit', None)
+            json_text = MysqlOperator.query_business(name, off_set, limit)
             self.write(json_text)
             return
 
@@ -1248,13 +1165,13 @@ def __main__():
             (r'/position_count', HourAdIdeaPositionCount),
             (r'/chart', ChartHandler),
             (r'/query_chart_data', ChartDataQueryHandler),
-            # (r'/cfg_item', CfgItemHandler),
             (r'/layer', LayerHandler),
             (r'/tree_cfg', TreeCfgHandler),
             (r'/tree_exp', TreeExpHandler),
             (r'/cfg_relation', CfgRelationHandler),
             (r'/exp_relation', ExpRelationHandler),
             (r'/exp_position', ExpPositionHandler),
+            (r'/business', BusinessHandler),
         ],
         cookie_secret=config.server_cookie_secret,
         template_path=os.path.join(os.path.dirname(__file__), "templates"),

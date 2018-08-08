@@ -2,7 +2,7 @@
 # coding: utf-8
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, BigInteger, Float, TIMESTAMP, UniqueConstraint, Date, DateTime
+from sqlalchemy import Column, Integer, String, BigInteger, Float, TIMESTAMP, PrimaryKeyConstraint, UniqueConstraint, Date, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy import create_engine
 from sqlalchemy import or_, not_, and_, exists
@@ -21,17 +21,18 @@ Base = declarative_base()
 class Layer(Base):
     __tablename__ = 'layer'
     id = Column(String(64), primary_key=True)
+    business = Column(String(64), primary_key=True)
     name = Column(String(128))
-    business = Column(String(64))
     desc = Column(String(256), nullable=True)
     create_time = Column(TIMESTAMP, default=func.now())
-    UniqueConstraint('name')
+    UniqueConstraint('business', 'name')
 
 
 # 配置项
 class CfgItem(Base):
     __tablename__ = 'cfg_item'
     id = Column(String(64), primary_key=True)
+    business = Column(String(64), primary_key=True)
     layer_id = Column(String(64))
     name = Column(String(128))
     position = Column(String(4096))
@@ -42,20 +43,21 @@ class CfgItem(Base):
     status = Column(Integer, default=0)
     desc = Column(String(256), nullable=True)
     create_time = Column(TIMESTAMP, default=func.now())
-    UniqueConstraint('name')
+    UniqueConstraint('business', 'name')
 
 
 # 实验
 class Experiment(Base):
     __tablename__ = 'experiment'
     id = Column(String(64), primary_key=True)
+    business = Column(String(64), primary_key=True)
     layer_id = Column(String(64))
     name = Column(String(64))
     status = Column(Integer, default=0)
     desc = Column(String(256), nullable=True)
     create_time = Column(TIMESTAMP, default=func.now())
     online_time = Column(TIMESTAMP)
-    UniqueConstraint('name')
+    UniqueConstraint('business', 'name')
 
 
 # 实验和配置关联关系
@@ -63,10 +65,11 @@ class Exp2Cfg(Base):
     __tablename__ = 'cfg_2_exp'
     id = Column(Integer, primary_key=True, autoincrement=True)
     layer_id = Column(String(64))
+    business = Column(String(64))
     cfg_id = Column(String(64))
     exp_id = Column(String(64))
     create_time = Column(TIMESTAMP, default=func.now())
-    UniqueConstraint('layer_id', 'cfg_id', 'exp_id')
+    UniqueConstraint('business', 'layer_id', 'cfg_id', 'exp_id')
 
 
 # 实验位置
@@ -76,6 +79,16 @@ class ExpPosition(Base):
     position = Column(String(32))
     desc = Column(String(256), nullable=True)
     create_time = Column(TIMESTAMP, default=func.now())
+
+
+# 业务
+class Business(Base):
+    __tablename__ = 'business'
+    id = Column(String(64), primary_key=True)
+    name = Column(String(64))
+    desc = Column(String(256), nullable=True)
+    create_time = Column(TIMESTAMP, default=func.now())
+    UniqueConstraint('name')
 
 
 class Defer(object):
@@ -109,10 +122,11 @@ class MysqlOperator(object):
 
     # add experiment
     @classmethod
-    def add_cfg_item(cls, item_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, status, desc):
+    def add_cfg_item(cls, bns_id, item_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, status, desc):
         try:
             item = CfgItem()
             item.id = item_id
+            item.business = bns_id
             item.layer_id = layer_id
             item.name = cfg_name
             item.position = position
@@ -129,6 +143,7 @@ class MysqlOperator(object):
                 session.commit()
 
                 db_item_list = session.query(CfgItem.id,
+                                             CfgItem.business,
                                              CfgItem.layer_id,
                                              CfgItem.name,
                                              CfgItem.position,
@@ -138,7 +153,8 @@ class MysqlOperator(object):
                                              CfgItem.algo_response,
                                              CfgItem.status,
                                              CfgItem.desc,
-                                             CfgItem.create_time).filter(CfgItem.id == item_id)[:]
+                                             CfgItem.create_time).filter(
+                    CfgItem.business == bns_id, CfgItem.id == item_id)[:]
                 a_dict = dict()
                 a_dict['success'] = True
                 a_dict['msg'] = 'ok'
@@ -147,6 +163,7 @@ class MysqlOperator(object):
                     item = db_item_list[0]
                     a_layer = {
                         'id': item.id,
+                        'bns_id': item.business,
                         'layer_id': item.layer_id,
                         'name': item.name,
                         'position': item.position,
@@ -169,7 +186,7 @@ class MysqlOperator(object):
 
     # query cfg
     @classmethod
-    def query_cfg_item(cls, layer_id, cfg_id, cfg_name, off_set, limit):
+    def query_cfg_item(cls, bns_id, layer_id, cfg_id, cfg_name, off_set, limit):
         try:
             # 转换类型
             off_set = int(off_set)
@@ -185,6 +202,7 @@ class MysqlOperator(object):
                 # 查询数据
                 count_query = session.query(CfgItem.id)
                 value_query = session.query(CfgItem.id,
+                                            CfgItem.business,
                                             CfgItem.layer_id,
                                             CfgItem.name,
                                             CfgItem.position,
@@ -195,6 +213,10 @@ class MysqlOperator(object):
                                             CfgItem.status,
                                             CfgItem.desc,
                                             CfgItem.create_time)
+
+                if bns_id:
+                    count_query = count_query.filter(CfgItem.business == bns_id)
+                    value_query = value_query.filter(CfgItem.business == bns_id)
 
                 if cfg_id:
                     count_query = count_query.filter(CfgItem.id == cfg_id)
@@ -217,6 +239,7 @@ class MysqlOperator(object):
                     a_item = dict()
                     a_item_list.append(a_item)
                     a_item['id'] = value.id
+                    a_item['bns_id'] = value.business
                     a_item['layer_id'] = value.layer_id
                     a_item['name'] = value.name
                     a_item['position'] = value.position
@@ -244,7 +267,7 @@ class MysqlOperator(object):
 
     # modify experiment
     @classmethod
-    def modify_cfg_item(cls, item_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, status, desc):
+    def modify_cfg_item(cls, bns_id, item_id, layer_id, cfg_name, position, start_value, stop_value, algo_request, algo_response, status, desc):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
@@ -257,6 +280,7 @@ class MysqlOperator(object):
                     return json.dumps(a_dict)
 
                 item.name = cfg_name
+                item.business = bns_id
                 item.layer_id = layer_id
                 item.position = position
                 item.start_value = start_value
@@ -268,6 +292,7 @@ class MysqlOperator(object):
                 session.commit()
 
                 db_item_list = session.query(CfgItem.id,
+                                             CfgItem.business,
                                              CfgItem.layer_id,
                                              CfgItem.name,
                                              CfgItem.position,
@@ -277,7 +302,8 @@ class MysqlOperator(object):
                                              CfgItem.algo_response,
                                              CfgItem.status,
                                              CfgItem.desc,
-                                             CfgItem.create_time).filter(CfgItem.id == item_id)[:]
+                                             CfgItem.create_time).filter(
+                    CfgItem.id == item_id, CfgItem.business == bns_id)[:]
                 a_dict = dict()
                 a_dict['success'] = True
                 a_dict['msg'] = 'ok'
@@ -286,6 +312,7 @@ class MysqlOperator(object):
                     item = db_item_list[0]
                     a_layer = {
                         'id': item.id,
+                        'bns_id': item.business,
                         'layer_id': item.layer_id,
                         'name': item.name,
                         'position': item.position,
@@ -308,13 +335,15 @@ class MysqlOperator(object):
 
     # delete experiment
     @classmethod
-    def delete_cfg_item(cls, item_id):
+    def delete_cfg_item(cls, bns_id, item_id):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 session.query(CfgItem).filter(
+                    CfgItem.business == bns_id,
                     CfgItem.id == item_id).filter(
-                    ~exists().where(Exp2Cfg.cfg_id == item_id)).delete(synchronize_session=False)
+                    ~exists().where(Exp2Cfg.business == bns_id,
+                                    Exp2Cfg.cfg_id == item_id)).delete(synchronize_session=False)
                 session.commit()
 
                 a_dict = dict()
@@ -330,11 +359,11 @@ class MysqlOperator(object):
 
     # modify experiment
     @classmethod
-    def modify_cfg_item_status(cls, item_id, status):
+    def modify_cfg_item_status(cls, bns_id, item_id, status):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
-                item = session.query(CfgItem).filter(CfgItem.id == item_id).first()
+                item = session.query(CfgItem).filter(CfgItem.business == bns_id, CfgItem.id == item_id).first()
                 if not item:
                     Logger.error(traceback.format_exc())
                     a_dict = dict()
@@ -346,6 +375,7 @@ class MysqlOperator(object):
                 session.commit()
 
                 db_item_list = session.query(CfgItem.id,
+                                             CfgItem.business,
                                              CfgItem.layer_id,
                                              CfgItem.name,
                                              CfgItem.position,
@@ -355,7 +385,9 @@ class MysqlOperator(object):
                                              CfgItem.algo_response,
                                              CfgItem.status,
                                              CfgItem.desc,
-                                             CfgItem.create_time).filter(CfgItem.id == item_id)[:]
+                                             CfgItem.create_time).filter(
+                    CfgItem.business == bns_id,
+                    CfgItem.id == item_id)[:]
                 a_dict = dict()
                 a_dict['success'] = True
                 a_dict['msg'] = 'ok'
@@ -364,6 +396,7 @@ class MysqlOperator(object):
                     item = db_item_list[0]
                     a_layer = {
                         'id': item.id,
+                        'bns_id': item.business,
                         'layer_id': item.layer_id,
                         'name': item.name,
                         'position': item.position,
@@ -385,7 +418,7 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def query_layer(cls, layer_id, off_set, limit):
+    def query_layer(cls, bns_id, layer_id, off_set, limit):
         try:
             off_set = int(off_set)
             limit = int(limit)
@@ -404,7 +437,11 @@ class MysqlOperator(object):
                                             Layer.desc,
                                             Layer.create_time)
 
-                if layer_id != '':
+                # 条件查询
+                if bns_id:
+                    count_query = count_query.filter(Layer.business == bns_id)
+                    value_query = value_query.filter(Layer.business == bns_id)
+                if layer_id:
                     count_query = count_query.filter(Layer.id == layer_id)
                     value_query = value_query.filter(Layer.id == layer_id)
 
@@ -438,7 +475,7 @@ class MysqlOperator(object):
 
     # query experiment
     @classmethod
-    def query_experiment(cls, layer_id, exp_id, off_set, limit):
+    def query_experiment(cls, bns_id, layer_id, exp_id, off_set, limit):
         try:
             # 转换类型
             off_set = int(off_set)
@@ -454,12 +491,16 @@ class MysqlOperator(object):
                 # 查询数据
                 count_query = session.query(Experiment.id)
                 value_query = session.query(Experiment.id,
+                                            Experiment.business,
                                             Experiment.layer_id,
                                             Experiment.name,
                                             Experiment.status,
                                             Experiment.online_time,
                                             Experiment.desc,
                                             Experiment.create_time)
+                if bns_id:
+                    count_query = count_query.filter(Experiment.business == bns_id)
+                    value_query = value_query.filter(Experiment.business == bns_id)
 
                 if layer_id:
                     count_query = count_query.filter(Experiment.layer_id == layer_id)
@@ -478,6 +519,7 @@ class MysqlOperator(object):
                     a_item = dict()
                     a_exp_list.append(a_item)
                     a_item['id'] = value.id
+                    a_item['bns_id'] = value.business
                     a_item['layer_id'] = value.layer_id
                     a_item['name'] = value.name
                     a_item['status'] = value.status
@@ -500,12 +542,14 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def put_cfg_relation(cls, layer_id, item_id, exp_id_list):
+    def put_cfg_relation(cls, bns_id, layer_id, item_id, exp_id_list):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 # Delete old relation
-                session.query(Exp2Cfg).filter(Exp2Cfg.layer_id == layer_id, Exp2Cfg.cfg_id == item_id).delete(synchronize_session=False)
+                session.query(Exp2Cfg).filter(Exp2Cfg.business == bns_id,
+                                              Exp2Cfg.layer_id == layer_id,
+                                              Exp2Cfg.cfg_id == item_id).delete(synchronize_session=False)
                 session.commit()
 
                 # Insert new relation
@@ -513,6 +557,7 @@ class MysqlOperator(object):
                 for exp_id in exp_id_list:
                     exp_2_item = Exp2Cfg()
                     relation_list.append(exp_2_item)
+                    exp_2_item.business = bns_id
                     exp_2_item.layer_id = layer_id
                     exp_2_item.cfg_id = item_id
                     exp_2_item.exp_id = exp_id
@@ -520,6 +565,7 @@ class MysqlOperator(object):
                 session.commit()
 
                 db_item_list = session.query(Exp2Cfg.id,
+                                             Exp2Cfg.business,
                                              Exp2Cfg.layer_id,
                                              Exp2Cfg.cfg_id,
                                              Exp2Cfg.exp_id,
@@ -534,6 +580,7 @@ class MysqlOperator(object):
                     item = db_item_list[0]
                     a_layer = {
                         'id': item.id,
+                        'bns_id': item.business,
                         'layer_id': item.layer_id,
                         'item_id': item.cfg_id,
                         'exp_id': item.exp_id,
@@ -549,7 +596,7 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def query_cfg_relation(cls, layer_id, cfg_id, exp_id, off_set, limit):
+    def query_cfg_relation(cls, bns_id, layer_id, cfg_id, exp_id, off_set, limit):
         try:
             # 转换类型
             off_set = int(off_set)
@@ -565,12 +612,18 @@ class MysqlOperator(object):
                 # 查询数据
                 count_query = session.query(Exp2Cfg.id)
                 value_query = session.query(Exp2Cfg.id,
+                                            Exp2Cfg.business,
                                             Exp2Cfg.layer_id,
                                             Exp2Cfg.cfg_id,
                                             Exp2Cfg.exp_id,
                                             Experiment.name.label('exp_name'),
                                             Experiment.desc,
-                                            Exp2Cfg.create_time).join(Experiment, Experiment.id == Exp2Cfg.exp_id)
+                                            Exp2Cfg.create_time).join(Experiment,
+                                                                      Experiment.id == Exp2Cfg.exp_id)
+
+                if bns_id:
+                    count_query = count_query.filter(Exp2Cfg.business == bns_id)
+                    value_query = value_query.filter(Exp2Cfg.business == bns_id)
 
                 if layer_id:
                     count_query = count_query.filter(Exp2Cfg.layer_id == layer_id)
@@ -593,6 +646,7 @@ class MysqlOperator(object):
                     a_item = dict()
                     a_exp_list.append(a_item)
                     a_item['id'] = value.id
+                    a_item['bns_id'] = value.business
                     a_item['layer_id'] = value.layer_id
                     a_item['cfg_id'] = value.cfg_id
                     a_item['exp_id'] = value.exp_id
@@ -615,11 +669,12 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def delete_relation(cls, layer_id, cfg_id, exp_id):
+    def delete_relation(cls, bns_id, layer_id, cfg_id, exp_id):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 session.query(Exp2Cfg).filter(
+                    Exp2Cfg.business == bns_id,
                     Exp2Cfg.layer_id == layer_id,
                     Exp2Cfg.cfg_id == cfg_id,
                     Exp2Cfg.exp_id == exp_id).delete(synchronize_session=False)
@@ -637,7 +692,7 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def query_exp_relation(cls, layer_id, exp_id, cfg_id, off_set, limit):
+    def query_exp_relation(cls, bns_id, layer_id, exp_id, cfg_id, off_set, limit):
         try:
             # 转换类型
             off_set = int(off_set)
@@ -653,6 +708,7 @@ class MysqlOperator(object):
                 # 查询数据
                 count_query = session.query(Exp2Cfg.id)
                 value_query = session.query(Exp2Cfg.id,
+                                            Exp2Cfg.business,
                                             Exp2Cfg.layer_id,
                                             Exp2Cfg.cfg_id,
                                             Exp2Cfg.exp_id,
@@ -664,7 +720,12 @@ class MysqlOperator(object):
                                             CfgItem.algo_response,
                                             CfgItem.status,
                                             CfgItem.desc,
-                                            Exp2Cfg.create_time).join(CfgItem, CfgItem.id == Exp2Cfg.cfg_id)
+                                            Exp2Cfg.create_time).join(CfgItem,
+                                                                      CfgItem.id == Exp2Cfg.cfg_id)
+
+                if bns_id:
+                    count_query = count_query.filter(Exp2Cfg.business == bns_id)
+                    value_query = value_query.filter(Exp2Cfg.business == bns_id)
 
                 if layer_id:
                     count_query = count_query.filter(Exp2Cfg.layer_id == layer_id)
@@ -687,6 +748,7 @@ class MysqlOperator(object):
                     a_item = dict()
                     a_cfg_list.append(a_item)
                     a_item['id'] = value.id
+                    a_item['bns_id'] = value.business
                     a_item['layer_id'] = value.layer_id
                     a_item['cfg_id'] = value.cfg_id
                     a_item['exp_id'] = value.exp_id
@@ -715,9 +777,10 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def add_one_exp(cls, layer_id, exp_id, exp_name, exp_status, online_time, exp_desc):
+    def add_one_exp(cls, bns_id, layer_id, exp_id, exp_name, exp_status, online_time, exp_desc):
         try:
             exp = Experiment()
+            exp.business = bns_id
             exp.layer_id = layer_id
             exp.id = exp_id
             exp.name = exp_name
@@ -730,6 +793,7 @@ class MysqlOperator(object):
                 session.commit()
 
                 db_exp_list = session.query(Experiment.id,
+                                            Experiment.business,
                                             Experiment.layer_id,
                                             Experiment.name,
                                             Experiment.status,
@@ -743,6 +807,7 @@ class MysqlOperator(object):
                 if len(db_exp_list) > 0:
                     item = db_exp_list[0]
                     a_exp = {
+                        'bns_id': item.business,
                         'layer_id': item.layer_id,
                         'id': item.id,
                         'name': item.name,
@@ -761,11 +826,11 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def modify_exp_status(cls, exp_id, exp_status):
+    def modify_exp_status(cls, bns_id, exp_id, exp_status):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
-                exp = session.query(Experiment).filter(Experiment.id == exp_id).first()
+                exp = session.query(Experiment).filter(Experiment.business == bns_id, Experiment.id == exp_id).first()
                 if not exp:
                     Logger.error(traceback.format_exc())
                     a_dict = dict()
@@ -777,6 +842,7 @@ class MysqlOperator(object):
                 session.commit()
 
                 db_exp_list = session.query(Experiment.id,
+                                            Experiment.business,
                                             Experiment.layer_id,
                                             Experiment.name,
                                             Experiment.status,
@@ -790,6 +856,7 @@ class MysqlOperator(object):
                 if len(db_exp_list) > 0:
                     item = db_exp_list[0]
                     a_exp = {
+                        'bns_id': item.business,
                         'layer_id': item.layer_id,
                         'id': item.id,
                         'name': item.name,
@@ -808,7 +875,7 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def modify_experiment(cls, layer_id, exp_id, exp_name, exp_status, online_time, exp_desc):
+    def modify_experiment(cls, bns_id, layer_id, exp_id, exp_name, exp_status, online_time, exp_desc):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
@@ -821,6 +888,7 @@ class MysqlOperator(object):
                     return json.dumps(a_dict)
 
                 exp.name = exp_name
+                exp.business = bns_id
                 exp.layer_id = layer_id
                 exp.status = exp_status
                 exp.online_time = online_time
@@ -828,6 +896,7 @@ class MysqlOperator(object):
                 session.commit()
 
                 db_exp_list = session.query(Experiment.id,
+                                            Experiment.business,
                                             Experiment.layer_id,
                                             Experiment.name,
                                             Experiment.status,
@@ -841,6 +910,7 @@ class MysqlOperator(object):
                 if len(db_exp_list) > 0:
                     item = db_exp_list[0]
                     a_exp = {
+                        'bns_id': item.business,
                         'layer_id': item.layer_id,
                         'id': item.id,
                         'name': item.name,
@@ -859,13 +929,14 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def delete_experiment(cls, exp_id):
+    def delete_experiment(cls, bns_id, exp_id):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 session.query(Experiment).filter(
+                    Experiment.business == bns_id,
                     Experiment.id == exp_id).filter(
-                    ~exists().where(Exp2Cfg.exp_id == exp_id)).delete(synchronize_session=False)
+                    ~exists().where(Exp2Cfg.business == bns_id, Exp2Cfg.exp_id == exp_id)).delete(synchronize_session=False)
                 session.commit()
 
                 a_dict = dict()
@@ -880,12 +951,14 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def put_exp_relation(cls, layer_id, exp_id, cfg_id_list):
+    def put_exp_relation(cls, bns_id, layer_id, exp_id, cfg_id_list):
         try:
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 # Delete old relation
-                session.query(Exp2Cfg).filter(Exp2Cfg.layer_id == layer_id, Exp2Cfg.exp_id == exp_id).delete(synchronize_session=False)
+                session.query(Exp2Cfg).filter(Exp2Cfg.business == bns_id,
+                                              Exp2Cfg.layer_id == layer_id,
+                                              Exp2Cfg.exp_id == exp_id).delete(synchronize_session=False)
                 session.commit()
 
                 # Insert new relation
@@ -893,6 +966,7 @@ class MysqlOperator(object):
                 for cfg_id in cfg_id_list:
                     exp_2_item = Exp2Cfg()
                     relation_list.append(exp_2_item)
+                    exp_2_item.business = bns_id
                     exp_2_item.layer_id = layer_id
                     exp_2_item.cfg_id = cfg_id
                     exp_2_item.exp_id = exp_id
@@ -900,10 +974,12 @@ class MysqlOperator(object):
                 session.commit()
 
                 db_item_list = session.query(Exp2Cfg.id,
+                                             Exp2Cfg.business,
                                              Exp2Cfg.layer_id,
                                              Exp2Cfg.cfg_id,
                                              Exp2Cfg.exp_id,
                                              Exp2Cfg.create_time).filter(
+                    Exp2Cfg.business == bns_id,
                     Exp2Cfg.layer_id == layer_id,
                     Exp2Cfg.exp_id == exp_id)[:]
                 a_dict = dict()
@@ -914,6 +990,7 @@ class MysqlOperator(object):
                     item = db_item_list[0]
                     a_layer = {
                         'id': item.id,
+                        'bns_id': item.business,
                         'layer_id': item.layer_id,
                         'cfg_id': item.cfg_id,
                         'exp_id': item.exp_id,
@@ -976,13 +1053,13 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def check_cfg_id_exist(cls, cfg_id):
+    def check_cfg_id_exist(cls, bns_id, cfg_id):
         try:
             # 创建session
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 # 查询数据
-                count_query = session.query(CfgItem.id).filter(CfgItem.id == cfg_id)
+                count_query = session.query(CfgItem.id).filter(CfgItem.business == bns_id, CfgItem.id == cfg_id)
                 count = count_query.count()
 
                 # 返回成功
@@ -998,7 +1075,7 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def check_cfg_name_exist(cls, cfg_id, cfg_name):
+    def check_cfg_name_exist(cls, bns_id, cfg_id, cfg_name):
         try:
             # 创建session
             session = sessionmaker(bind=cls.engine)()
@@ -1006,7 +1083,7 @@ class MysqlOperator(object):
                 # 查询数据
                 count_query = session.query(CfgItem.name).filter(CfgItem.name == cfg_name)
                 if cfg_id:
-                    count_query = count_query.filter(CfgItem.id != cfg_id)
+                    count_query = count_query.filter(CfgItem.business == bns_id, CfgItem.id != cfg_id)
                 count = count_query.count()
 
                 # 返回成功
@@ -1022,13 +1099,13 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def check_exp_id_exist(cls, exp_id):
+    def check_exp_id_exist(cls, bns_id, exp_id):
         try:
             # 创建session
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 # 查询数据
-                count_query = session.query(Experiment.id).filter(Experiment.id == exp_id)
+                count_query = session.query(Experiment.id).filter(Experiment.business == bns_id, Experiment.id == exp_id)
                 count = count_query.count()
 
                 # 返回成功
@@ -1044,13 +1121,13 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def check_exp_name_exist(cls, exp_id, exp_name):
+    def check_exp_name_exist(cls, bns_id, exp_id, exp_name):
         try:
             # 创建session
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 # 查询数据
-                count_query = session.query(Experiment.name).filter(Experiment.name == exp_name)
+                count_query = session.query(Experiment.name).filter(Experiment.business == bns_id, Experiment.name == exp_name)
                 if exp_id:
                     count_query = count_query.filter(Experiment.id != exp_id)
                 count = count_query.count()
@@ -1085,7 +1162,7 @@ class MysqlOperator(object):
             return None
 
     @classmethod
-    def check_range_conflict(cls, layer_id, check_position, start_value, stop_value):
+    def check_range_conflict(cls, bns_id, layer_id, check_position, start_value, stop_value):
         try:
             if start_value:
                 start_value = int(start_value)
@@ -1104,7 +1181,7 @@ class MysqlOperator(object):
             session = sessionmaker(bind=cls.engine)()
             with Defer(session.close):
                 values = session.query(CfgItem.position, CfgItem.start_value, CfgItem.stop_value).filter(
-                    CfgItem.layer_id == layer_id).all()
+                    CfgItem.business == bns_id, CfgItem.layer_id == layer_id).all()
                 for value in values:
                     exist_range.append((value.position, value.start_value, value.stop_value))
 
@@ -1148,4 +1225,58 @@ class MysqlOperator(object):
             a_dict = dict()
             a_dict['success'] = False
             a_dict['conflict'] = False
+            return json.dumps(a_dict)
+
+    @classmethod
+    def query_business(cls, name, off_set, limit):
+        try:
+            # 转换类型
+            off_set = int(off_set)
+            limit = int(limit)
+            if limit == -1:
+                limit_count = None
+            else:
+                limit_count = off_set + limit
+
+            # 创建session
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                # 查询数据
+                count_query = session.query(Business.id)
+                value_query = session.query(Business.id,
+                                            Business.name,
+                                            Business.desc,
+                                            Business.create_time)
+                # 条件查询
+                if name:
+                    like_condition = '%' + name + '%'
+                    count_query = count_query.filter(Business.name.like(like_condition))
+                    value_query = value_query.filter(Business.name.like(like_condition))
+
+                # 获取查询结果
+                count = count_query.count()
+                values = value_query[off_set: limit_count]
+
+                # 返回结果
+                a_item_list = list()
+                for value in values:
+                    a_item = dict()
+                    a_item_list.append(a_item)
+                    a_item['id'] = value.id
+                    a_item['name'] = value.name
+                    a_item['desc'] = value.desc
+                    a_item['create_time'] = value.create_time.strftime('%Y-%m-%d %H:%M:%S')
+
+                # 返回成功
+                a_dict = dict()
+                a_dict['success'] = 'true'
+                a_dict['content'] = a_item_list
+                a_dict['item_count'] = count
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = 'false'
+            a_dict['content'] = list()
+            a_dict['item_count'] = 0
             return json.dumps(a_dict)
