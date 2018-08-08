@@ -1296,9 +1296,13 @@ $(document).on('input', '#stop_value', check_range("#stop_value_tip"));
 function check_range(tip_id) {
     return function () {
         var layer_id = $("#layer_id").val().trim();
-        var position = $("#position").val().join();
         var start_value = $("#start_value").val().trim();
         var stop_value = $("#stop_value").val().trim();
+        var position_lst = $("#position").val();
+        var position = '';
+        if (position_lst) {
+            position = position_lst.join();
+        }
 
         // 位置为空时清除提示
         if (!position) {
@@ -1307,35 +1311,56 @@ function check_range(tip_id) {
             return;
         }
 
-        // 两者都为空时清除提示
+        // 起始位置和结束位置都为空时清除错误提示
         if (!start_value && !stop_value) {
             $("#start_value_tip").html('');
             $("#stop_value_tip").html('');
             return;
         }
 
-        // 位置变动时tip_id一定为空
-        if (!tip_id) {
+        // 本地检测范围是否有效
+        var valid = true;
+        var number_start_value;
+        var number_stop_value;
+        if (start_value) {
+            number_start_value = parseInt(start_value);
+            if (number_start_value < 0 || number_start_value > 999) {
+                $("#start_value_tip").html("超出范围: 0~999");
+                valid = false;
+            }
+        }
+        if (stop_value) {
+            number_stop_value = parseInt(stop_value);
+            if (number_stop_value < 0 || number_stop_value > 999) {
+                $("#stop_value_tip").html("超出范围: 0~999");
+                valid = false;
+            }
+        }
+        if (number_start_value !== undefined && number_stop_value !== undefined) {
+            if (number_start_value >= number_stop_value) {
+                $("#stop_value_tip").html("起始值应小于结束值");
+                valid = false;
+            }
+        }
+        if (!valid) {
+            return;
+        }
+
+        // 暂时清除错误提示
+        if (tip_id) {
+            $(tip_id).html("");
+        } else {
+            $("#start_value_tip").html("");
+            $("#stop_value_tip").html("");
+
             if (stop_value) {
                 tip_id = "#stop_value_tip";
             } else {
-                tip_id = '#start_value_tip';
+                tip_id = "#start_value_tip";
             }
         }
 
-        // 先做本地范围检测
-        if (start_value && stop_value) {
-            start_value = parseInt(start_value);
-            stop_value = parseInt(stop_value);
-            if (stop_value <= start_value) {
-                $(tip_id).html("范围无效");
-                return;
-            }
-
-            $(tip_id).html("");
-        }
-
-        // 服务端范围检测
+        // 传到服务端完成范围冲突检测
         $.ajax({
                 url: '/tree_cfg',
                 type: "get",
