@@ -430,11 +430,11 @@ $(document).on('click', ".add-cfg-item", function () {
                 '<input id="stop_value" type="number" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>algo请求串：</label></div>' +
+                '<div><label>请求串：</label><label id="algo_request_tip" style="color: red"></label></div>' +
                 '<input id="algo_request" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>algo应答串：</label></div>' +
+                '<div><label>应答串：</label><label id="algo_response_tip" style="color: red"></label></div>' +
                 '<input id="algo_response" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
@@ -591,11 +591,11 @@ $(document).on('click', '.modify-cfg-item', function () {
                 '<input type="number" id="stop_value" class="form-control clear-tips" value="' + stop_value + '">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<label>algo请求串：</label>' +
+                '<label>请求串：</label><label id="algo_request_tip" style="color: red"></label>' +
                 '<input id="algo_request" class="form-control clear-tips" value="' + algo_request + '">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<label>algo应答串：</label>' +
+                '<label>应答串：</label><label id="algo_response_tip" style="color: red"></label>' +
                 '<input id="algo_response" class="form-control clear-tips" value="' + algo_response + '">' +
                 '</div>';
             content += '<div class="form-group">' +
@@ -825,12 +825,12 @@ function check_inputs(cfg_id, layer_id, cfg_name, position, start_value, stop_va
     }
 
     if (algo_request === "") {
-        show_tip_msg("algo请求串不能为空");
+        show_tip_msg("请求串不能为空");
         return false;
     }
 
     if (algo_response === "") {
-        show_tip_msg("algo应答串不能为空");
+        show_tip_msg("应答串不能为空");
         return false;
     }
 
@@ -1287,6 +1287,14 @@ function check_invalid_tips() {
         return false;
     }
 
+    if ($("#algo_request_tip").html() !== '') {
+        return false;
+    }
+
+    if ($("#algo_response_tip").html() !== '') {
+        return false;
+    }
+
     return true;
 }
 
@@ -1392,3 +1400,27 @@ function check_range(tip_id) {
         );
     }
 }
+
+$(document).on('input', '#algo_request', function () {
+    $("#algo_request_tip").html('');
+    var request = $("#algo_request").val();
+    if (!request) {
+        return;
+    }
+
+    if (!check_alphanumeric_ver_middle_(request)) {
+        $("#algo_request_tip").html("只能包含字符(a-zA-Z)、数字(0-9)、下划线(_)、竖线(|)、中横线(-)");
+    }
+});
+
+$(document).on('input', '#algo_response', function () {
+    $("#algo_response_tip").html('');
+    var request = $("#algo_response").val();
+    if (!request) {
+        return;
+    }
+
+    if (!check_alphanumeric_ver_middle_(request)) {
+        $("#algo_response_tip").html("只能包含字符(a-zA-Z)、数字(0-9)、下划线(_)、竖线(|)、中横线(-)");
+    }
+});
