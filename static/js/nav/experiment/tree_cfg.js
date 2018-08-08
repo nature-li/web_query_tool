@@ -1205,8 +1205,15 @@ function load_all_position() {
 }
 
 $(document).on('input', '#cfg_id', function () {
+    $("#cfg_id_tip").html('');
+
     var cfg_id = $("#cfg_id").val().trim();
     if (!cfg_id) {
+        return;
+    }
+
+    if (!check_alphanumeric_ver_(cfg_id)) {
+        $("#cfg_id_tip").html("只能包含字符(a-zA-Z)、数字(0-9)、下划线(_)、竖线(|)");
         return;
     }
 
@@ -1225,8 +1232,6 @@ $(document).on('input', '#cfg_id', function () {
 
                 if (data.count > 0) {
                     $("#cfg_id_tip").html(cfg_id + '已存在!');
-                } else {
-                    $("#cfg_id_tip").html('');
                 }
             }
         }
@@ -1234,6 +1239,8 @@ $(document).on('input', '#cfg_id', function () {
 });
 
 $(document).on('input', '#cfg_name', function () {
+    $("#cfg_name_tip").html('');
+
     var cfg_id = $("#cfg_id").val().trim();
     var cfg_name = $("#cfg_name").val().trim();
     if (!cfg_name) {
@@ -1256,8 +1263,6 @@ $(document).on('input', '#cfg_name', function () {
 
                 if (data.count > 0) {
                     $("#cfg_name_tip").html(cfg_name + '已存在!');
-                } else {
-                    $("#cfg_name_tip").html('');
                 }
             }
         }

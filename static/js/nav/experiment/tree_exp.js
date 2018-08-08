@@ -1102,8 +1102,15 @@ function is_exp_empty(layer_id, exp_id) {
 }
 
 $(document).on('input', '#exp_id', function () {
+    $("#exp_id_tip").html('');
+
     var exp_id = $("#exp_id").val().trim();
     if (!exp_id) {
+        return;
+    }
+
+    if (!check_alphanumeric_(exp_id)) {
+        $("#exp_id_tip").html("只能包含字符(a-zA-Z)、数字(0-9)、下划线(_)");
         return;
     }
 
@@ -1122,8 +1129,6 @@ $(document).on('input', '#exp_id', function () {
 
                 if (data.count > 0) {
                     $("#exp_id_tip").html(exp_id + '已存在!');
-                } else {
-                    $("#exp_id_tip").html('');
                 }
             }
         }
@@ -1131,6 +1136,8 @@ $(document).on('input', '#exp_id', function () {
 });
 
 $(document).on('input', '#exp_name', function () {
+    $("#exp_name_tip").html('');
+
     var exp_id = $("#exp_id").val().trim();
     var exp_name = $("#exp_name").val().trim();
     if (!exp_name) {
@@ -1153,8 +1160,6 @@ $(document).on('input', '#exp_name', function () {
 
                 if (data.count > 0) {
                     $("#exp_name_tip").html(exp_name + '已存在!');
-                } else {
-                    $("#exp_name_tip").html('');
                 }
             }
         }
