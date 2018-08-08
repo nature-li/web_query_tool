@@ -416,7 +416,7 @@ $(document).on('click', ".add-cfg-item", function () {
             content += '<div class="form-group">' +
                 '<label style="margin: 0 5px;">选择位置</label>' +
                 '<div>' +
-                '<select id="position" class="selectpicker form-control" data-size="10" data-live-search="true" multiple>' +
+                '<select id="position" class="selectpicker form-control" data-size="10" data-live-search="true" multiple data-actions-box="true">' +
                 '</select>' +
                 '</div>' +
                 '</div>';
@@ -578,7 +578,7 @@ $(document).on('click', '.modify-cfg-item', function () {
             content += '<div class="form-group">' +
                 '<label style="margin: 0 5px;">选择位置</label>' +
                 '<div>' +
-                '<select id="position" class="selectpicker form-control" data-size="10" data-live-search="true" multiple>' +
+                '<select id="position" class="selectpicker form-control" data-size="10" data-live-search="true" multiple data-actions-box="true">' +
                 '</select>' +
                 '</div>' +
                 '</div>';
@@ -979,7 +979,7 @@ $(document).on('click', '.add-exp-item', function () {
             content += '<div class="form-group">' +
                 '<label style="margin: 0 5px;">选择实验</label>' +
                 '<div>' +
-                '<select id="exp_selector" class="selectpicker form-control" data-size="10" data-live-search="true" multiple>' +
+                '<select id="exp_selector" class="selectpicker form-control" data-size="10" data-live-search="true" multiple data-actions-box="true">' +
                 '</select>' +
                 '</div>' +
                 '</div>';
@@ -1286,7 +1286,7 @@ function check_invalid_tips() {
 }
 
 // 位置变动
-$(document).on('change', '#position', check_range());
+$(document).on('changed.bs.select', '#position', check_range());
 // 起始位置更新
 $(document).on('input', '#start_value', check_range("#start_value_tip"));
 // 结束位置更新
@@ -1295,10 +1295,24 @@ $(document).on('input', '#stop_value', check_range("#stop_value_tip"));
 
 function check_range(tip_id) {
     return function () {
+        var position_lst;
+
+        // 选择位置是*与其它不能同时选择
+        if (!tip_id) {
+            position_lst = $("#position").val();
+            if (position_lst.includes('*')) {
+                $("#position").selectpicker('deselectAll');
+                $('#position').selectpicker('val', '*');
+            }
+        }
+
+        // 先清除再重置
+        $("#start_value_tip").html('');
+        $("#stop_value_tip").html('');
+
         var layer_id = $("#layer_id").val().trim();
         var start_value = $("#start_value").val().trim();
         var stop_value = $("#stop_value").val().trim();
-        var position_lst = $("#position").val();
         var position = '';
         if (position_lst) {
             position = position_lst.join();
@@ -1306,53 +1320,41 @@ function check_range(tip_id) {
 
         // 位置为空时清除提示
         if (!position) {
-            $("#start_value_tip").html('');
-            $("#stop_value_tip").html('');
             return;
         }
 
         // 起始位置和结束位置都为空时清除错误提示
         if (!start_value && !stop_value) {
-            $("#start_value_tip").html('');
-            $("#stop_value_tip").html('');
             return;
         }
 
         // 本地检测范围是否有效
-        var valid = true;
         var number_start_value;
         var number_stop_value;
         if (start_value) {
             number_start_value = parseInt(start_value);
             if (number_start_value < 0 || number_start_value > 999) {
                 $("#start_value_tip").html("超出范围: 0~999");
-                valid = false;
+                return;
             }
         }
+
         if (stop_value) {
             number_stop_value = parseInt(stop_value);
             if (number_stop_value < 0 || number_stop_value > 999) {
                 $("#stop_value_tip").html("超出范围: 0~999");
-                valid = false;
+                return;
             }
         }
         if (number_start_value !== undefined && number_stop_value !== undefined) {
             if (number_start_value >= number_stop_value) {
                 $("#stop_value_tip").html("起始值应小于结束值");
-                valid = false;
+                return;
             }
-        }
-        if (!valid) {
-            return;
         }
 
         // 暂时清除错误提示
-        if (tip_id) {
-            $(tip_id).html("");
-        } else {
-            $("#start_value_tip").html("");
-            $("#stop_value_tip").html("");
-
+        if (!tip_id) {
             if (stop_value) {
                 tip_id = "#stop_value_tip";
             } else {
@@ -1379,8 +1381,6 @@ function check_range(tip_id) {
 
                     if (data.conflict === true) {
                         $(tip_id).html('范围冲突');
-                    } else {
-                        $(tip_id).html('');
                     }
                 }
             }

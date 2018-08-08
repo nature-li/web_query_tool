@@ -759,7 +759,7 @@ $(document).on('click', '.add-cfg-item', function () {
             content += '<div class="form-group">' +
                 '<label style="margin: 0 5px;">选择配置</label>' +
                 '<div>' +
-                '<select id="cfg_selector" class="selectpicker form-control" data-size="10" data-live-search="true" multiple>' +
+                '<select id="cfg_selector" class="selectpicker form-control" data-size="10" data-live-search="true" multiple data-actions-box="true">' +
                 '</select>' +
                 '</div>' +
                 '</div>';
