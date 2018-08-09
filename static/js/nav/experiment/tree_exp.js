@@ -55,9 +55,9 @@ function init_layer_selector() {
                     var item = data.content[i];
 
                     option = '<option value="' + item.id + '">' + item.name + '</option>';
-                    if (i === 0) {
-                        option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
-                    }
+                    // if (i === 0) {
+                    //     option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
+                    // }
                     $("#layer_selector").append(option);
                 }
                 $("#layer_selector").selectpicker('refresh');

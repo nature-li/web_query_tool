@@ -59,36 +59,26 @@ function reload_this_page() {
                 var option = '<option value="">选择业务</option>';
                 $("#business_selector").append(option);
 
-                // 添加业务选项
+                var only_show_one;
                 for (var i = 0; i < data.content.length; i++) {
                     var item = data.content[i];
                     option = '<option value="' + item.id + '">' + item.name + '</option>';
 
-                    if (reload_page_count === 1) {
-                        // 首次刷新页面时默认非空第一项为选中项
-                        if (i === 0) {
-                            option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
-                            // 视图仅展示一项
-                            window.save_data.all_bns.push(item);
-                        }
-                    } else {
-                        // 非首次加载页面时需还原上次选中项
-                        if (!current_bns_id) {
-                            // 视图全展示
-                            window.save_data.all_bns.push(item);
-                        } else {
-                            if (current_bns_id === item.id) {
-                                option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
-                                // 视图仅展示一项
-                                window.save_data.all_bns.push(item);
-                            }
-                        }
-
+                    // 非首次加载且非空选项
+                    if (reload_page_count > 1 && current_bns_id && current_bns_id === item.id) {
+                        only_show_one = item;
+                        option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
                     }
-                    // 添加到下拉列表框
                     $("#business_selector").append(option);
                 }
                 $("#business_selector").selectpicker('refresh');
+
+                // 控制展示内容
+                if (only_show_one) {
+                    window.save_data.all_bns.push(only_show_one);
+                } else {
+                    window.save_data.all_bns = data.content;
+                }
 
                 // 加载层次
                 reload_layer_node();
