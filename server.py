@@ -1204,6 +1204,28 @@ class BusinessHandler(BaseHandler):
             self.write(json_text)
             return
 
+    def put(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'MOD_BNS':
+            bns_id = self.get_argument('bns_id', None)
+            bns_name = self.get_argument('bns_name', None)
+            bns_desc = self.get_argument('bns_desc', None)
+            json_text = MysqlOperator.mod_one_bns(bns_id, bns_name, bns_desc)
+            self.write(json_text)
+            return
+
     def post(self):
         user_name, show_name = self.get_login_user()
         if not user_name:

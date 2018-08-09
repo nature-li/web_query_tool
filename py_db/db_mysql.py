@@ -1452,3 +1452,48 @@ class MysqlOperator(object):
             a_dict['success'] = False
             a_dict['msg'] = 'delete db failed'
             return json.dumps(a_dict)
+
+    @classmethod
+    def mod_one_bns(cls, bns_id, bns_name, bns_desc):
+        try:
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                bns = session.query(Business).filter(
+                    Business.id == bns_id).first()
+                if not bns:
+                    Logger.error(traceback.format_exc())
+                    a_dict = dict()
+                    a_dict['success'] = False
+                    a_dict['msg'] = 'db_id does not exist'
+                    return json.dumps(a_dict)
+
+                bns.name = bns_name
+                bns.desc = bns_desc
+                session.commit()
+
+                db_layer_list = session.query(Business.id,
+                                              Business.name,
+                                              Business.desc,
+                                              Business.create_time).filter(
+                    Business.id == bns_id)[:]
+
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                a_dict['content'] = content = list()
+                if len(db_layer_list) > 0:
+                    item = db_layer_list[0]
+                    a_exp = {
+                        'id': item.id,
+                        'name': item.name,
+                        'desc': item.desc,
+                        'create_time': item.create_time.strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    content.append(a_exp)
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'INSERT INTO db ERROR'
+            return json.dumps(a_dict)

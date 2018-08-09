@@ -650,7 +650,88 @@ $(document).on('click', '.del-bns-item', function () {
 
 // 修改业务
 $(document).on('click', '.mod-bns-item', function () {
+    var $this_tr = $(this).closest('tr');
+    var bns_id = $this_tr.find('td:eq(1)').text().trim();
+    var bns_name = $this_tr.find('td:eq(2)').text().trim();
+    var bns_desc = $this_tr.find('td:eq(8)').text().trim();
 
+    BootstrapDialog.show({
+        message: function (dialog) {
+            // header
+            var content = '';
+            content += '<div class="form">';
+            content += '<div class="form-group">' +
+                '<div><label>业务id：</label><label id="bns_id_tip" style="color: red"></label></div>' +
+                '<input id="bns_id" class="form-control clear-tips" value="' + bns_id + '" readonly>' +
+                '</div>';
+            content += '<div class="form-group">' +
+                '<div><label>业务名称：</label><label id="bns_name_tip" style="color: red"></label></div>' +
+                '<input id="bns_name" class="form-control clear-tips" value="' + bns_name + '">' +
+                '</div>';
+            content += '<div class="form-group">' +
+                '<div><label>描述信息：</label></div>' +
+                '<input id="bns_desc" class="form-control clear-tips" value="' + bns_desc + '">' +
+                '</div>';
+            content += '<div id="tip_div" class="form-group no-display">' +
+                '<div><label id="tip_msg" style="color: red"></label></div>' +
+                '</div>';
+            // footer
+            content += '</div>';
+
+            return content;
+        },
+        title: "修改业务",
+        closable: false,
+        draggable: true,
+        onshown: function () {
+        },
+        buttons: [{
+            label: '确定',
+            action: function (dialogItself) {
+                // 获取用户添加数据
+                var bns_id = $("#bns_id").val().trim();
+                var bns_name = $("#bns_name").val().trim();
+                var bns_desc = $("#bns_desc").val().trim();
+
+                if (!check_bns_inputs(bns_id, bns_name, bns_desc)) {
+                    return;
+                }
+
+                // 发送请求
+                $.ajax({
+                        url: '/business',
+                        type: "put",
+                        data: {
+                            type: "MOD_BNS",
+                            bns_id: bns_id,
+                            bns_name: bns_name,
+                            bns_desc: bns_desc
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            handle_mod_bns_response(response);
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            if (jqXHR.status == 302) {
+                                window.parent.location.replace("/");
+                            } else {
+                                $.showErr("添加失败");
+                            }
+                        }
+                    }
+                );
+
+                // 关闭窗口
+                dialogItself.close();
+            }
+        },
+            {
+                label: '取消',
+                action: function (dialogItself) {
+                    dialogItself.close();
+                }
+            }]
+    });
 });
 
 // 增加层次
