@@ -1,3 +1,5 @@
+var reload_page_count = 0;
+
 $(document).ready(function () {
     // 改变菜单背景色
     set_page_active("#li_tree_layer");
@@ -27,6 +29,9 @@ function reset_save_data() {
 
 // 重新加载页面
 function reload_this_page() {
+    // 加载次数加1
+    reload_page_count += 1;
+
     // 获取当前选择项
     var current_bns_id = $("#business_selector").val();
 
@@ -57,22 +62,31 @@ function reload_this_page() {
                 // 添加业务选项
                 for (var i = 0; i < data.content.length; i++) {
                     var item = data.content[i];
-
-                    // 默认选中上次被选中项
                     option = '<option value="' + item.id + '">' + item.name + '</option>';
-                    if (current_bns_id === item.id) {
-                        option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
-                    }
 
+                    if (reload_page_count === 1) {
+                        // 首次刷新页面时默认非空第一项为选中项
+                        if (i === 0) {
+                            option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
+                            // 视图仅展示一项
+                            window.save_data.all_bns.push(item);
+                        }
+                    } else {
+                        // 非首次加载页面时需还原上次选中项
+                        if (!current_bns_id) {
+                            // 视图全展示
+                            window.save_data.all_bns.push(item);
+                        } else {
+                            if (current_bns_id === item.id) {
+                                option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
+                                // 视图仅展示一项
+                                window.save_data.all_bns.push(item);
+                            }
+                        }
+
+                    }
                     // 添加到下拉列表框
                     $("#business_selector").append(option);
-
-                    // 保存业务
-                    if (!current_bns_id) {
-                        window.save_data.all_bns.push(item);
-                    } else if (current_bns_id === item.id) {
-                        window.save_data.all_bns.push(item);
-                    }
                 }
                 $("#business_selector").selectpicker('refresh');
 
