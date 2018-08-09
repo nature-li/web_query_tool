@@ -187,6 +187,7 @@ function create_expand_name(value, row, index) {
             '</button>' +
             '<ul class="dropdown-menu">';
 
+        html += '<li><a href="#" class="mod-layer-item">修改层次</a></li>';
         if (check_empty_layer(bns_id, self_id)) {
             html += '<li><a href="#" class="del-layer-item">删除层次</a></li>';
         } else {
@@ -396,14 +397,6 @@ function draw_layer_node() {
 
     render_tree();
 }
-
-// 删除层次
-$(document).on('click', '.del-layer-item', function () {
-    var $this_tr = $(this).closest('tr');
-    var bns_id = $this_tr.treegrid('getParentNode').find('td:eq(1)').text().trim();
-    var layer_id = $this_tr.find('td:eq(1)').text().trim();
-    $.showConfirm("确定要删除吗?", delete_one_layer_item(bns_id, layer_id));
-});
 
 // 删除层次
 function delete_one_layer_item(bns_id, layer_id) {
@@ -616,7 +609,7 @@ $(document).on('click', '.add-layer-item', function () {
                 '<input id="layer_id" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
-                '<div><label>业务名称：</label><label id="layer_name_tip" style="color: red"></label></div>' +
+                '<div><label>层次名称：</label><label id="layer_name_tip" style="color: red"></label></div>' +
                 '<input id="layer_name" class="form-control clear-tips">' +
                 '</div>';
             content += '<div class="form-group">' +
@@ -653,6 +646,105 @@ $(document).on('click', '.add-layer-item', function () {
                         type: "post",
                         data: {
                             type: "ADD_LAYER",
+                            bns_id: bns_id,
+                            layer_id: layer_id,
+                            layer_name: layer_name,
+                            layer_desc: layer_desc
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            handle_add_item_response(response);
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            if (jqXHR.status == 302) {
+                                window.parent.location.replace("/");
+                            } else {
+                                $.showErr("添加失败");
+                            }
+                        }
+                    }
+                );
+
+                // 关闭窗口
+                dialogItself.close();
+            }
+        },
+            {
+                label: '取消',
+                action: function (dialogItself) {
+                    dialogItself.close();
+                }
+            }]
+    });
+});
+
+// 删除层次
+$(document).on('click', '.del-layer-item', function () {
+    var $this_tr = $(this).closest('tr');
+    var bns_id = $this_tr.treegrid('getParentNode').find('td:eq(1)').text().trim();
+    var layer_id = $this_tr.find('td:eq(1)').text().trim();
+    $.showConfirm("确定要删除吗?", delete_one_layer_item(bns_id, layer_id));
+});
+
+// 修改层次
+$(document).on('click', '.mod-layer-item', function () {
+    var $this_tr = $(this).closest('tr');
+    var bns_id = $this_tr.treegrid('getParentNode').find('td:eq(1)').text().trim();
+    var layer_id = $this_tr.find('td:eq(1)').text().trim();
+    var layer_name = $this_tr.find('td:eq(3)').text().trim();
+    var layer_desc = $this_tr.find('td:eq(8)').text().trim();
+
+    BootstrapDialog.show({
+        message: function (dialog) {
+            // header
+            var content = '';
+            content += '<div class="form">';
+            content += '<div class="form-group">' +
+                '<div><label>业务id：</label><label id="bns_id_tip" style="color: red"></label></div>' +
+                '<input id="bns_id" class="form-control clear-tips" value="' + bns_id + '" readonly>' +
+                '</div>';
+            content += '<div class="form-group">' +
+                '<div><label>层次id：</label><label id="layer_id_tip" style="color: red"></label></div>' +
+                '<input id="layer_id" class="form-control clear-tips" value="' + layer_id + '" readonly>' +
+                '</div>';
+            content += '<div class="form-group">' +
+                '<div><label>层次名称：</label><label id="layer_name_tip" style="color: red"></label></div>' +
+                '<input id="layer_name" class="form-control clear-tips" value="' + layer_name + '">' +
+                '</div>';
+            content += '<div class="form-group">' +
+                '<div><label>描述信息：</label></div>' +
+                '<input id="layer_desc" class="form-control clear-tips" value="' + layer_desc + '">' +
+                '</div>';
+            content += '<div id="tip_div" class="form-group no-display">' +
+                '<div><label id="tip_msg" style="color: red"></label></div>' +
+                '</div>';
+            // footer
+            content += '</div>';
+
+            return content;
+        },
+        title: "修改层次",
+        closable: false,
+        draggable: true,
+        onshown: function () {},
+        buttons: [{
+            label: '确定',
+            action: function (dialogItself) {
+                // 获取用户添加数据
+                var layer_id = $("#layer_id").val().trim();
+                var layer_name = $("#layer_name").val().trim();
+                var layer_desc = $("#layer_desc").val().trim();
+
+                if (!check_layer_inputs(bns_id, layer_id, layer_name, layer_desc)) {
+                    return;
+                }
+
+                // 发送请求
+                $.ajax({
+                        url: '/tree_layer',
+                        type: "put",
+                        data: {
+                            type: "MOD_LAYER",
                             bns_id: bns_id,
                             layer_id: layer_id,
                             layer_name: layer_name,

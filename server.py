@@ -236,6 +236,29 @@ class TreeLayerHandler(BaseHandler):
             self.write(json_text)
             return
 
+    def put(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'MOD_LAYER':
+            bns_id = self.get_argument('bns_id', None)
+            layer_id = self.get_argument('layer_id', None)
+            layer_name = self.get_argument('layer_name', None)
+            layer_desc = self.get_argument('layer_desc', None)
+            json_text = MysqlOperator.mod_one_layer(bns_id, layer_id, layer_name, layer_desc)
+            self.write(json_text)
+            return
+
     def post(self):
         user_name, show_name = self.get_login_user()
         if not user_name:

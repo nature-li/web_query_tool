@@ -1361,6 +1361,54 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
+    def mod_one_layer(cls, bns_id, layer_id, layer_name, layer_desc):
+        try:
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                layer = session.query(Layer).filter(
+                    Layer.business == bns_id,
+                    Layer.id == layer_id).first()
+                if not layer:
+                    Logger.error(traceback.format_exc())
+                    a_dict = dict()
+                    a_dict['success'] = False
+                    a_dict['msg'] = 'db_id does not exist'
+                    return json.dumps(a_dict)
+
+                layer.name = layer_name
+                layer.desc = layer_desc
+                session.commit()
+
+                db_layer_list = session.query(Layer.id,
+                                              Layer.name,
+                                              Layer.business,
+                                              Layer.desc,
+                                              Layer.create_time).filter(
+                    Layer.business == bns_id, Layer.id == layer_id)[:]
+
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                a_dict['content'] = content = list()
+                if len(db_layer_list) > 0:
+                    item = db_layer_list[0]
+                    a_exp = {
+                        'id': item.id,
+                        'bns_id': item.business,
+                        'name': item.name,
+                        'desc': item.desc,
+                        'create_time': item.create_time.strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    content.append(a_exp)
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'INSERT INTO db ERROR'
+            return json.dumps(a_dict)
+
+    @classmethod
     def delete_one_layer(cls, bns_id, layer_id):
         try:
             session = sessionmaker(bind=cls.engine)()
