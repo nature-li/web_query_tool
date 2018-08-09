@@ -1226,6 +1226,31 @@ class BusinessHandler(BaseHandler):
             self.write(json_text)
             return
 
+    def delete(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'DEL_BNS':
+            bns_id = self.get_argument('bns_id', None)
+            json_text = MysqlOperator.delete_one_bns(bns_id)
+            self.write(json_text)
+            return
+
+        result_dict = dict()
+        result_dict['success'] = False
+        result_dict['msg'] = 'Invalid req_type: ' + req_type
+        self.write(json.dumps(result_dict, ensure_ascii=False))
+
 
 def __main__():
     # 设置编码

@@ -175,6 +175,15 @@ function create_expand_name(value, row, index) {
             '<span class="glyphicon glyphicon-option-vertical"></span>' +
             '</button>' +
             '<ul class="dropdown-menu">' +
+            '<li><a href="#" class="mod-bns-item">修改业务</a></li>';
+
+        if (check_empty_bns(bns_id)) {
+            html += '<li><a href="#" class="del-bns-item">删除业务</a></li>';
+        } else {
+            html += '<li class="disabled"><a href="#" class="del-bns-item">删除业务</a></li>';
+        }
+
+        html += '<li role="separator" class="divider"></li>' +
             '<li><a href="#" class="add-layer-item">增加层次</a></li>' +
             '</ul>' +
             '</div>'
@@ -202,6 +211,18 @@ function create_expand_name(value, row, index) {
         html = '<img src="/static/images/config.png"/>' + html;
     }
     return html;
+}
+
+// 判断业务是否为空
+function check_empty_bns(bns_id) {
+    for (var i = 0; i < window.save_data.all_layer.length; i++) {
+        var item = window.save_data.all_layer[i];
+        if (item.bns_id === bns_id) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 // 判断是否为空层次
@@ -398,6 +419,35 @@ function draw_layer_node() {
     render_tree();
 }
 
+// 删除业务
+function delete_one_bns_item(bns_id) {
+    function work_func() {
+        // 发送请求
+        $.ajax({
+                url: '/business',
+                type: "delete",
+                data: {
+                    type: 'DEL_BNS',
+                    bns_id: bns_id,
+                },
+                dataType: 'json',
+                success: function (response) {
+                    handle_delete_bns_response(response);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    if (jqXHR.status == 302) {
+                        window.parent.location.replace("/");
+                    } else {
+                        $.showErr("删除失败");
+                    }
+                }
+            }
+        );
+    }
+
+    return work_func;
+}
+
 // 删除层次
 function delete_one_layer_item(bns_id, layer_id) {
     function work_func() {
@@ -540,7 +590,8 @@ $(document).on('click', '#add_bns', function () {
         title: "增加业务",
         closable: false,
         draggable: true,
-        onshown: function () {},
+        onshown: function () {
+        },
         buttons: [{
             label: '确定',
             action: function (dialogItself) {
@@ -590,6 +641,18 @@ $(document).on('click', '#add_bns', function () {
     });
 });
 
+// 删除业务
+$(document).on('click', '.del-bns-item', function () {
+    var $this_tr = $(this).closest('tr');
+    var bns_id = $this_tr.find('td:eq(1)').text().trim();
+    $.showConfirm("确定要删除吗?", delete_one_bns_item(bns_id));
+});
+
+// 修改业务
+$(document).on('click', '.mod-bns-item', function () {
+
+});
+
 // 增加层次
 $(document).on('click', '.add-layer-item', function () {
     var $this_tr = $(this).closest('tr');
@@ -627,7 +690,8 @@ $(document).on('click', '.add-layer-item', function () {
         title: "增加层次",
         closable: false,
         draggable: true,
-        onshown: function () {},
+        onshown: function () {
+        },
         buttons: [{
             label: '确定',
             action: function (dialogItself) {
@@ -726,7 +790,8 @@ $(document).on('click', '.mod-layer-item', function () {
         title: "修改层次",
         closable: false,
         draggable: true,
-        onshown: function () {},
+        onshown: function () {
+        },
         buttons: [{
             label: '确定',
             action: function (dialogItself) {
@@ -825,6 +890,24 @@ function handle_add_item_response(response) {
 function handle_delete_layer_response(response) {
     if (response.success !== true) {
         $.showErr("删除失败");
+    }
+
+    reload_this_page();
+}
+
+// 删除业务
+function handle_delete_bns_response(response) {
+    if (response.success !== true) {
+        $.showErr("删除失败");
+    }
+
+    reload_this_page();
+}
+
+// 修改业务
+function handle_mod_bns_response(response) {
+    if (response.success !== true) {
+        $.showErr("修改失败");
     }
 
     reload_this_page();

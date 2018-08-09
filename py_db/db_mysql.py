@@ -1431,3 +1431,24 @@ class MysqlOperator(object):
             a_dict['success'] = False
             a_dict['msg'] = 'delete db failed'
             return json.dumps(a_dict)
+
+    @classmethod
+    def delete_one_bns(cls, bns_id):
+        try:
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                session.query(Business).filter(
+                    Business.id == bns_id).filter(
+                    ~exists().where(Layer.business == bns_id)).delete(synchronize_session=False)
+                session.commit()
+
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'delete db failed'
+            return json.dumps(a_dict)
