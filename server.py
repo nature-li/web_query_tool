@@ -209,6 +209,83 @@ class LayerHandler(BaseHandler):
             return
 
 
+class TreeLayerHandler(BaseHandler):
+    def get(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+        req_type = self.get_argument('type', None)
+        if not req_type:
+            self.render('experiment/tree_layer.html', static_version=config.server_static_version)
+            return
+
+        if req_type == "QUERY_LAYER":
+            bns_id = self.get_argument('bns_id', None)
+            layer_id = self.get_argument('layer_id', None)
+            off_set = self.get_argument('off_set', None)
+            limit = self.get_argument('limit', None)
+            json_text = MysqlOperator.query_layer(bns_id, layer_id, off_set, limit)
+            self.write(json_text)
+            return
+
+    def post(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'ADD_LAYER':
+            bns_id = self.get_argument('bns_id', None)
+            layer_id = self.get_argument('layer_id', None)
+            layer_name = self.get_argument('layer_name', None)
+            layer_desc = self.get_argument('layer_desc', None)
+            json_text = MysqlOperator.add_one_layer(bns_id, layer_id, layer_name, layer_desc)
+            self.write(json_text)
+            return
+
+    def delete(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'DEL_LAYER':
+            bns_id = self.get_argument('bns_id', None)
+            layer_id = self.get_argument('layer_id', None)
+            json_text = MysqlOperator.delete_one_layer(bns_id, layer_id)
+            self.write(json_text)
+            return
+
+        result_dict = dict()
+        result_dict['success'] = False
+        result_dict['msg'] = 'Invalid req_type: ' + req_type
+        self.write(json.dumps(result_dict, ensure_ascii=False))
+
+
 class NetworkListHandler(BaseHandler):
     def get(self):
         user_name, show_name = self.get_login_user()
@@ -1097,10 +1174,32 @@ class BusinessHandler(BaseHandler):
 
         req_type = self.get_argument('type', None)
         if req_type == "QUERY_BNS":
-            name = self.get_argument('name', None)
+            bns_id = self.get_argument('bns_id', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_business(name, off_set, limit)
+            json_text = MysqlOperator.query_business(bns_id, off_set, limit)
+            self.write(json_text)
+            return
+
+    def post(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'ADD_BNS':
+            bns_id = self.get_argument('bns_id', None)
+            bns_name = self.get_argument('bns_name', None)
+            bns_desc = self.get_argument('bns_desc', None)
+            json_text = MysqlOperator.add_one_bns(bns_id, bns_name, bns_desc)
             self.write(json_text)
             return
 
@@ -1165,7 +1264,7 @@ def __main__():
             (r'/position_count', HourAdIdeaPositionCount),
             (r'/chart', ChartHandler),
             (r'/query_chart_data', ChartDataQueryHandler),
-            (r'/layer', LayerHandler),
+            (r'/tree_layer', TreeLayerHandler),
             (r'/tree_cfg', TreeCfgHandler),
             (r'/tree_exp', TreeExpHandler),
             (r'/cfg_relation', CfgRelationHandler),

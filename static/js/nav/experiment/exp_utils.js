@@ -20,7 +20,6 @@ function init_business_selector(func_on_success) {
             type: "get",
             data: {
                 'type': 'QUERY_BNS',
-                'name': '',
                 'off_set': 0,
                 'limit': -1
             },
@@ -35,6 +34,7 @@ function init_business_selector(func_on_success) {
 
                     var option = '<option value="' + item.id + '">' + item.name + '</option>';
                     if (i === 0) {
+                        // 首选项为默认选项
                         option = '<option value="' + item.id + '" selected="selected">' + item.name + '</option>';
                     }
                     $("#business_selector").append(option);
@@ -53,8 +53,3 @@ function init_business_selector(func_on_success) {
         }
     );
 }
-
-// 业务下拉列表框更新
-$(document).on('change', '#business_selector', function () {
-    init_layer_selector();
-});

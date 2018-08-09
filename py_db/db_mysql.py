@@ -455,7 +455,7 @@ class MysqlOperator(object):
                     a_layer_list.append(a_layer)
                     a_layer['id'] = value.id
                     a_layer['name'] = value.name
-                    a_layer['business'] = value.business
+                    a_layer['bns_id'] = value.business
                     a_layer['desc'] = value.desc
                     a_layer['create_time'] = value.create_time.strftime('%Y-%m-%d %H:%M:%S')
 
@@ -1228,7 +1228,7 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def query_business(cls, name, off_set, limit):
+    def query_business(cls, bns_id, off_set, limit):
         try:
             # 转换类型
             off_set = int(off_set)
@@ -1248,10 +1248,9 @@ class MysqlOperator(object):
                                             Business.desc,
                                             Business.create_time)
                 # 条件查询
-                if name:
-                    like_condition = '%' + name + '%'
-                    count_query = count_query.filter(Business.name.like(like_condition))
-                    value_query = value_query.filter(Business.name.like(like_condition))
+                if bns_id:
+                    count_query = count_query.filter(Business.id == bns_id)
+                    value_query = value_query.filter(Business.id == bns_id)
 
                 # 获取查询结果
                 count = count_query.count()
@@ -1279,4 +1278,108 @@ class MysqlOperator(object):
             a_dict['success'] = 'false'
             a_dict['content'] = list()
             a_dict['item_count'] = 0
+            return json.dumps(a_dict)
+
+    @classmethod
+    def add_one_bns(cls, bns_id, bns_name, bns_desc):
+        try:
+            bns = Business()
+            bns.id = bns_id
+            bns.name = bns_name
+            bns.desc = bns_desc
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                session.add(bns)
+                session.commit()
+
+                db_bns_list = session.query(Business.id,
+                                            Business.name,
+                                            Business.desc,
+                                            Business.create_time).filter(Business.id == bns_id)[:]
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                a_dict['content'] = content = list()
+                if len(db_bns_list) > 0:
+                    item = db_bns_list[0]
+                    a_exp = {
+                        'id': item.id,
+                        'name': item.name,
+                        'desc': item.desc,
+                        'create_time': item.create_time.strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    content.append(a_exp)
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'INSERT INTO db ERROR'
+            return json.dumps(a_dict)
+
+    @classmethod
+    def add_one_layer(cls, bns_id, layer_id, layer_name, layer_desc):
+        try:
+            layer = Layer()
+            layer.id = layer_id
+            layer.business = bns_id
+            layer.name = layer_name
+            layer.desc = layer_desc
+
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                session.add(layer)
+                session.commit()
+
+                db_layer_list = session.query(Layer.id,
+                                              Layer.name,
+                                              Layer.business,
+                                              Layer.desc,
+                                              Layer.create_time).filter(
+                    Layer.business == bns_id, Layer.id == layer_id)[:]
+
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                a_dict['content'] = content = list()
+                if len(db_layer_list) > 0:
+                    item = db_layer_list[0]
+                    a_exp = {
+                        'id': item.id,
+                        'bns_id': item.business,
+                        'name': item.name,
+                        'desc': item.desc,
+                        'create_time': item.create_time.strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    content.append(a_exp)
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'INSERT INTO db ERROR'
+            return json.dumps(a_dict)
+
+    @classmethod
+    def delete_one_layer(cls, bns_id, layer_id):
+        try:
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                session.query(Layer).filter(
+                    Layer.business == bns_id,
+                    Layer.id == layer_id).filter(
+                    ~exists().where(or_(and_(Experiment.business == bns_id, Experiment.layer_id == layer_id),
+                                        and_(CfgItem.business == bns_id, CfgItem.layer_id == layer_id))
+                                    )).delete(synchronize_session=False)
+                session.commit()
+
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'delete db failed'
             return json.dumps(a_dict)

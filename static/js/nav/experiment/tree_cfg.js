@@ -34,7 +34,7 @@ function reset_save_data() {
 // 初始化下拉列表框、层节点、配置节点、加载所有实验
 function init_layer_selector() {
     $.ajax({
-            url: '/layer',
+            url: '/tree_layer',
             type: "get",
             data: {
                 'type': 'QUERY_LAYER',
@@ -86,7 +86,7 @@ function reload_layer_node(func_on_success) {
     // 重构树视图
     var layer_id = $("#layer_selector").val();
     $.ajax({
-            url: '/layer',
+            url: '/tree_layer',
             type: "get",
             data: {
                 'type': 'QUERY_LAYER',
@@ -1439,4 +1439,9 @@ $(document).on('input', '#algo_response', function () {
     if (!check_alphanumeric_ver_middle_(request)) {
         $("#algo_response_tip").html("只能包含字符(a-zA-Z)、数字(0-9)、下划线(_)、竖线(|)、中横线(-)");
     }
+});
+
+// 业务下拉列表框更新
+$(document).on('change', '#business_selector', function () {
+    init_layer_selector();
 });

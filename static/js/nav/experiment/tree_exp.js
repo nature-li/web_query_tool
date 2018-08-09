@@ -33,7 +33,7 @@ function reset_save_data() {
 // 初始化下拉列表框、层节点、配置节点、加载所有实验
 function init_layer_selector() {
     $.ajax({
-            url: '/layer',
+            url: '/tree_layer',
             type: "get",
             data: {
                 'type': 'QUERY_LAYER',
@@ -81,7 +81,7 @@ function reload_layer_node(func_on_success) {
 
     var layer_id = $("#layer_selector").val();
     $.ajax({
-            url: '/layer',
+            url: '/tree_layer',
             type: "get",
             data: {
                 'type': 'QUERY_LAYER',
@@ -397,12 +397,12 @@ $(document).on('click', '.modify-exp-item', function () {
                 '<label class="control-label" style="margin: 0 5px;">启用</label>' +
                 '<div class="input-group">';
 
-                if (!exp_status) {
-                    content += '<input id="exp_status" type="checkbox" name="status"/>';
-                } else {
-                    content += '<input id="exp_status" type="checkbox" name="status" checked/>';
-                }
-                content += '</div>' +
+            if (!exp_status) {
+                content += '<input id="exp_status" type="checkbox" name="status"/>';
+            } else {
+                content += '<input id="exp_status" type="checkbox" name="status" checked/>';
+            }
+            content += '</div>' +
                 '</div>' +
                 '</div>' +
 
@@ -1192,3 +1192,8 @@ function check_invalid_tips() {
 
     return true;
 }
+
+// 业务下拉列表框更新
+$(document).on('change', '#business_selector', function () {
+    init_layer_selector();
+});
