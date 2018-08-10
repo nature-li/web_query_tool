@@ -930,6 +930,10 @@ $(document).on('click', '.mod-layer-item', function () {
 
 // 检测输入业务参数是否正常
 function check_bns_inputs(bns_id, bns_name, bns_desc) {
+    if ($("#bns_id_tip").html() !== '') {
+        return false;
+    }
+
     if (bns_id === "") {
         show_tip_msg("业务id不能为空");
         return false;
@@ -945,6 +949,10 @@ function check_bns_inputs(bns_id, bns_name, bns_desc) {
 
 // 检测输入层次参数是否正常
 function check_layer_inputs(bns_id, layer_id, layer_name, layer_desc) {
+    if (("#layer_id_tip").html() !== '') {
+        return false;
+    }
+
     if (bns_id === "") {
         show_tip_msg("业务id不能为空");
         return false;
@@ -997,3 +1005,29 @@ function handle_mod_bns_response(response) {
 
     reload_this_page();
 }
+
+// 业务id只能用字母、数字和下划线
+$(document).on('input', '#bns_id', function () {
+    $("#bns_id_tip").html('');
+    var bns_id = $("#bns_id").val().trim();
+    if (!bns_id) {
+        return;
+    }
+
+    if (!check_alphanumeric_(bns_id)) {
+        $("#bns_id_tip").html('只能由数字(0-9)、字母(a-z)、下划线(_)组成');
+    }
+});
+
+// 层次id只能用字母、数字和下划线
+$(document).on('input', '#layer_id', function () {
+    $("#layer_id_tip").html('');
+    var layer_id = $("#layer_id").val().trim();
+    if (!layer_id) {
+        return;
+    }
+
+    if (!check_alphanumeric_(layer_id)) {
+        $("#layer_id_tip").html('只能由数字(0-9)、字母(a-z)、下划线(_)组成');
+    }
+});
