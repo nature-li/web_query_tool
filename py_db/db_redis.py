@@ -334,6 +334,7 @@ class RedisFetcher(object):
                 a_dict['win'] = win
                 a_dict['res_by_req'] = '%.2f' % (100.0 * res / req) if req != 0 else '0.00'
                 a_dict['imp_by_win'] = '%.2f' % (100.0 * imp / win) if win != 0 else '0.00'
+                a_dict['imp_by_res'] = '%.2f' % (100.0 * imp / res) if res != 0 else '0.00'
                 total_req += req
                 total_res += res
                 total_win += win
@@ -344,6 +345,7 @@ class RedisFetcher(object):
             total_dict['win'] = total_win
             total_dict['res_by_req'] = '%.2f' % (100.0 * total_res / total_req) if total_req != 0 else '0.00'
             total_dict['imp_by_win'] = '%.2f' % (100.0 * total_imp / total_win) if total_win != 0 else '0.00'
+            total_dict['imp_by_res'] = '%.2f' % (100.0 * total_imp / total_res) if total_res != 0 else '0.00'
 
             # 返回结果
             a_dict = dict()
@@ -418,6 +420,7 @@ class RedisFetcher(object):
                 a_dict['win'] = win
                 a_dict['res_by_req'] = '%.2f' % (100.0 * res / req) if req != 0 else '0.00'
                 a_dict['imp_by_win'] = '%.2f' % (100.0 * imp / win) if win != 0 else '0.00'
+                a_dict['imp_by_res'] = '%.2f' % (100.0 * imp / res) if res != 0 else '0.00'
                 total_req += req
                 total_res += res
                 total_win += win
@@ -428,6 +431,7 @@ class RedisFetcher(object):
             total_dict['win'] = total_win
             total_dict['res_by_req'] = '%.2f' % (100.0 * total_res / total_req) if total_req != 0 else '0.00'
             total_dict['imp_by_win'] = '%.2f' % (100.0 * total_imp / total_win) if total_win != 0 else '0.00'
+            total_dict['imp_by_res'] = '%.2f' % (100.0 * total_imp / total_res) if total_res != 0 else '0.00'
 
             # 返回结果
             a_dict = dict()

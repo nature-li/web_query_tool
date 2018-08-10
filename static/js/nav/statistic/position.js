@@ -22,7 +22,7 @@ $(document).ready(function () {
 // 初始化全局变量
 function reset_save_data() {
     window.save_data = {
-       'item_list': [],
+        'item_list': [],
         'db_total_item_count': 0,
         'db_return_item_count': 0,
         'db_max_page_idx': 0,
@@ -50,9 +50,15 @@ function update_page_view(page_idx) {
             "<td>" + number_with_comma(item.win) + "</td>" +
             "<td>" + number_with_comma(item.impression) + "</td>" +
             "<td>" + number_with_comma(item.click) + "</td>" +
-            "<td>" + item.res_by_req + "%</td>" +
-            "<td>" + item.imp_by_win + "%</td>" +
-            "<td>" + item.ctr + "%</td>" +
+            "<td>" + item.res_by_req + "%</td>";
+
+        if (item.imp_by_win !== '0.00') {
+            html += "<td>" + item.imp_by_win + "%</td>";
+        } else {
+            html += "<td>" + item.imp_by_res + "%</td>";
+        }
+
+        html += "<td>" + item.ctr + "%</td>" +
             "<td>" + item.update_time + "</td></tr>";
     }
     $("#hour_result").find("tr:gt(0)").remove();
@@ -105,7 +111,12 @@ function refresh_trend_chart(item_list) {
         // 填充率
         fill_rate_list.push(parseFloat(item.res_by_req));
         // 展示率
-        show_rate_list.push(parseFloat(item.imp_by_win));
+        if (item.imp_by_win !== '0.00') {
+            show_rate_list.push(parseFloat(item.imp_by_win));
+        } else {
+            show_rate_list.push(parseFloat(item.imp_by_res));
+        }
+
         // 点击率
         ctr_list.push(parseFloat(item.ctr));
     }
