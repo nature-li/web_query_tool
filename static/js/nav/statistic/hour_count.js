@@ -46,9 +46,9 @@ function update_page_view(page_idx) {
         html += "<tr><td>" + item.dt + "</td>" +
             "<td>" + item.hour + "</td>" +
             "<td>" + item.ad_network_id + "</td>" +
-            "<td>" + item.pv + "</td>" +
-            "<td>" + item.impression + "</td>" +
-            "<td>" + item.click + "</td>" +
+            "<td>" + number_with_comma(item.pv) + "</td>" +
+            "<td>" + number_with_comma(item.impression) + "</td>" +
+            "<td>" + number_with_comma(item.click) + "</td>" +
             "<td>" + item.ctr + "</td>" +
             "<td>" + item.update_time + "</td></tr>";
     }

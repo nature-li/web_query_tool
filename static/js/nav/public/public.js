@@ -136,3 +136,12 @@ function toHex(raw) {
 
     return result;
 }
+
+// 数字转化为带千分符的
+function number_with_comma(num) {
+    if (!num) {
+        return num;
+    }
+
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

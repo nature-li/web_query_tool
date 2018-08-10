@@ -45,11 +45,11 @@ function update_page_view(page_idx) {
             "<td>" + item.hour + "</td>" +
             "<td>" + item.ad_network_id + "</td>" +
             "<td>" + item.position_id + "</td>" +
-            "<td>" + item.req + "</td>" +
-            "<td>" + item.res + "</td>" +
-            "<td>" + item.win + "</td>" +
-            "<td>" + item.impression + "</td>" +
-            "<td>" + item.click + "</td>" +
+            "<td>" + number_with_comma(item.req) + "</td>" +
+            "<td>" + number_with_comma(item.res) + "</td>" +
+            "<td>" + number_with_comma(item.win) + "</td>" +
+            "<td>" + number_with_comma(item.impression) + "</td>" +
+            "<td>" + number_with_comma(item.click) + "</td>" +
             "<td>" + item.res_by_req + "%</td>" +
             "<td>" + item.imp_by_win + "%</td>" +
             "<td>" + item.ctr + "%</td>" +
