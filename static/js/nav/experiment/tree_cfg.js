@@ -1,3 +1,5 @@
+var confirm_toggle = true;
+
 $(document).ready(function () {
     // 改变菜单背景色
     set_page_active("#li_tree_cfg");
@@ -753,39 +755,64 @@ function delete_one_cfg_item(cfg_id) {
     return work_func;
 }
 
-// 配置状态切换
-$(document).on('change', '.toggle-status', function () {
-    var cfg_id = $(this).closest('tr').find('td:eq(1)').text().trim();
 
+// 配置状态切换
+$(document).on('change', '.toggle-status', function (e) {
+    // 获取配置id和欲更改的状态
+    var cfg_id = $(this).closest('tr').find('td:eq(1)').text().trim();
     var status = 0;
     if ($(this).prop('checked')) {
         status = 1;
     }
 
-    // 发送请求
-    $.ajax({
-            url: '/tree_cfg',
-            type: "put",
-            data: {
-                type: 'MODIFY_STATUS',
-                'bns_id': $("#business_selector").val(),
-                cfg_id: cfg_id,
-                status: status
-            },
-            dataType: 'json',
-            success: function (response) {
-                handle_modify_cfg_item_response(response);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                if (jqXHR.status == 302) {
-                    window.parent.location.replace("/");
-                } else {
-                    $.showErr("删除失败");
+    if (confirm_toggle) {
+        confirm_toggle = false;
+
+        // 获取当前状态然后再切回去
+        var using = $(this).prop('checked');
+        $(this).bootstrapToggle('toggle');
+
+        if (using) {
+            $.showConfirm("确定要开启吗?", toggle_cfg_status(cfg_id, status), not_toggle_cfg_status);
+        } else {
+            $.showConfirm("确定要禁止吗?", toggle_cfg_status(cfg_id, status), not_toggle_cfg_status);
+        }
+    }
+});
+
+function toggle_cfg_status(cfg_id, status) {
+    return function () {
+        confirm_toggle = true;
+
+        // 发送请求
+        $.ajax({
+                url: '/tree_cfg',
+                type: "put",
+                data: {
+                    type: 'MODIFY_STATUS',
+                    'bns_id': $("#business_selector").val(),
+                    cfg_id: cfg_id,
+                    status: status
+                },
+                dataType: 'json',
+                success: function (response) {
+                    handle_modify_cfg_item_response(response);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    if (jqXHR.status == 302) {
+                        window.parent.location.replace("/");
+                    } else {
+                        $.showErr("切换失败");
+                    }
                 }
             }
-        }
-    );
-});
+        );
+    };
+}
+
+function not_toggle_cfg_status() {
+    confirm_toggle = true;
+}
 
 // 清除错误提示
 $(document).on('input', '.clear-tips', function () {
