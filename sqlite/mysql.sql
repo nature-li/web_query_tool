@@ -25,7 +25,6 @@ CREATE TABLE IF NOT EXISTS `position` (
   UNIQUE INDEX name (`position`)
 )
   DEFAULT CHARSET = utf8;
-INSERT INTO position (position) VALUES ('*');
 INSERT INTO position (position) VALUES ('1');
 INSERT INTO position (position) VALUES ('2');
 INSERT INTO position (position) VALUES ('3');

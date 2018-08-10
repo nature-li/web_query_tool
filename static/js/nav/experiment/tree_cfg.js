@@ -457,13 +457,14 @@ $(document).on('click', ".add-cfg-item", function () {
         closable: false,
         draggable: true,
         onshown: function () {
+            // 添加特殊位置
+            var option = '<option value="*">*</option>';
+            $("#position").append(option);
+
             for (var i = 0; i < window.save_data.all_position.length; i++) {
                 var pos = window.save_data.all_position[i];
 
-                var option = '<option value="' + pos.position + '">' + pos.position + '</option>';
-                if (i === 0) {
-                    option = '<option value="' + pos.position + '" selected="selected">' + pos.position + '</option>';
-                }
+                option = '<option value="' + pos.position + '">' + pos.position + '</option>';
                 $("#position").append(option);
             }
             $("#position").selectpicker('refresh');
@@ -626,10 +627,18 @@ $(document).on('click', '.modify-cfg-item', function () {
                 exist[a_list[i]] = i;
             }
 
+            // 添加特殊位置
+            var option = '<option value="*">*</option>';
+            if (exist['*'] !== undefined) {
+                option = '<option value="*" selected="selected">*</option>';
+            }
+            $("#position").append(option);
+
+            // 添加普通位置
             for (i = 0; i < window.save_data.all_position.length; i++) {
                 var pos = window.save_data.all_position[i];
 
-                var option = '<option value="' + pos.position + '">' + pos.position + '</option>';
+                option = '<option value="' + pos.position + '">' + pos.position + '</option>';
                 if (exist[pos.position] !== undefined) {
                     option = '<option value="' + pos.position + '" selected="selected">' + pos.position + '</option>';
                 }

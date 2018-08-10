@@ -153,19 +153,21 @@ function experiment_html() {
                 <li id="li_tree_layer">
                     <a id="a_tree_layer" href="#">业务层次
                         <img src="/static/images/blue_layer.png" />
-                        <!--<i id="i_tree_layer" class="glyphicon glyphicon-pencil"></i>-->
+                    </a>
+                </li>
+                <li id="li_exp_position">
+                    <a id="a_exp_position" href="#">实验位置
+                        <img src="/static/images/blue_location.png" />
                     </a>
                 </li>
                 <li id="li_tree_cfg">
                     <a id="a_tree_cfg" href="#">配置视图
                     <img src="/static/images/blue_config.png" />
-                        <!--<i id="i_tree_cfg" class="glyphicon glyphicon-pencil"></i>-->
                     </a>
                 </li>
                 <li id="li_tree_exp">
                     <a id="a_tree_exp" href="#">实验视图
                         <img src="/static/images/blue_exp.png" />
-                        <!--<i id="i_tree_exp" class="glyphicon glyphicon-pencil"></i>-->
                     </a>
                 </li>
             </ul>

@@ -1,6 +1,6 @@
 $(document).ready(function () {
     // 改变菜单背景色
-    set_page_active("#li_network_list");
+    set_page_active('#li_exp_position');
 
     // 定义全局变量
     if (!window.save_data) {
@@ -23,7 +23,7 @@ function reset_save_data() {
         'view_start_page_idx': 0,
         'view_current_page_idx': 0,
         'view_current_page_count': 0,
-        'query_network_name': ''
+        'query_position_code': ''
     };
 }
 
@@ -33,10 +33,11 @@ function query_and_update_view() {
     var limit = window.save_data.view_item_count_per_page;
 
     $.ajax({
-            url: '/query_network_list',
-            type: "post",
+            url: '/exp_position',
+            type: "get",
             data: {
-                'network_name': window.save_data.query_network_name,
+                'type': 'QUERY_POS',
+                'position': window.save_data.query_position_code,
                 'off_set': off_set,
                 'limit': limit
             },
@@ -57,15 +58,18 @@ function query_and_update_view() {
 
 // 更新页表
 function update_page_view(page_idx) {
+    // 反选表格
+    $("#position_check_all").prop('checked', false);
+
     // 删除表格
-    $('#t_network_control > tbody  > tr').each(function () {
+    $('#t_position_control > tbody  > tr').each(function () {
         $(this).remove();
     });
 
     // 添加表格
     for (var i = 0; i < window.save_data.item_list.length; i++) {
-        var network = window.save_data.item_list[i];
-        add_network_row(network.network_id, network.network_name, network.update_time);
+        var pos = window.save_data.item_list[i];
+        add_position_row(pos);
     }
 
     // 更新分页标签
@@ -76,55 +80,56 @@ function update_page_view(page_idx) {
 }
 
 // 点击复选框全选渠道
-$("#network_check_all").click(function () {
+$("#position_check_all").click(function () {
     if ($(this).prop('checked')) {
-        $("#t_network_control").find("input[name='network_list[]']").each(function (i, e) {
+        $("#t_position_control").find("input[name='position_list[]']").each(function (i, e) {
             $(e).prop('checked', true);
         })
     } else {
-        $("#t_network_control").find("input[name='network_list[]']").each(function (i, e) {
+        $("#t_position_control").find("input[name='position_list[]']").each(function (i, e) {
             $(e).prop('checked', false);
         })
     }
 });
 
 // 点击删除按钮
-$("#del_network_button").click(function () {
+$("#del_position_button").click(function () {
     var count = 0;
-    $('#t_network_control > tbody  > tr').each(function () {
-        var $check_box = $(this).find("td:eq(0)").find("input[name='network_list[]']");
+    $('#t_position_control > tbody  > tr').each(function () {
+        var $check_box = $(this).find("td:eq(0)").find("input[name='position_list[]']");
         if ($check_box.prop('checked')) {
             count += 1;
         }
     });
 
     if (count > 0) {
-        $.showConfirm("确定要删除吗?", query_delete_selected_network);
+        $.showConfirm("此操作<span style='color: red'>不会删除已有配置中位置</span>，你确定要删除吗?", delete_selected_position);
     }
 });
 
-// 发送删除选中的渠道请求
-function query_delete_selected_network() {
+// 发送删除请求
+function delete_selected_position() {
     var content = '';
-    $('#t_network_control > tbody  > tr').each(function () {
-        var $check_box = $(this).find("td:eq(0)").find("input[name='network_list[]']");
+    $('#t_position_control > tbody  > tr').each(function () {
+        var $check_box = $(this).find("td:eq(0)").find("input[name='position_list[]']");
         if ($check_box.prop('checked')) {
-            var network_id = $check_box.val();
-            content += network_id + ","
+            var position_id = $check_box.val();
+            content += position_id + ","
         }
     });
 
     // 发送请求删除后台数据
-    if (content != '') {
+    if (content !== '') {
         $.ajax({
-                url: '/delete_network_list',
-                type: "post",
+                url: '/exp_position',
+                type: "delete",
                 data: {
-                    'network_id_list': content
+                    'type': 'DEL_POS',
+                    'position_id': content
                 },
                 dataType: 'json',
                 success: function (response) {
-                    delete_network_list_from_view(response);
+                    handle_delete_response(response);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     if (jqXHR.status == 302) {
@@ -138,63 +143,72 @@ function query_delete_selected_network() {
     }
 }
 
-// 根据返回值从列表中删除用户信息
-function delete_network_list_from_view(response) {
-    if (response.success == 'false') {
+// 处理删除应答
+function handle_delete_response(response) {
+    if (response.success === false) {
         $.showErr("删除失败");
-        return;
     }
 
-    var network_id_list = response.content;
-    for (var i = 0; i < network_id_list.length; i++) {
-        var del_network_id = network_id_list[i];
-
-        $('#t_network_control > tbody  > tr').each(function () {
-            var $check_box = $(this).find("td:eq(0)").find("input[name='network_list[]']");
-            var network_id = $check_box.val();
-            if (network_id == del_network_id) {
-                $(this).remove();
-            }
-        });
-    }
-
-    // 改变窗口大小
-    change_frame_size();
+    // 重画页面
+    reload_this_page();
 }
 
+// 重新加载页面
+function reload_this_page() {
+    reset_save_data();
+    query_and_update_view();
+}
+
+
 // 点击增加按钮
-$("#add_network_button").click(function () {
+$("#add_position_button").click(function () {
     BootstrapDialog.show({
         message: function (dialog) {
             // header
-            var content = '<div>';
+            var content = '';
+            content += '<div class="form">';
 
-            // 账号
-            content += '<div><input id="add_network_name" type="text" class="form-control" placeholder="输入渠道名称"></div>';
+            // 位置id
+            content += '<div class="form-group">' +
+                '<div><label>位置：</label><label id="position_tip" style="color: red"></label></div>' +
+                '<input id="add_position" type="number" class="form-control clear-tips">' +
+                '</div>';
+
+            // 描述
+            content += '<div class="form-group">' +
+                '<div><label>描述：</label><label id="desc_tip" style="color: red"></label></div>' +
+                '<input id="add_desc" class="form-control clear-tips">' +
+                '</div>';
 
             // footer
             content += '</div>';
 
             return content;
         },
-        title: "增加渠道",
+        title: "增加位置",
         closable: false,
         buttons: [{
             label: '确定',
             action: function (dialogItself) {
-                // 获取用户添加数据
-                var network_name = $("#add_network_name").val();
+                var position = $("#add_position").val();
+                var desc = $("#add_desc").val();
+
+                if (!position) {
+                    return;
+                }
 
                 // 发送请求
                 $.ajax({
-                        url: '/add_network',
+                        url: '/exp_position',
                         type: "post",
                         data: {
-                            'network_name': network_name,
+                            'type': 'ADD_POS',
+                            'position': position,
+                            'desc': desc
                         },
                         dataType: 'json',
                         success: function (response) {
-                            append_network_list_to_view(response);
+                            handle_add_position_response(response);
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             if (jqXHR.status == 302) {
@@ -221,40 +235,38 @@ $("#add_network_button").click(function () {
 
 
 // 根据ajax返回值更新页面
-function append_network_list_to_view(data) {
-    if (data.success == "true") {
-        var network_list = data.content;
-        for (var i = 0; i < network_list.length; i++) {
-            var network = network_list[i];
-            add_network_row(network.network_id, network.network_name, network.update_time);
-        }
-
-        // 改变窗口大小
-        change_frame_size();
-    } else {
+function handle_add_position_response(data) {
+    if (data.success !== true) {
         $.showErr("添加失败");
     }
+
+    reload_this_page();
 }
 
-// 在表格中增加渠道
-function add_network_row(network_id, network_name, update_time) {
-    var table = $("#t_network_control");
+// 在表格中增加位置信息
+function add_position_row(pos) {
+    var id = pos.id;
+    var position = pos.position;
+    var desc = pos.desc;
+    var create_time = pos.create_time;
+
+    var table = $("#t_position_control");
     var tr = $('<tr>' +
-        '<td style="text-align:center;"><input name="network_list[]" type="checkbox" value="' + network_id + '"></td>' +
-        '<td style="text-align:center;">' + network_id + '</td>' +
-        '<td style="text-align:center;">' + network_name + '</td>' +
-        '<td style="text-align:center;">' + update_time + '</td>');
+        '<td style="text-align:center;"><input name="position_list[]" type="checkbox" value="' + id + '"></td>' +
+        '<td style="text-align:center;">' + position + '</td>' +
+        '<td style="text-align:center;">' + desc + '</td>' +
+        '<td style="text-align:center;">' + create_time + '</td>');
     table.append(tr);
 }
 
-// 点击查找渠道按钮
-$("#query_network_button").click(function () {
+// 点击查找位置信息
+$("#query_position_button").click(function () {
     // 获取查找渠道
-    var query_network_name = $("#query_network_text").val();
+    var query_position_code = $("#query_position_text").val();
 
     // 清空数据并设置查找账号
     reset_save_data();
-    window.save_data.query_network_name = query_network_name;
+    window.save_data.query_position_code = query_position_code;
 
     // 查询数据并更新页面
     query_and_update_view();

@@ -131,6 +131,7 @@ function set_page_active(page_id) {
     $("#li_tree_layer", window.parent.document).removeClass("selected_menu");
     $("#li_tree_cfg", window.parent.document).removeClass("selected_menu");
     $("#li_tree_exp", window.parent.document).removeClass("selected_menu");
+    $("#li_exp_position", window.parent.document).removeClass("selected_menu");
 
     $(page_id, window.parent.document).addClass("selected_menu");
 }
@@ -149,6 +150,17 @@ $(document).on("click", "#a_layer_exp", function () {
 // a_ad_network_id_control 点击事件
 $(document).on("click", "#a_tree_layer", function () {
     $("#right_frame").attr("src", "tree_layer");
+
+    // 菜单 active 状态改变
+    set_menu_active("#menu_experiment_control");
+
+    // 自适应框架大小
+    frame_auto_size();
+});
+
+// a_ad_network_id_control 点击事件
+$(document).on("click", "#a_exp_position", function () {
+    $("#right_frame").attr("src", "exp_position");
 
     // 菜单 active 状态改变
     set_menu_active("#menu_experiment_control");

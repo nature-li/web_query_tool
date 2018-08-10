@@ -1006,7 +1006,7 @@ class MysqlOperator(object):
             return json.dumps(a_dict)
 
     @classmethod
-    def query_exp_position(cls, off_set, limit):
+    def query_exp_position(cls, position, off_set, limit):
         try:
             # 转换类型
             off_set = int(off_set)
@@ -1025,6 +1025,16 @@ class MysqlOperator(object):
                                             ExpPosition.position,
                                             ExpPosition.desc,
                                             ExpPosition.create_time)
+
+                # 条件查询
+                if position:
+                    count_query = count_query.filter(ExpPosition.position.like('%' + position + '%'))
+                    value_query = value_query.filter(ExpPosition.position.like('%' + position + '%'))
+
+                # 排序
+                value_query = value_query.order_by(ExpPosition.id)
+
+                # 获取结果
                 count = count_query.count()
                 values = value_query[off_set: limit_count]
 
@@ -1486,6 +1496,70 @@ class MysqlOperator(object):
                     a_exp = {
                         'id': item.id,
                         'name': item.name,
+                        'desc': item.desc,
+                        'create_time': item.create_time.strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                    content.append(a_exp)
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'INSERT INTO db ERROR'
+            return json.dumps(a_dict)
+
+    @classmethod
+    def delete_exp_position(cls, position_id):
+        try:
+            a_list = position_id.split(',')
+            a_set = set()
+            for a_id in a_list:
+                if a_id:
+                    a_set.add(a_id)
+
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                session.query(ExpPosition).filter(
+                    ExpPosition.id.in_(a_set)).delete(synchronize_session=False)
+                session.commit()
+
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                return json.dumps(a_dict)
+        except:
+            Logger.error(traceback.format_exc())
+            a_dict = dict()
+            a_dict['success'] = False
+            a_dict['msg'] = 'delete db failed'
+            return json.dumps(a_dict)
+
+    @classmethod
+    def add_exp_position(cls, position, desc):
+        try:
+            pos = ExpPosition()
+            pos.position = position
+            pos.desc = desc
+            session = sessionmaker(bind=cls.engine)()
+            with Defer(session.close):
+                session.add(pos)
+                session.flush()
+                new_id = pos.id
+                session.commit()
+
+                db_pos_list = session.query(ExpPosition.id,
+                                            ExpPosition.position,
+                                            ExpPosition.desc,
+                                            ExpPosition.create_time).filter(ExpPosition.id == new_id)[:]
+                a_dict = dict()
+                a_dict['success'] = True
+                a_dict['msg'] = 'ok'
+                a_dict['content'] = content = list()
+                if len(db_pos_list) > 0:
+                    item = db_pos_list[0]
+                    a_exp = {
+                        'id': item.id,
+                        'position': item.position,
                         'desc': item.desc,
                         'create_time': item.create_time.strftime('%Y-%m-%d %H:%M:%S')
                     }

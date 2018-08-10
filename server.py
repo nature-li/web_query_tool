@@ -1173,12 +1173,69 @@ class ExpPositionHandler(BaseHandler):
             return
 
         req_type = self.get_argument('type', None)
+        if not req_type:
+            self.render('experiment/exp_position.html', static_version=config.server_static_version)
+            return
+
         if req_type == "QUERY_POS":
+            position = self.get_argument('position', None)
             off_set = self.get_argument('off_set', None)
             limit = self.get_argument('limit', None)
-            json_text = MysqlOperator.query_exp_position(off_set, limit)
+            json_text = MysqlOperator.query_exp_position(position, off_set, limit)
             self.write(json_text)
             return
+
+    def post(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'ADD_POS':
+            position = self.get_argument('position', None)
+            desc = self.get_argument('position_desc', None)
+            desc = self.get_argument('desc', None)
+            json_text = MysqlOperator.add_exp_position(position, desc)
+            self.write(json_text)
+            return
+
+        result_dict = dict()
+        result_dict['success'] = False
+        result_dict['msg'] = 'Invalid req_type: ' + req_type
+        self.write(json.dumps(result_dict, ensure_ascii=False))
+
+    def delete(self):
+        user_name, show_name = self.get_login_user()
+        if not user_name:
+            return
+        Logger.info(json.dumps(self.request.arguments, ensure_ascii=False), self.request.uri)
+
+        user = DbOperator.get_user_info(user_name)
+        if not user:
+            self.redirect('/logout')
+        if not user.user_right & UserRight.EXPERIMENT:
+            self.render('error.html', static_version=config.server_static_version)
+            return
+
+        req_type = self.get_argument('type', None)
+        if req_type == 'DEL_POS':
+            position_id = self.get_argument('position_id', None)
+            json_text = MysqlOperator.delete_exp_position(position_id)
+            self.write(json_text)
+            return
+
+        result_dict = dict()
+        result_dict['success'] = False
+        result_dict['msg'] = 'Invalid req_type: ' + req_type
+        self.write(json.dumps(result_dict, ensure_ascii=False))
 
 
 class BusinessHandler(BaseHandler):
