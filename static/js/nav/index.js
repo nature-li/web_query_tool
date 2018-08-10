@@ -117,25 +117,21 @@ function statistic_html() {
                 <li id="li_position">
                     <a id="a_position" href="#">自查询
                         <img src="/static/images/blue_search.png" />
-                        <!--<i id="i_position" class="glyphicon glyphicon-search"></i>-->
                     </a>
                 </li>
                 <li id="li_chart">
                     <a id="a_chart" href="#">可视化
                         <img src="/static/images/blue_chart.png" />
-                        <!--<i id="i_chart" class="glyphicon glyphicon-search"></i>-->
                     </a>
                 </li>
                 <li id="li_day_count">
                     <a id="a_day_count" href="#">日统计
-                        <img src="/static/images/blue_table.png" />
-                        <!--<i id="i_day_count" class="glyphicon glyphicon-search"></i>-->
+                        <img src="/static/images/blue_day.png" />
                     </a>
                 </li>
                 <li id="li_hour_count">
                     <a id="a_hour_count" href="#">时统计
-                        <img src="/static/images/blue_table.png" />
-                        <!--<i id="i_hour_count" class="glyphicon glyphicon-search"></i>-->
+                        <img src="/static/images/blue_hour.png" />
                     </a>
                 </li>
             </ul>
@@ -185,7 +181,6 @@ function system_html() {
                 <li id="li_user_list">
                     <a id="a_user_list" href="#">用户权限
                         <img src="/static/images/blue_user.png" />
-                        <!--<i id="i_user_list" class="glyphicon glyphicon-wrench"></i>-->
                     </a>
                 </li>
             </ul>
