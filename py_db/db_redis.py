@@ -294,10 +294,7 @@ class RedisFetcher(object):
             total_dict['pv'] = 0
             total_dict['impression'] = impression
             total_dict['click'] = click
-            if impression != 0:
-                total_dict['ctr'] = '%.2f%%' % (100.0 * click / impression)
-            else:
-                total_dict['ctr'] = "0.00%"
+            total_dict['ctr'] = '%.2f' % (100.0 * click / impression) if impression != 0 else '0.00'
             total_dict['req'] = 0
             total_dict['res'] = 0
             total_dict['win'] = 0
@@ -315,6 +312,7 @@ class RedisFetcher(object):
             total_req = 0
             total_res = 0
             total_win = 0
+            total_imp = total_dict['impression']
             for idx in reversed(xrange(0, end_hour)):
                 str_hour = '%02d' % idx
                 impression, click = self.get_hour_position_impression_click(ad_network_id, position_id, day, str_hour)
@@ -326,16 +324,16 @@ class RedisFetcher(object):
                 a_dict['pv'] = 0
                 a_dict['impression'] = impression
                 a_dict['click'] = click
-                if impression != 0:
-                    a_dict['ctr'] = '%.2f%%' % (100.0 * click / impression)
-                else:
-                    a_dict['ctr'] = "0.00%"
+                a_dict['ctr'] = '%.2f' % (100.0 * click / impression) if impression != 0 else '0.00'
+                imp = impression
                 req = self.get_hour_position_req(ad_network_id, position_id, day, str_hour)
                 res = self.get_hour_position_res(ad_network_id, position_id, day, str_hour)
                 win = self.get_hour_position_win(ad_network_id, position_id, day, str_hour)
                 a_dict['req'] = req
                 a_dict['res'] = res
                 a_dict['win'] = win
+                a_dict['res_by_req'] = '%.2f' % (100.0 * res / req) if req != 0 else '0.00'
+                a_dict['imp_by_win'] = '%.2f' % (100.0 * imp / win) if win != 0 else '0.00'
                 total_req += req
                 total_res += res
                 total_win += win
@@ -344,6 +342,8 @@ class RedisFetcher(object):
             total_dict['req'] = total_req
             total_dict['res'] = total_res
             total_dict['win'] = total_win
+            total_dict['res_by_req'] = '%.2f' % (100.0 * total_res / total_req) if total_req != 0 else '0.00'
+            total_dict['imp_by_win'] = '%.2f' % (100.0 * total_imp / total_win) if total_win != 0 else '0.00'
 
             # 返回结果
             a_dict = dict()
@@ -378,10 +378,7 @@ class RedisFetcher(object):
             total_dict['pv'] = 0
             total_dict['impression'] = impression
             total_dict['click'] = click
-            if impression != 0:
-                total_dict['ctr'] = '%.2f%%' % (100.0 * click / impression)
-            else:
-                total_dict['ctr'] = "0.00%"
+            total_dict['ctr'] = '%.2f' % (100.0 * click / impression) if impression != 0 else '0.00'
             total_dict['req'] = 0
             total_dict['res'] = 0
             total_dict['win'] = 0
@@ -399,6 +396,7 @@ class RedisFetcher(object):
             total_req = 0
             total_res = 0
             total_win = 0
+            total_imp = total_dict['impression']
             for idx in reversed(xrange(0, end_hour)):
                 str_hour = '%02d' % idx
                 impression, click = self.get_hour_impression_click(ad_network_id, day, str_hour)
@@ -410,16 +408,16 @@ class RedisFetcher(object):
                 a_dict['pv'] = 0
                 a_dict['impression'] = impression
                 a_dict['click'] = click
-                if impression != 0:
-                    a_dict['ctr'] = '%.2f%%' % (100.0 * click / impression)
-                else:
-                    a_dict['ctr'] = "0.00%"
+                a_dict['ctr'] = '%.2f' % (100.0 * click / impression) if impression != 0 else '0.00'
+                imp = impression
                 req = self.get_hour_req(ad_network_id, day, str_hour)
                 res = self.get_hour_res(ad_network_id, day, str_hour)
                 win = self.get_hour_win(ad_network_id, day, str_hour)
                 a_dict['req'] = req
                 a_dict['res'] = res
                 a_dict['win'] = win
+                a_dict['res_by_req'] = '%.2f' % (100.0 * res / req) if req != 0 else '0.00'
+                a_dict['imp_by_win'] = '%.2f' % (100.0 * imp / win) if win != 0 else '0.00'
                 total_req += req
                 total_res += res
                 total_win += win
@@ -428,6 +426,8 @@ class RedisFetcher(object):
             total_dict['req'] = total_req
             total_dict['res'] = total_res
             total_dict['win'] = total_win
+            total_dict['res_by_req'] = '%.2f' % (100.0 * total_res / total_req) if total_req != 0 else '0.00'
+            total_dict['imp_by_win'] = '%.2f' % (100.0 * total_imp / total_win) if total_win != 0 else '0.00'
 
             # 返回结果
             a_dict = dict()

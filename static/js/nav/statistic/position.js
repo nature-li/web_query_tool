@@ -40,17 +40,19 @@ function update_page_view(page_idx) {
     var html = "";
     for (var i = 0; i < window.save_data.item_list.length; i++) {
         var item = window.save_data.item_list[i];
+
         html += "<tr><td>" + item.dt + "</td>" +
             "<td>" + item.hour + "</td>" +
             "<td>" + item.ad_network_id + "</td>" +
             "<td>" + item.position_id + "</td>" +
-            "<td>" + item.pv + "</td>" +
-            "<td>" + item.impression + "</td>" +
-            "<td>" + item.click + "</td>" +
-            "<td>" + item.ctr + "</td>" +
             "<td>" + item.req + "</td>" +
             "<td>" + item.res + "</td>" +
             "<td>" + item.win + "</td>" +
+            "<td>" + item.impression + "</td>" +
+            "<td>" + item.click + "</td>" +
+            "<td>" + item.res_by_req + "%</td>" +
+            "<td>" + item.imp_by_win + "%</td>" +
+            "<td>" + item.ctr + "%</td>" +
             "<td>" + item.update_time + "</td></tr>";
     }
     $("#hour_result").find("tr:gt(0)").remove();
@@ -73,34 +75,39 @@ function refresh_trend_chart(item_list) {
     }
 
     var categories = [];
-    var pv_list = [];
     var imp_list = [];
     var clk_list = [];
-    var ctr_list = [];
     var req_list = [];
     var res_list = [];
     var win_list = [];
+    var fill_rate_list = [];
+    var show_rate_list = [];
+    var ctr_list = [];
     for (var i = item_list.length - 1; i > 0; i--) {
         var item = item_list[i];
-        var pv = parseInt(item.pv);
-        var imp = parseInt(item.impression);
-        var clk = parseInt(item.click);
-        var ctr = 0;
-        if (imp > 0) {
-            ctr = parseFloat((100 * clk / imp).toFixed(2));
-        }
         var req = parseInt(item.req);
         var res = parseInt(item.res);
         var win = parseInt(item.win);
+        var imp = parseInt(item.impression);
+        var clk = parseInt(item.click);
 
         categories.push(parseInt(item.hour));
-        pv_list.push(pv);
-        imp_list.push(imp);
-        clk_list.push(clk);
-        ctr_list.push(ctr);
+        // 请求数
         req_list.push(req);
+        // 返回数
         res_list.push(res);
+        // 胜出数
         win_list.push(win);
+        // 曝光数
+        imp_list.push(imp);
+        // 点击数
+        clk_list.push(clk);
+        // 填充率
+        fill_rate_list.push(parseFloat(item.res_by_req));
+        // 展示率
+        show_rate_list.push(parseFloat(item.imp_by_win));
+        // 点击率
+        ctr_list.push(parseFloat(item.ctr));
     }
 
     var line_dict = [];
@@ -110,13 +117,14 @@ function refresh_trend_chart(item_list) {
     line_dict['yAxis'] = {'title': {'text': '计数'}};
     line_dict['xAxis'] = {'categories': categories};
     line_dict['series'] = [
-        {'name': 'pv', 'data': pv_list},
-        {'name': 'imp', 'data': imp_list},
-        {'name': 'clk', 'data': clk_list},
-        {'name': 'ctr(%)', 'data': ctr_list},
-        {'name': 'req', 'data': req_list},
-        {'name': 'res', 'data': res_list},
-        {'name': 'win', 'data': win_list}
+        {'name': '请求数', 'data': req_list},
+        {'name': '返回数', 'data': res_list},
+        {'name': '胜出数', 'data': win_list},
+        {'name': '曝光数', 'data': imp_list},
+        {'name': '点击数', 'data': clk_list},
+        {'name': '填充率(%)', 'data': fill_rate_list},
+        {'name': '展示率(%)', 'data': show_rate_list},
+        {'name': '点击率(%)', 'data': ctr_list}
     ];
     var line_chart = Highcharts.chart('trend_chart', line_dict);
 }
